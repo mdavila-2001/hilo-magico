@@ -1,0 +1,42 @@
+---
+---
+<section class="hero">
+  <div class="container">
+    <div class="hero__content">
+      <h1 class="hero__title">Hilo Mágico</h1>
+      <p class="hero__slogan">Moda a tu medida, creada con magia</p>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
+
+  .hero {
+    @include section-padding;
+    background: linear-gradient(135deg, $color-lavanda 0%, $color-rosa-claro 100%);
+    min-height: 60vh;
+    @include flex-center;
+
+    &__content {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    &__title {
+      color: $color-violeta;
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      margin-bottom: $spacing-md;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    &__slogan {
+      font-family: $font-secondary;
+      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      color: darken($color-violeta, 20%);
+      font-style: italic;
+    }
+  }
+</style>
