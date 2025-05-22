@@ -1,58 +1,107 @@
 ---
 import { Icon } from 'astro-icon/components';
+import CartIcon from './ui/CartIcon';
 
 const menuItems = [
   { texto: 'Inicio', url: '/' },
   { texto: 'Productos', url: '/productos' },
   { texto: 'Servicios', url: '/servicios' },
-  { texto: 'Contacto', url: '/contacto' }
+  { texto: 'Contacto', url: '/contacto' },
+  { texto: 'Mi Cuenta', url: '/cuenta' }
 ];
 ---
 
-<header class="header">
-  <div class="container">
-    <div class="header__content">
-      <div class="header__logo">
-        <img src="/img/hilo-magico-banner.jpg" alt="Logo Hilo Mágico" width="180" height="auto" />
-      </div>
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex justify-between items-center">
+      <!-- Logo -->
+      <a href="/" class="flex items-center space-x-2">
+        <img 
+          src="/img/hilo-magico-banner.jpg" 
+          alt="Hilo Mágico - Tienda de manualidades" 
+          class="h-12 w-auto" 
+          width="180" 
+          height="48"
+        />
+      </a>
 
-      <button class="header__menu-toggle" aria-label="Abrir menú" id="menuToggle">
-        <Icon name="mdi:menu" class="header__menu-icon" />
-      </button>
-
-      <nav class="header__nav" id="mainNav">
-        <ul class="header__menu">
+      <!-- Menú Desktop -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <ul class="flex space-x-8">
           {menuItems.map(item => (
-            <li class="header__menu-item">
-              <a href={item.url} class="header__menu-link">{item.texto}</a>
+            <li>
+              <a 
+                href={item.url} 
+                class="text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+                class:list={{
+                  'text-indigo-600': Astro.url.pathname === item.url
+                }}
+              >
+                {item.texto}
+              </a>
             </li>
           ))}
         </ul>
-        <div class="header__actions">
-          <a href="/login" class="header__action-link">
-            <Icon name="mdi:account" />
-            <span>Iniciar sesión</span>
-          </a>
-          <a href="/carrito" class="header__action-link">
-            <Icon name="mdi:cart" />
-            <span>Carrito</span>
-          </a>
-        </div>
       </nav>
+
+      <!-- Acciones -->
+      <div class="flex items-center space-x-4">
+        <a 
+          href="/cuenta" 
+          class="hidden md:flex items-center text-gray-700 hover:text-indigo-600 transition-colors"
+          aria-label="Mi cuenta"
+        >
+          <Icon name="mdi:account" class="h-6 w-6" />
+        </a>
+        
+        <div class="relative">
+          <CartIcon />
+        </div>
+        
+        <!-- Botón menú móvil -->
+        <button 
+          class="md:hidden p-2 text-gray-700 hover:text-indigo-600 focus:outline-none"
+          id="menuToggle"
+          aria-label="Menú de navegación"
+        >
+          <Icon name="mdi:menu" class="h-6 w-6" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Menú móvil -->
+    <div class="md:hidden hidden py-4" id="mobileMenu">
+      <ul class="space-y-3">
+        {menuItems.map(item => (
+          <li>
+            <a 
+              href={item.url} 
+              class="block py-2 px-4 text-gray-700 hover:bg-gray-50 rounded-md"
+              class:list={{
+                'bg-indigo-50 text-indigo-700': Astro.url.pathname === item.url
+              }}
+            >
+              {item.texto}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </header>
 
 <script>
   const menuToggle = document.getElementById('menuToggle');
-  const mainNav = document.getElementById('mainNav');
+  const mobileMenu = document.getElementById('mobileMenu');
 
   menuToggle?.addEventListener('click', () => {
-    mainNav?.classList.toggle('header__nav--active');
+    mobileMenu?.classList.toggle('hidden');
+    const isExpanded = !mobileMenu?.classList.contains('hidden');
     menuToggle.setAttribute(
       'aria-label',
-      mainNav?.classList.contains('header__nav--active') ? 'Cerrar menú' : 'Abrir menú'
+      isExpanded ? 'Cerrar menú' : 'Abrir menú'
     );
+    menuToggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
   });
 </script>
 

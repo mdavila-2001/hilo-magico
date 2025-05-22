@@ -1,20 +1,181 @@
 ---
+import AppProvider from '../components/AppProvider.astro';
+
 interface Props {
   title: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description = 'Tienda de manualidades y costura' } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    
     <title>{title} | Hilo Mágico</title>
+    
+    <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/styles/main.css" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site).toString()} />
+    <meta property="og:title" content={`${title} | Hilo Mágico`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/images/og-image.jpg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={new URL(Astro.url.pathname, Astro.site).toString()} />
+    <meta property="twitter:title" content={`${title} | Hilo Mágico`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content="/images/og-image.jpg" />
   </head>
-  <body>
-    <slot />
+  <body class="min-h-full flex flex-col bg-gray-50">
+    <AppProvider>
+      <slot />
+    </AppProvider>
+    
+    <!-- Scripts -->
+    <script>
+      // Detectar si JavaScript está habilitado
+      document.documentElement.classList.add('js');
+      
+      // Mejorar la accesibilidad para usuarios que usan teclado
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          document.body.classList.add('using-keyboard');
+        }
+      });
+      
+      // Manejar el foco para mejor accesibilidad
+      document.addEventListener('mousedown', function() {
+        document.body.classList.remove('using-keyboard');
+      });
+    </script>
   </body>
 </html>
+
+<style is:global>
+  /* Estilos globales */
+  :root {
+    --color-primary: #4f46e5;
+    --color-primary-hover: #4338ca;
+    --color-text: #1f2937;
+    --color-text-light: #6b7280;
+    --color-bg: #f9fafb;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: var(--color-text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Mejoras de accesibilidad para enfoque */
+  .using-keyboard :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  
+  /* Ocultar contenido solo para lectores de pantalla */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Estilos para los enlaces */
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  a:hover {
+    color: var(--color-primary-hover);
+  }
+  
+  /* Estilos para botones */
+  button, .btn {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  /* Utilidades */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container {
+      max-width: 640px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 1024px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container {
+      max-width: 1280px;
+    }
+  }
+  
+  @media (min-width: 1536px) {
+    .container {
+      max-width: 1536px;
+    }
+  }
+</style>

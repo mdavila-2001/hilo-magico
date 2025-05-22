@@ -1,0 +1,9 @@
+---
+import { CartProvider } from '../context/CartContext';
+import CartDrawer from './cart/CartDrawer';
+---
+
+<CartProvider>
+  <slot />
+  <CartDrawer client:load />
+</CartProvider>

@@ -1,0 +1,12 @@
+// Importar variables y mixins primero
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Estilos base
+@use 'base';
+
+// Componentes
+@use 'components/header';
+@use 'components/hero';
+@use 'components/servicios';
+@use 'components/footer';
