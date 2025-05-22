@@ -1,0 +1,141 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba($color-blanco-calido, 0.95);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: $spacing-sm 0;
+
+  &__content {
+    @include flex-between;
+    align-items: center;
+  }
+
+  &__logo {
+    @include flex-center;
+    padding: $spacing-sm 0;
+    
+    img {
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  &__menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #3e195f;
+    cursor: pointer;
+    padding: $spacing-xs;
+    font-size: 1.5rem;
+
+    @include mobile {
+      display: block;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @include mobile {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: rgba($color-blanco-calido, 0.98);
+      padding: $spacing-md;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      flex-direction: column;
+      align-items: flex-start;
+
+      &--active {
+        display: flex;
+      }
+    }
+  }
+
+  &__menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: $spacing-md;
+
+    @include mobile {
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+
+  &__menu-item {
+    position: relative;
+  }
+
+  &__menu-link {
+    color: #3e195f;
+    text-decoration: none;
+    font-weight: 500;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-sm;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: rgba(#3e195f, 0.1);
+    }
+
+    @include mobile {
+      display: block;
+      padding: $spacing-sm;
+      width: 100%;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    @include mobile {
+      flex-direction: column;
+      width: 100%;
+      gap: $spacing-sm;
+    }
+  }
+
+  &__action-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    color: #3e195f;
+    text-decoration: none;
+    font-weight: 500;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-sm;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: rgba(#3e195f, 0.1);
+    }
+
+    [data-icon] {
+      font-size: 1.25rem;
+    }
+
+    @include mobile {
+      width: 100%;
+      padding: $spacing-sm;
+      justify-content: center;
+    }
+  }
+}

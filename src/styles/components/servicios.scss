@@ -1,0 +1,58 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.servicios {
+  background-color: $color-blanco-calido;
+
+  &__titulo {
+    text-align: center;
+    color: $color-violeta;
+    margin-bottom: $spacing-xl;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: $spacing-lg;
+    margin-bottom: $spacing-xl;
+    padding: 0 $spacing-xl;
+    
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include desktop {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &__card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: $spacing-lg;
+    text-align: center;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+
+  &__emoji {
+    font-size: 3rem;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__card-titulo {
+    color: $color-violeta;
+    font-size: 1.25rem;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__descripcion {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 0;
+  }
+}

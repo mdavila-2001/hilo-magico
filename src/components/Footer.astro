@@ -1,19 +1,21 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 const redesSociales = [
   {
     nombre: 'Instagram',
     url: '#',
-    icono: '📸'
+    icono: 'simple-icons:instagram'
   },
   {
     nombre: 'Facebook',
     url: '#',
-    icono: '👥'
+    icono: 'simple-icons:facebook'
   },
   {
     nombre: 'WhatsApp',
     url: '#',
-    icono: '💬'
+    icono: 'simple-icons:whatsapp'
   }
 ];
 ---
@@ -30,7 +32,7 @@ const redesSociales = [
         <div class="footer__social-links">
           {redesSociales.map(red => (
             <a href={red.url} class="footer__social-link" target="_blank" rel="noopener noreferrer">
-              <span class="footer__social-icon">{red.icono}</span>
+              <span class="footer__social-icon"><Icon name={red.icono} /></span>
               <span class="footer__social-name">{red.nombre}</span>
             </a>
           ))}
@@ -44,85 +46,5 @@ const redesSociales = [
 </footer>
 
 <style lang="scss">
-  @use '../styles/variables' as *;
-  @use '../styles/mixins' as *;
-
-  .footer {
-    background-color: $color-violeta;
-    color: white;
-    padding: $spacing-xl 0 $spacing-lg;
-
-    &__content {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: $spacing-lg;
-      margin-bottom: $spacing-lg;
-
-      @include tablet {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    &__contacto,
-    &__social {
-      text-align: center;
-
-      @include tablet {
-        text-align: left;
-      }
-
-      h4 {
-        color: $color-blanco-calido;
-        margin-bottom: $spacing-md;
-        font-size: 1.2rem;
-      }
-    }
-
-    &__email {
-      color: $color-blanco-calido;
-      font-size: 1.1rem;
-      text-decoration: none;
-      transition: color 0.3s ease;
-
-      &:hover {
-        color: $color-rosa-claro;
-      }
-    }
-
-    &__social-links {
-      display: flex;
-      gap: $spacing-md;
-      justify-content: center;
-
-      @include tablet {
-        justify-content: flex-start;
-      }
-    }
-
-    &__social-link {
-      display: flex;
-      align-items: center;
-      color: $color-blanco-calido;
-      text-decoration: none;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        color: $color-rosa-claro;
-      }
-    }
-
-    &__social-icon {
-      font-size: 1.5rem;
-      margin-right: $spacing-xs;
-    }
-
-    &__copyright {
-      text-align: center;
-      border-top: 1px solid rgba($color-blanco-calido, 0.2);
-      padding-top: $spacing-lg;
-      font-size: 0.9rem;
-      color: rgba($color-blanco-calido, 0.8);
-    }
-  }
+  @use '../styles/components/footer.scss';
 </style>
