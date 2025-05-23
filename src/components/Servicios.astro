@@ -1,0 +1,205 @@
+---
+// src/components/Servicios.astro
+
+// Datos de los servicios
+const servicios = [
+  {
+    titulo: 'Confección a Medida',
+    descripcion: 'Prendas únicas confeccionadas según tus medidas y preferencias para un ajuste perfecto.',
+    icono: '✂️',
+    color: '#fce9e9'
+  },
+  {
+    titulo: 'Transformaciones',
+    descripcion: 'Dale una nueva vida a tus prendas favoritas con nuestros servicios de transformación y rediseño.',
+    icono: '🧵',
+    color: '#f0f4ff'
+  },
+  {
+    titulo: 'Arreglos Express',
+    descripcion: 'Soluciones rápidas para emergencias de vestuario. Recogida y entrega en el mismo día disponible.',
+    icono: '⚡',
+    color: '#f5f0ff'
+  },
+  {
+    titulo: 'Asesoría de Estilo',
+    descripcion: 'Sesiones personalizadas para descubrir tu estilo único y cómo realzar tu guardarropa actual.',
+    icono: '👗',
+    color: '#fff0f5'
+  },
+  {
+    titulo: 'Bordado Artesanal',
+    descripcion: 'Detalles bordados a mano para personalizar tus prendas y accesorios con diseños únicos.',
+    icono: '🪡',
+    color: '#f0fff5'
+  },
+  {
+    titulo: 'Clases de Costura',
+    descripcion: 'Aprende las técnicas básicas y avanzadas de costura en nuestras clases personalizadas.',
+    icono: '🧶',
+    color: '#fffaf0'
+  }
+];
+---
+
+<section id="servicios" class="seccion servicios">
+  <div class="contenedor">
+    <div class="seccion__encabezado">
+      <h2 class="seccion__titulo">Nuestros Servicios</h2>
+      <p class="seccion__subtitulo">Descubre todo lo que podemos hacer por ti</p>
+    </div>
+    
+    <div class="servicios__grid">
+      {servicios.map((servicio, index) => (
+        <article class="servicio" style={`--color-fondo: ${servicio.color}`}>
+          <div class="servicio__icono">
+            {servicio.icono}
+          </div>
+          <h3 class="servicio__titulo">{servicio.titulo}</h3>
+          <p class="servicio__descripcion">{servicio.descripcion}</p>
+          <a href="#contacto" class="servicio__enlace">Saber más</a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
+  
+  .seccion {
+    padding: 4rem 0;
+    
+    @include tablet {
+      padding: 6rem 0;
+    }
+  }
+  
+  .seccion__encabezado {
+    text-align: center;
+    margin-bottom: 3rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .seccion__titulo {
+    font-size: 2rem;
+    color: $color-violeta-oscuro;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, $color-lavanda, lighten($color-lavanda, 20%));
+      border-radius: 3px;
+    }
+  }
+  
+  .seccion__subtitulo {
+    color: lighten($color-violeta-oscuro, 20%);
+    font-size: 1.1rem;
+    margin-top: 1rem;
+  }
+  
+  .servicios__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include escritorio {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .servicio {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--color-fondo);
+    }
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .servicio__icono {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    background: var(--color-fondo);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    
+    .servicio:hover & {
+      transform: rotate(10deg) scale(1.1);
+    }
+  }
+  
+  .servicio__titulo {
+    font-size: 1.4rem;
+    color: $color-violeta-oscuro;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .servicio__descripcion {
+    color: lighten($color-violeta-oscuro, 20%);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .servicio__enlace {
+    color: $color-violeta-oscuro;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.3s ease;
+    
+    &::after {
+      content: '→';
+      margin-left: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover {
+      color: $color-lavanda;
+      
+      &::after {
+        transform: translateX(5px);
+      }
+    }
+  }
+</style>

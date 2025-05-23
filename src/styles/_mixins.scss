@@ -1,0 +1,72 @@
+// Este archivo ya no necesita importar variables ya que se inyectan globalmente
+// a través de la configuración de Vite
+
+// Mixin para flexbox centrado
+@mixin flex-center($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: center;
+  align-items: center;
+}
+
+// Mixin para transiciones suaves
+@mixin transicion($propiedad: all, $duracion: 0.3s, $timing: ease-in-out) {
+  transition: #{$propiedad} #{$duracion} #{$timing};
+}
+
+// Mixin para responsive
+@mixin movil {
+  @media (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 481px) and (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin escritorio {
+  @media (min-width: 769px) {
+    @content;
+  }
+}
+
+// Alias para mantener compatibilidad
+@mixin tablet-grande {
+  @media (min-width: 769px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin escritorio-grande {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+// Mixin para botones
+@mixin boton($fondo: $color-violeta-oscuro, $texto: $color-blanco-calido) {
+  background-color: $fondo;
+  color: $texto;
+  border: none;
+  border-radius: $radio-borde;
+  padding: 0.8em 1.5em;
+  font-family: $fuente-secundaria;
+  font-weight: 600;
+  cursor: pointer;
+  @include transicion;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

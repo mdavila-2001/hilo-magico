@@ -1,0 +1,103 @@
+---
+// src/pages/index.astro
+
+// Importamos los componentes
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Servicios from '../components/Servicios.astro';
+import Footer from '../components/Footer.astro';
+
+// Metadatos para SEO
+const tituloPagina = 'Hilo Mágico - Prendas personalizadas y costura a medida';
+const descripcionPagina = 'Descubre nuestra colección de prendas personalizadas y servicios de costura a medida. Creado con amor y dedicación para ti.';
+---
+
+<BaseLayout title={tituloPagina} description={descripcionPagina}>
+  <!-- Header -->
+  <Header client:load />
+  
+  <main>
+    <!-- Hero Section -->
+    <Hero client:load />
+    
+    <!-- Servicios Section -->
+    <Servicios client:load />
+    
+    <!-- Sección de Galería (próximamente) -->
+    <section id="galeria" class="seccion seccion--oscura">
+      <div class="contenedor">
+        <div class="seccion__encabezado">
+          <h2 class="seccion__titulo">Nuestros Trabajos</h2>
+          <p class="seccion__subtitulo">Algunas de nuestras creaciones más recientes</p>
+        </div>
+        <div class="galeria">
+          <p>Galería de trabajos próximamente...</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Sección de Contacto (próximamente) -->
+    <section id="contacto" class="seccion">
+      <div class="contenedor">
+        <div class="seccion__encabezado">
+          <h2 class="seccion__titulo">Contáctanos</h2>
+          <p class="seccion__subtitulo">¿Tienes alguna consulta? ¡Escríbenos!</p>
+        </div>
+        <div class="formulario-contenedor">
+          <p>Formulario de contacto próximamente...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer -->
+  <Footer client:load />
+</BaseLayout>
+
+<!-- Estilos específicos de la página de inicio -->
+<style>
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
+  
+  /* Estilos para la sección oscura */
+  .seccion--oscura {
+    background-color: lighten($color-violeta-oscuro, 5%);
+    color: $color-blanco-calido;
+    padding: 4rem 0;
+    
+    @include tablet {
+      padding: 6rem 0;
+    }
+    
+    .seccion__titulo,
+    .seccion__subtitulo {
+      color: inherit;
+    }
+    
+    .seccion__titulo::after {
+      background: $color-lavanda;
+    }
+  }
+  
+  /* Estilos para la galería */
+  .galeria {
+    text-align: center;
+    padding: 2rem 0;
+    color: rgba($color-blanco-calido, 0.8);
+    font-style: italic;
+  }
+  
+  /* Estilos para el formulario de contacto */
+  .formulario-contenedor {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: $radio-borde;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    color: lighten($color-violeta-oscuro, 20%);
+    font-style: italic;
+  }
+</style>

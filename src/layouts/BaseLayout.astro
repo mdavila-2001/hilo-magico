@@ -1,0 +1,45 @@
+---
+// src/layouts/BaseLayout.astro
+
+// Tipos de TypeScript
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+// Valores predeterminados para los props
+const { title = 'Hilo Mágico', description = 'Prendas personalizadas y servicios de costura a medida' } = Astro.props;
+
+// Importamos los estilos globales
+import '../styles/main.scss';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    
+    <!-- Título de la página -->
+    <title>{title}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.svg" />
+    
+    <!-- Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Metaetiquetas para SEO -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#3e195f" />
+  </head>
+  
+  <body>
+    <slot /> <!-- Aquí se inyectará el contenido de las páginas -->
+  </body>
+</html>

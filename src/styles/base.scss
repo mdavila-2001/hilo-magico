@@ -1,0 +1,90 @@
+// Importar variables, mixins y módulos de Sass
+@use 'variables' as *;
+@use 'mixins' as *;
+@use 'sass:color';
+
+// Reset básico
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Estilos base
+:root {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $fuente-principal;
+  line-height: 1.6;
+  color: $color-violeta-oscuro;
+  background-color: $color-blanco-calido;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Tipografía
+h1, h2, h3, h4, h5, h6 {
+  font-family: $fuente-titulos;
+  line-height: 1.2;
+  margin-bottom: $espaciado-base;
+  color: $color-violeta-oscuro;
+}
+
+h1 {
+  font-size: 2.5rem;
+  
+  @include tablet {
+    font-size: 3rem;
+  }
+  
+  @include escritorio {
+    font-size: 3.5rem;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: $espaciado-medio;
+  
+  @include tablet {
+    font-size: 2.5rem;
+  }
+}
+
+p {
+  margin-bottom: $espaciado-base;
+  color: adjust-color($color-violeta-oscuro, $lightness: 10%);
+}
+
+a {
+  color: $color-violeta-oscuro;
+  text-decoration: none;
+  @include transicion;
+  
+  &:hover {
+    color: $color-lavanda;
+  }
+}
+
+// Imágenes responsivas
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// Contenedor principal
+.contenedor {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $espaciado-base;
+  
+  @include tablet {
+    padding: 0 $espaciado-medio;
+  }
+}

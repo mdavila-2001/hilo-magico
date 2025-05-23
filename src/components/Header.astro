@@ -1,0 +1,75 @@
+---
+// src/components/Header.astro
+
+// Navegación
+const enlaces = [
+  { texto: 'Inicio', url: '/' },
+  { texto: 'Servicios', url: '#servicios' },
+  { texto: 'Galería', url: '#galeria' },
+  { texto: 'Contacto', url: '#contacto' },
+];
+
+// El estado del menú se manejará con JavaScript en el cliente
+---
+
+<script>
+  // Script que se ejecutará en el cliente
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.querySelector('.header__menu-btn');
+    const menu = document.querySelector('.header__nav');
+    
+    if (menuBtn && menu) {
+      // Cerrar menú al hacer clic en un enlace
+      document.querySelectorAll('.header__enlace').forEach(enlace => {
+        enlace.addEventListener('click', () => {
+          menuBtn.setAttribute('aria-expanded', 'false');
+          menu.classList.remove('header__nav--activo');
+        });
+      });
+    }
+  });
+</script>
+
+<header class="header">
+  <div class="contenedor header__contenedor">
+    <!-- Logo -->
+    <a href="/" class="header__logo" aria-label="Hilo Mágico - Inicio">
+      <img src="/img/logo-hilo-magico.svg" alt="Hilo Mágico" width="180" height="60" />
+    </a>
+    
+    <!-- Botón del menú móvil -->
+    <button 
+      class="header__menu-btn" 
+      aria-label="Menú de navegación"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+      onclick="document.querySelector('.header__nav').classList.toggle('header__nav--activo'); this.setAttribute('aria-expanded', document.querySelector('.header__nav').classList.contains('header__nav--activo'));"
+    >
+      <span class="header__menu-icon"></span>
+      <span class="sr-only">Menú de navegación</span>
+    </button>
+    
+    <!-- Navegación principal -->
+    <nav 
+      class="header__nav" 
+      id="menu-principal" 
+      aria-label="Navegación principal"
+    >
+      <ul class="header__menu">
+        {enlaces.map((enlace) => (
+          <li class="header__menu-item">
+            <a 
+              href={enlace.url} 
+              class="header__enlace"
+
+            >
+              {enlace.texto}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- Los estilos están en /src/styles/components/_header.scss -->

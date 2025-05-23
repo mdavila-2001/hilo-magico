@@ -1,0 +1,24 @@
+// Colores principales
+$color-lavanda: #cbb4e9;
+$color-violeta-oscuro: #3e195f;
+$color-blanco-calido: #fdf7f2;
+$color-rosa-claro: #fce9e9;
+
+// Tipografía
+$fuente-principal: 'Segoe UI', system-ui, -apple-system, sans-serif;
+$fuente-secundaria: 'Quicksand', sans-serif;
+$fuente-titulos: 'Playfair Display', serif;
+
+// Espaciados
+$espaciado-base: 1rem;
+$espaciado-medio: $espaciado-base * 1.5;
+$espaciado-grande: $espaciado-base * 2.5;
+
+// Bordes
+$radio-borde: 8px;
+$sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+// Breakpoints
+$breakpoint-movil: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-escritorio: 1024px;

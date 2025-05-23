@@ -1,0 +1,7 @@
+// Test file para verificar sintaxis SCSS
+@use 'variables' as *;
+@use 'mixins' as *;
+
+body {
+  background-color: $color-blanco-calido;
+}
