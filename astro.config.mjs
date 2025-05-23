@@ -7,9 +7,16 @@ import icon from 'astro-icon';
 export default defineConfig({
   integrations: [react(), icon()],
   output: 'server', // Necesario para funcionalidades de servidor como autenticación
+  scopedStyleStrategy: 'class',
   vite: {
-    optimizeDeps: {
-      exclude: ['@resvg/resvg-wasm']
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
+            @use "sass:color";
+          `
+        }
+      }
     }
   }
 });

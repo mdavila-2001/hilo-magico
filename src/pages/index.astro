@@ -4,6 +4,9 @@ import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Servicios from '../components/Servicios.astro';
 import Footer from '../components/Footer.astro';
+
+// Importar estilos globales
+import '../styles/main.scss';
 ---
 
 <BaseLayout title="Inicio">
@@ -14,7 +17,3 @@ import Footer from '../components/Footer.astro';
   </main>
   <Footer />
 </BaseLayout>
-
-<style lang="scss">
-  @use '../styles/base.scss';
-</style>
