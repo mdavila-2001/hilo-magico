@@ -57,7 +57,7 @@ h2 {
 
 p {
   margin-bottom: $espaciado-base;
-  color: adjust-color($color-violeta-oscuro, $lightness: 10%);
+  color: color.scale($color-violeta-oscuro, $lightness: 13.1%);
 }
 
 a {
