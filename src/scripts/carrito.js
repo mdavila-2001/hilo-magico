@@ -1,5 +1,5 @@
 // Clase para manejar el carrito de compras
-export class Carrito {
+class Carrito {
   constructor() {
     this.carrito = [];
     this.total = 0;
@@ -330,3 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Exportar la clase Carrito
+export { Carrito };

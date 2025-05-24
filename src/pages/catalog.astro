@@ -3,98 +3,90 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { groupProductsByStore, type TiendaConProductos } from '../utils/filters';
-import { productos, tiendas } from '../data/productos';
+import { groupProductsByStore } from '../utils/filters';
+import { productos, tiendas, type Tienda } from '../data/productos';
 
-// Obtener parámetros de la URL
+declare global {
+  interface Window {
+    initCartEventListeners?: () => void;
+  }
+}
+
+// Obtener todas las categorías únicas de las tiendas
+const categoriasUnicas = Array.from(
+  new Set(tiendas.flatMap(tienda => tienda.categorias))
+).sort();
+
+// Obtener categorías de la URL
 const url = new URL(Astro.request.url);
-const searchParams = url.searchParams;
-const selectedCategories = searchParams.getAll('categoria').filter(Boolean); // Filtra valores vacíos
+const categoriasSeleccionadas = url.searchParams.get('categorias')?.split(',').filter(Boolean) || [];
+
+// Filtrar tiendas por categorías seleccionadas
+const tiendasFiltradas = categoriasSeleccionadas.length > 0
+  ? tiendas.filter(tienda => 
+      tienda.categorias.some(cat => categoriasSeleccionadas.includes(cat))
+    )
+  : tiendas;
 
 // Agrupar productos por tienda
-const tiendasConProductos = groupProductsByStore(tiendas, productos);
+const tiendasConProductos = groupProductsByStore(tiendasFiltradas, productos);
 
-// Obtener categorías únicas de productos
-const categories = [...new Set(productos.map(p => p.categoria))];
+// Verificar si hay productos en cada tienda
+const tiendasVisibles = tiendasConProductos.filter(tienda => tienda.productos.length > 0);
 
-// Función para filtrar productos por categoría
-const filterProductsByCategory = (products: typeof productos, categories: string[]) => {
-  if (categories.length === 0) return products;
-  return products.filter(product => categories.includes(product.categoria));
+// Función para construir la URL con las categorías seleccionadas
+const construirUrlConFiltros = (categorias: string[]) => {
+  const params = new URLSearchParams();
+  if (categorias.length > 0) {
+    params.set('categorias', categorias.join(','));
+  }
+  const queryString = params.toString();
+  return queryString ? `?${queryString}` : '';
 };
-
-// Filtrar productos según las categorías seleccionadas
-const filteredProducts = selectedCategories.length > 0 
-  ? filterProductsByCategory(productos, selectedCategories)
-  : productos;
-
-// Actualizar tiendas con productos filtrados
-tiendasConProductos.forEach(tienda => {
-  tienda.productos = filteredProducts.filter(p => p.tiendaId === tienda.id);
-  tienda.visible = tienda.productos.length > 0;
-});
 ---
 
 <BaseLayout title="Catálogo | Hilo Mágico" description="Explora nuestra colección de productos únicos y personalizados">
   <Header />
   
-  <main class="catalog">
-    <section class="catalog__hero">
-      <div class="container">
-        <h1 class="catalog__title">Nuestro Catálogo</h1>
-        <p class="catalog__subtitle">Descubre productos únicos de nuestras tiendas asociadas</p>
-      </div>
-    </section>
-
+  <main class="catalog-page">
     <div class="container">
-      <div class="catalog__content">
-        <!-- Filtros -->
-        <aside class="catalog__filters">
-          <form id="filterForm">
-            <div class="filters__section">
-              <h3 class="filters__title">Categorías</h3>
-              <div class="filters__list">
-                <label class="filter-option">
-                  <input 
-                    type="radio" 
-                    name="categoria" 
-                    value=""
-                    checked={selectedCategories.length === 0}
-                    onchange="this.form.submit()"
-                  />
-                  <span class="filter-label">Todas las categorías</span>
-                  <span class="filter-count">({productos.length})</span>
-                </label>
+      <h1>Catálogo de Productos</h1>
+      
+      <div class="catalog-layout">
+        <!-- Sidebar con filtros de categorías -->
+        <aside class="catalog-sidebar">
+          <div class="filters">
+            <h3>Categorías</h3>
+            <div class="filter-group">
+              {categoriasUnicas.map(categoria => {
+                const isChecked = categoriasSeleccionadas.includes(categoria);
+                const nuevasCategorias = isChecked
+                  ? categoriasSeleccionadas.filter(c => c !== categoria)
+                  : [...categoriasSeleccionadas, categoria];
                 
-                {categories.map(category => {
-                  const count = productos.filter(p => p.categoria === category).length;
-                  const isChecked = selectedCategories.includes(category);
-                  return (
-                    <label class="filter-option">
-                      <input 
-                        type="checkbox" 
-                        name="categoria" 
-                        value={category}
-                        checked={isChecked}
-                        onchange="this.form.submit()"
-                        disabled={selectedCategories.length === 0}
-                      />
-                      <span class="filter-label">{category}</span>
-                      <span class="filter-count">({count})</span>
-                    </label>
-                  );
-                })}
-              </div>
+                return (
+                  <label class="filter-option">
+                    <input 
+                      type="checkbox" 
+                      checked={isChecked}
+                      onchange={`window.location.href='${Astro.url.pathname}${construirUrlConFiltros(nuevasCategorias)}'`}
+                    />
+                    <span>{categoria.charAt(0).toUpperCase() + categoria.slice(1)}</span>
+                  </label>
+                );
+              })}
             </div>
-          </form>
+            {categoriasSeleccionadas.length > 0 && (
+              <a href="/catalog" class="button">Limpiar filtros</a>
+            )}
+          </div>
         </aside>
-
-        <!-- Lista de tiendas con productos -->
-        <div class="catalog__stores">
-          {tiendasConProductos.filter(tienda => tienda.visible).length > 0 ? (
-            tiendasConProductos
-              .filter(tienda => tienda.visible)
-              .map(tienda => (
+        
+        <!-- Contenido principal -->
+        <div class="catalog-content">
+          {tiendasVisibles.length > 0 ? (
+            <div class="catalog__stores">
+              {tiendasVisibles.map(tienda => (
                 <section class="store-section">
                   <div class="store-header">
                     <img src={tienda.logo} alt={`Logo de ${tienda.nombre}`} class="store-logo" />
@@ -105,43 +97,57 @@ tiendasConProductos.forEach(tienda => {
                   <div class="products-grid">
                     {tienda.productos.map(product => (
                       <article class="product-card">
-                        <a href={`/producto/${product.id}`} class="product-link">
-                          <div class="product-image-container">
-                            <img 
-                              src={product.imagen} 
-                              alt={product.nombre} 
-                              class="product-image"
-                              loading="lazy"
-                              width="300"
-                              height="300"
-                            />
-                          </div>
-                          <div class="product-info">
-                            <h3 class="product-name">{product.nombre}</h3>
-                            <p class="product-description">{product.descripcion}</p>
-                            <div class="product-meta">
-                              <span class="product-price">${product.precio.toFixed(2)}</span>
-                              {typeof product.calificacion !== 'undefined' && (
-                                <div class="product-rating">
-                                  {[...Array(5)].map((_, i) => (
-                                    <span class={`star ${i < Math.floor(product.calificacion || 0) ? 'filled' : ''}`}>★</span>
-                                  ))}
-                                  <span class="rating-value">{(product.calificacion || 0).toFixed(1)}</span>
-                                </div>
-                              )}
+                        <div class="product-card-inner">
+                          <a href={`/producto/${product.id}`} class="product-link">
+                            <div class="product-image-container">
+                              <img 
+                                src={product.imagen} 
+                                alt={product.nombre} 
+                                class="product-image"
+                                loading="lazy"
+                                width="300"
+                                height="300"
+                              />
                             </div>
-                          </div>
-                        </a>
+                            <div class="product-info">
+                              <h3 class="product-name">{product.nombre}</h3>
+                              <p class="product-description">{product.descripcion}</p>
+                              <div class="product-meta">
+                                <div class="product-details">
+                                  <span class="product-price">${product.precio.toFixed(2)}</span>
+                                  {typeof product.calificacion !== 'undefined' && (
+                                    <div class="product-rating">
+                                      {[...Array(5)].map((_, i) => (
+                                        <span class={`star ${i < Math.floor(product.calificacion || 0) ? 'filled' : ''}`}>★</span>
+                                      ))}
+                                      <span class="rating-value">{(product.calificacion || 0).toFixed(1)}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                          <button 
+                            class="add-to-cart-btn" 
+                            data-product-id={product.id}
+                            data-product-name={product.nombre}
+                            data-product-price={product.precio}
+                            data-product-image={product.imagen}
+                          >
+                            <i class="fas fa-cart-plus"></i> Añadir al carrito
+                          </button>
+                        </div>
                       </article>
                     ))}
                   </div>
                 </section>
-              ))
+              ))}
+            </div>
           ) : (
             <div class="no-results">
               <i class="fas fa-box-open"></i>
               <h3>No se encontraron productos</h3>
-              <p>No hay productos que coincidan con los filtros seleccionados</p>
+              <p>No hay productos que coincidan con las categorías seleccionadas</p>
               <a href="/catalog" class="button">Limpiar filtros</a>
             </div>
           )}
@@ -152,477 +158,16 @@ tiendasConProductos.forEach(tienda => {
   
   <Footer />
   
-  <style>
-    /* Variables */
-    :root {
-      --primary-color: #6b46c1;
-      --primary-hover: #553c9a;
-      --text-color: #2d3748;
-      --text-light: #718096;
-      --bg-light: #f8fafc;
-      --border-color: #e2e8f0;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --radius: 0.5rem;
-      --transition: all 0.2s ease;
-      --store-header-bg: #f8f5ff;
-    }
-    
-    /* Reset y estilos base */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      color: var(--text-color);
-      line-height: 1.5;
-    }
-    
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-    
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-    
-    .button {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      text-align: center;
-    }
-    
-    .button:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-    
-    /* Estilos del catálogo */
-    .catalog__hero {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 4rem 0;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    
-    .catalog__title {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      font-weight: 800;
-    }
-    
-    .catalog__subtitle {
-      font-size: 1.25rem;
-      opacity: 0.9;
-      margin-bottom: 2rem;
-    }
-    
-    .catalog__content {
-      display: flex;
-      gap: 2rem;
-      padding: 2rem 0;
-      align-items: flex-start;
-    }
-    
-    /* Filtros */
-    .catalog__filters {
-      flex: 0 0 280px;
-    }
-    
-    .filters__section {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .filters__title {
-      font-size: 1.125rem;
-      margin-bottom: 1rem;
-      color: var(--text-color);
-    }
-    
-    .filters__list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .filter-option {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 0;
-      cursor: pointer;
-      user-select: none;
-    }
-    
-    .filter-checkbox {
-      width: 1.1em;
-      height: 1.1em;
-      margin-right: 0.75rem;
-      cursor: pointer;
-    }
-    
-    .filter-label {
-      flex: 1;
-    }
-    
-    .filter-count {
-      color: var(--text-light);
-      font-size: 0.875rem;
-    }
-    
-    /* Barra de búsqueda */
-    .catalog__search {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .search-container {
-      position: relative;
-      display: flex;
-    }
-    
-    .search-input {
-      flex: 1;
-      padding: 0.875rem 1rem;
-      font-size: 1rem;
-      border: 2px solid white;
-      border-radius: var(--radius) 0 0 var(--radius);
-      transition: var(--transition);
-    }
-    
-    .search-input:focus {
-      outline: none;
-      border-color: var(--primary-hover);
-    }
-    
-    .search-button {
-      background-color: var(--primary-hover);
-      color: white;
-      border: none;
-      padding: 0 1.5rem;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .search-button:hover {
-      background-color: #4a2d8a;
-    }
-    
-    /* Lista de productos */
-    .catalog__stores {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-    }
-    
-    .store-section {
-      background: white;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    
-    .store-header {
-      background: var(--store-header-bg);
-      padding: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .store-logo {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .store-name {
-      font-size: 1.5rem;
-      color: var(--primary-color);
-      margin: 0;
-    }
-    
-    .store-description {
-      padding: 1rem 1.5rem;
-      margin: 0;
-      color: var(--text-light);
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-      padding: 1.5rem;
-    }
-    
-    .product-card {
-      background: white;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      border: 1px solid var(--border-color);
-    }
-    
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    .product-link {
-      display: block;
-      height: 100%;
-    }
-    
-    .product-image-container {
-      position: relative;
-      padding-top: 100%; /* Aspect ratio 1:1 */
-      overflow: hidden;
-    }
-    
-    .product-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    
-    .product-card:hover .product-image {
-      transform: scale(1.05);
-    }
-    
-    .product-info {
-      padding: 1.25rem;
-    }
-    
-    .product-name {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-    }
-    
-    .product-description {
-      color: var(--text-light);
-      font-size: 0.9375rem;
-      margin-bottom: 1rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    
-    .product-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .product-price {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--primary-color);
-    }
-    
-    .product-rating {
-      display: flex;
-      align-items: center;
-      color: #f6e05e;
-    }
-    
-    .star {
-      color: #e2e8f0;
-    }
-    
-    .star.filled {
-      color: #f6e05e;
-    }
-    
-    .rating-value {
-      margin-left: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--text-light);
-    }
-    
-    /* Sin resultados */
-    .no-results {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    
-    .no-results i {
-      font-size: 3rem;
-      color: #a0aec0;
-      margin-bottom: 1.5rem;
-    }
-    
-    .no-results h3 {
-      font-size: 1.5rem;
-      color: var(--text-color);
-      margin-bottom: 0.5rem;
-    }
-    
-    .no-results p {
-      color: var(--text-light);
-      margin-bottom: 1.5rem;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      .catalog__content {
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-      
-      .catalog__filters {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: white;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border-color);
-      }
-      
-      .filters__section {
-        margin-bottom: 0;
-        box-shadow: none;
-        padding: 0;
-      }
-      
-      .filters__title {
-        display: none;
-      }
-      
-      .filters__list {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-      
-      .filter-option {
-        background: var(--bg-light);
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-      }
-      
-      .filter-checkbox {
-        display: none;
-      }
-      
-      .filter-option[data-active="true"] {
-        background: var(--primary-color);
-        color: white;
-      }
-      
-      .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 1rem;
-        gap: 1rem;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .products-grid {
-        grid-template-columns: 1fr;
-        padding: 0.75rem;
-      }
-      
-      .catalog__title {
-        font-size: 2rem;
-      }
-      
-      .catalog__subtitle {
-        font-size: 1.125rem;
-      }
-      
-      .store-header {
-        padding: 1rem;
-      }
-      
-      .store-logo {
-        width: 40px;
-        height: 40px;
-      }
-      
-      .store-name {
-        font-size: 1.25rem;
-      }
-    }
-  </style>
-  
   <script>
-    // Manejar el envío del formulario de búsqueda
+    // Importar módulo del carrito
+    import { initCartEventListeners } from '../scripts/cart';
+
+    // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('searchForm') as HTMLFormElement | null;
-      if (form) {
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const formData = new FormData(form);
-          const searchTerm = formData.get('q')?.toString().trim() || '';
-          const url = new URL(window.location.href);
-          
-          if (searchTerm) {
-            url.searchParams.set('q', searchTerm);
-          } else {
-            url.searchParams.delete('q');
-          }
-          
-          window.location.href = url.toString();
-        });
-      }
+      console.log('Catálogo cargado');
       
-      // Actualizar estado activo de los filtros en móvil
-      const updateActiveFilters = () => {
-        if (window.innerWidth <= 768) {
-          document.querySelectorAll('.filter-option').forEach(option => {
-            const checkbox = option.querySelector<HTMLInputElement>('input[type="checkbox"]');
-            if (checkbox) {
-              option.setAttribute('data-active', checkbox.checked.toString());
-            }
-          });
-        }
-      };
-      
-      // Inicializar y actualizar en cambios de tamaño
-      updateActiveFilters();
-      window.addEventListener('resize', updateActiveFilters);
+      // Inicializar el carrito
+      initCartEventListeners?.();
     });
   </script>
 </BaseLayout>
