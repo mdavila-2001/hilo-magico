@@ -37,9 +37,41 @@ import '../styles/main.scss';
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#3e195f" />
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Scripts del lado del cliente -->
+    <script>
+      // Habilita los módulos ES en el navegador
+      window.process = { env: { NODE_ENV: 'production' } }; // Necesario para algunos módulos
+    </script>
   </head>
   
   <body>
     <slot /> <!-- Aquí se inyectará el contenido de las páginas -->
+    
+    <!-- Scripts del carrito -->
+    <script type="module" src="/src/scripts/carrito.js"></script>
+    
+    <!-- Script para cerrar el carrito al hacer clic fuera de él -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const carrito = document.getElementById('carrito');
+        const botonCarrito = document.querySelector('.header__carrito-btn');
+        
+        if (carrito && botonCarrito) {
+          document.addEventListener('click', (e) => {
+            const isClickInsideCarrito = carrito.contains(e.target);
+            const isClickOnCarritoButton = botonCarrito.contains(e.target);
+            
+            if (!isClickInsideCarrito && !isClickOnCarritoButton) {
+              carrito.classList.remove('carrito--activo');
+              botonCarrito.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>

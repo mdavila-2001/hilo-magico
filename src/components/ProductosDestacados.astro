@@ -1,0 +1,80 @@
+---
+// src/components/ProductosDestacados.astro
+import ProductoCard from './ProductoCard.astro';
+import { productos } from '../data/productos';
+
+// Obtener productos destacados (por ahora, los primeros 4)
+const productosDestacados = productos.slice(0, 4);
+
+// Título y descripción para la sección
+const titulo = 'Productos Destacados';
+const descripcion = 'Descubre nuestras prendas más populares y únicas';
+---
+
+<section class="destacados">
+  <div class="contenedor">
+    <div class="destacados__encabezado">
+      <h2 class="destacados__titulo">{titulo}</h2>
+      <p class="destacados__descripcion">{descripcion}</p>
+      <a href="/catalogo" class="boton boton--secundario">
+        Ver todos los productos
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      </a>
+    </div>
+    
+    <div class="destacados__grid">
+      {productosDestacados.map(producto => (
+        <ProductoCard producto={producto} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .destacados {
+    padding: 4rem 0;
+    background-color: $color-blanco-calido;
+  }
+  
+  .destacados__encabezado {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .destacados__titulo {
+    font-family: $fuente-titulos;
+    color: $color-violeta-oscuro;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .destacados__descripcion {
+    color: $color-gris-oscuro;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .destacados__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  @media (max-width: $breakpoint-tablet) {
+    .destacados {
+      padding: 3rem 0;
+    }
+    
+    .destacados__titulo {
+      font-size: 1.8rem;
+    }
+  }
+  
+  @media (max-width: $breakpoint-movil) {
+    .destacados__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -6,6 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Servicios from '../components/Servicios.astro';
+import ProductosDestacados from '../components/ProductosDestacados.astro';
 import Footer from '../components/Footer.astro';
 
 // Metadatos para SEO
@@ -23,6 +24,9 @@ const descripcionPagina = 'Descubre nuestra colección de prendas personalizadas
     
     <!-- Servicios Section -->
     <Servicios client:load />
+    
+    <!-- Productos Destacados -->
+    <ProductosDestacados client:load />
     
     <!-- Sección de Galería (próximamente) -->
     <section id="galeria" class="seccion seccion--oscura">
