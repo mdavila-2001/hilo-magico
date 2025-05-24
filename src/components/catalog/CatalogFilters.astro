@@ -1,0 +1,156 @@
+---
+// src/components/catalog/CatalogFilters.astro
+import type { Producto } from '../../data/productos';
+
+interface Props {
+  categorias: string[];
+  initialSearchTerm?: string;
+  initialCategorias?: string[];
+}
+
+const { categorias, initialSearchTerm = '', initialCategorias = [] } = Astro.props;
+---
+
+<div class="catalog-filters">
+  <form class="search-form" onsubmit="event.preventDefault();">
+    <div class="search-container">
+      <input 
+        type="text" 
+        name="q" 
+        value={initialSearchTerm}
+        placeholder="Buscar tiendas o productos..." 
+        class="search-input"
+        aria-label="Buscar tiendas o productos"
+        autocomplete="off"
+      />
+      <button type="submit" class="search-button" aria-label="Buscar">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </form>
+
+  <div class="category-filters">
+    <h3 class="filter-title">Categorías</h3>
+    <div class="filter-options">
+      {categorias.map(categoria => {
+        const isChecked = initialCategorias.includes(categoria);
+        return (
+          <label class="filter-option">
+            <input 
+              type="checkbox" 
+              name="categoria" 
+              value={categoria}
+              checked={isChecked}
+              class="filter-checkbox"
+              data-category={categoria}
+            />
+            <span class="filter-checkbox-custom"></span>
+            {categoria}
+          </label>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+<style>
+  .catalog-filters {
+    margin-bottom: 2rem;
+  }
+  
+  .search-container {
+    display: flex;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem 0 0 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #9f7aea;
+    box-shadow: 0 0 0 2px rgba(159, 122, 234, 0.2);
+  }
+  
+  .search-button {
+    padding: 0 1.25rem;
+    background-color: #6b46c1;
+    color: white;
+    border: none;
+    border-radius: 0 0.5rem 0.5rem 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .search-button:hover {
+    background-color: #553c9a;
+  }
+  
+  .filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2d3748;
+  }
+  
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .filter-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    font-size: 0.9375rem;
+    user-select: none;
+  }
+  
+  .filter-option:hover {
+    background-color: #f1f5f9;
+  }
+  
+  .filter-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .filter-checkbox-custom {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid #cbd5e0;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    position: relative;
+    transition: all 0.2s;
+  }
+  
+  .filter-checkbox:checked + .filter-checkbox-custom {
+    background-color: #6b46c1;
+    border-color: #6b46c1;
+  }
+  
+  .filter-checkbox:checked + .filter-checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 0.8em;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>

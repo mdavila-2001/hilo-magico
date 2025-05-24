@@ -1,0 +1,186 @@
+---
+// src/pages/tienda/[id].astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductoCard from '../../components/ProductoCard.astro';
+import { productos, tiendas } from '../../data/productos';
+
+// Obtener el ID de la tienda de los parámetros de la ruta
+const { id } = Astro.params;
+
+// Buscar la tienda por ID
+const tienda = tiendas.find(t => t.id === id);
+
+// Si no se encuentra la tienda, redirigir a la página 404
+if (!tienda) {
+  return Astro.redirect('/404');
+}
+
+// Filtrar productos de la tienda
+const productosTienda = productos.filter(producto => producto.tiendaId === id);
+
+// Título y descripción para SEO
+const titulo = `${tienda.nombre} | Hilo Mágico`;
+const descripcion = `Descubre todos los productos disponibles en ${tienda.nombre}. ${tienda.descripcion}`;
+---
+
+<BaseLayout title={titulo} description={descripcion}>
+  <Header />
+  
+  <main class="tienda-page">
+    <section class="tienda-hero">
+      <div class="contenedor">
+        <div class="tienda-header">
+          <img src={tienda.logo} alt={tienda.nombre} class="tienda-logo" />
+          <div class="tienda-info">
+            <h1 class="tienda-title">{tienda.nombre}</h1>
+            <p class="tienda-description">{tienda.descripcion}</p>
+            <div class="tienda-rating">
+              {Array(5).fill(0).map((_, i) => (
+                <span class={`star ${i < Math.floor(tienda.productos?.[0]?.calificacion || 0) ? 'filled' : ''}`}>★</span>
+              ))}
+              <span class="rating-text">
+                {tienda.productos?.[0]?.calificacion?.toFixed(1) || 'Nuevo'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="tienda-products contenedor">
+      <h2 class="section-title">Productos</h2>
+      
+      {productosTienda.length > 0 ? (
+        <div class="products-grid">
+          {productosTienda.map(producto => (
+            <ProductoCard producto={producto} />
+          ))}
+        </div>
+      ) : (
+        <div class="no-products">
+          <p>No hay productos disponibles en esta tienda por el momento.</p>
+        </div>
+      )}
+    </section>
+  </main>
+  
+  <Footer />
+  
+  <style>
+    .tienda-page {
+      padding-top: 70px;
+    }
+    
+    .tienda-hero {
+      background-color: #f9f5ff;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .tienda-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    
+    .tienda-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tienda-info {
+      flex: 1;
+    }
+    
+    .tienda-title {
+      font-size: 2rem;
+      color: #2d3748;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .tienda-description {
+      color: #4a5568;
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+    
+    .tienda-rating {
+      display: flex;
+      align-items: center;
+    }
+    
+    .star {
+      color: #e2e8f0;
+      margin-right: 2px;
+      font-size: 1.2rem;
+    }
+    
+    .star.filled {
+      color: #f6e05e;
+    }
+    
+    .rating-text {
+      margin-left: 0.5rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+    
+    .tienda-products {
+      padding: 2rem 0 4rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      color: #2d3748;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .no-products {
+      text-align: center;
+      padding: 3rem 0;
+      color: #718096;
+    }
+    
+    @media (max-width: 768px) {
+      .tienda-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .tienda-logo {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1rem;
+      }
+      
+      .tienda-rating {
+        justify-content: center;
+      }
+      
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</BaseLayout>

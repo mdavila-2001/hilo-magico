@@ -61,6 +61,8 @@
   &__logo {
     display: flex;
     align-items: center;
+    position: relative;
+    top: -2%; // Mover el logo ligeramente hacia arriba
     text-decoration: none;
     z-index: 1001; // Para que esté por encima del menú móvil
     
@@ -253,15 +255,17 @@
 }
 
 .header__carrito-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -5%; // Igual que el logo para mantener la alineación
   justify-content: center;
   color: $color-violeta-oscuro;
   font-size: 1.25rem;
