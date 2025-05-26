@@ -1,159 +1,283 @@
 // src/scripts/cart.ts
 
-// Definir tipos
-declare global {
-  interface Window {
-    Carrito?: any;
-    isCartReady?: boolean;
+// Definir tipos para TypeScript
+type Producto = {
+  id: string;
+  nombre: string;
+  precio: number;
+  imagen: string;
+  cantidad?: number;
+};
+
+class Carrito {
+  private static instance: Carrito;
+  private carrito: Producto[] = [];
+  private total: number = 0;
+  private listaCarrito: HTMLElement | null = null;
+  private contadorCarrito: HTMLElement | null = null;
+  private totalElemento: HTMLElement | null = null;
+  private botonVaciar: HTMLElement | null = null;
+  private botonPagar: HTMLElement | null = null;
+  private carritoVacioMsg: HTMLElement | null = null;
+  private isInitialized: boolean = false;
+
+  private constructor() {
+    this.inicializarElementos();
+    this.cargarCarrito();
+    this.configurarEventListeners();
+    this.isInitialized = true;
   }
-}
 
-// Variables globales
-let Carrito: any = null;
-let isCartReady = false;
+  public static getInstance(): Carrito {
+    if (!Carrito.instance) {
+      Carrito.instance = new Carrito();
+    }
+    return Carrito.instance;
+  }
 
-/**
- * Muestra una notificación al usuario
- */
-function showNotification(message: string): void {
-  if (typeof document === 'undefined') return;
-  
-  // Verificar si ya existe un contenedor de notificaciones
-  let container = document.querySelector('.notification-container');
-  
-  if (!container) {
-    // Crear el contenedor si no existe
-    container = document.createElement('div');
-    container.className = 'notification-container';
-    document.body.appendChild(container);
+  private inicializarElementos() {
+    this.listaCarrito = document.getElementById('lista-carrito');
+    this.contadorCarrito = document.getElementById('contador-carrito');
+    this.totalElemento = document.getElementById('total');
+    this.botonVaciar = document.getElementById('vaciar-carrito');
+    this.botonPagar = document.getElementById('procesar-pago');
+    this.carritoVacioMsg = document.querySelector('.carrito__vacio');
+  }
+
+  private configurarEventListeners() {
+    // Delegación de eventos para los botones dinámicos
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const button = target.closest('[data-accion]') as HTMLButtonElement;
+      
+      if (!button) return;
+      
+      const accion = button.dataset.accion;
+      const id = button.dataset.id;
+      
+      if (!id) return;
+      
+      switch (accion) {
+        case 'aumentar':
+          this.actualizarCantidad(id, (this.getCantidadProducto(id) || 0) + 1);
+          break;
+        case 'disminuir':
+          this.actualizarCantidad(id, (this.getCantidadProducto(id) || 0) - 1);
+          break;
+      }
+    });
     
-    // Agregar estilos
-    const style = document.createElement('style');
-    style.textContent = `
-      .notification-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
+    // Evento para eliminar producto
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const button = target.closest('.carrito__eliminar') as HTMLButtonElement;
       
-      .notification {
-        background-color: #4CAF50;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 4px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideIn 0.3s ease-out;
-        max-width: 300px;
+      if (button && button.dataset.id) {
+        this.eliminarProducto(button.dataset.id);
       }
-      
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-      
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
+    });
+    
+    // Evento para el botón de vaciar
+    if (this.botonVaciar) {
+      this.botonVaciar.addEventListener('click', () => this.vaciarCarrito());
+    }
+    
+    // Evento para el botón de pagar
+    if (this.botonPagar) {
+      this.botonPagar.addEventListener('click', () => this.procesarPago());
+    }
   }
-  
-  // Crear la notificación
-  const notification = document.createElement('div');
-  notification.className = 'notification';
-  notification.innerHTML = `
-    <i class="fas fa-check-circle"></i>
-    <span>${message}</span>
-  `;
-  
-  // Agregar la notificación al contenedor
-  container.appendChild(notification);
-  
-  // Eliminar después de 3 segundos
-  setTimeout(() => {
-    notification.style.animation = 'slideOut 0.3s ease-out forwards';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
+
+  private getCantidadProducto(id: string): number {
+    const producto = this.carrito.find(p => p.id === id);
+    return producto ? (producto.cantidad || 1) : 0;
+  }
+
+  private cargarCarrito() {
+    try {
+      const carritoGuardado = localStorage.getItem('carrito');
+      if (carritoGuardado) {
+        this.carrito = JSON.parse(carritoGuardado);
+        this.actualizarCarrito();
+      }
+    } catch (error) {
+      console.error('Error al cargar el carrito:', error);
+      this.carrito = [];
+    }
+  }
+
+  private guardarCarrito() {
+    try {
+      localStorage.setItem('carrito', JSON.stringify(this.carrito));
+      this.actualizarCarrito();
+    } catch (error) {
+      console.error('Error al guardar el carrito:', error);
+    }
+  }
+
+  public agregarProducto(producto: Producto) {
+    const existe = this.carrito.find(p => p.id === producto.id);
+    if (existe) {
+      existe.cantidad = (existe.cantidad || 1) + 1;
+    } else {
+      this.carrito.push({ ...producto, cantidad: 1 });
+    }
+    this.guardarCarrito();
+    this.mostrarNotificacion(`"${producto.nombre}" se ha añadido al carrito`);
+  }
+
+  public eliminarProducto(id: string) {
+    this.carrito = this.carrito.filter(p => p.id !== id);
+    this.guardarCarrito();
+  }
+
+  public actualizarCantidad(id: string, cantidad: number) {
+    const producto = this.carrito.find(p => p.id === id);
+    if (producto) {
+      producto.cantidad = cantidad;
+      if (producto.cantidad <= 0) {
+        this.eliminarProducto(id);
+      } else {
+        this.guardarCarrito();
+      }
+    }
+  }
+
+  private actualizarCarrito() {
+    if (!this.listaCarrito || !this.contadorCarrito || !this.totalElemento || !this.carritoVacioMsg) {
+      if (!this.isInitialized) {
+        console.warn('Elementos del carrito no encontrados, reintentando...');
+        setTimeout(() => this.actualizarCarrito(), 100);
+      }
+      return;
+    }
+
+    // Actualizar la lista de productos
+    this.listaCarrito.innerHTML = '';
+    this.total = 0;
+
+    if (this.carrito.length === 0) {
+      if (this.carritoVacioMsg) this.carritoVacioMsg.style.display = 'block';
+      if (this.contadorCarrito) this.contadorCarrito.textContent = '0';
+      if (this.totalElemento) this.totalElemento.textContent = '0.00';
+      return;
+    }
+
+    if (this.carritoVacioMsg) this.carritoVacioMsg.style.display = 'none';
+    
+    this.carrito.forEach(producto => {
+      const subtotal = producto.precio * (producto.cantidad || 1);
+      this.total += subtotal;
+
+      if (this.listaCarrito) {
+        const li = document.createElement('li');
+        li.className = 'carrito__item';
+        li.innerHTML = `
+          <img src="${producto.imagen}" alt="${producto.nombre}" class="carrito__imagen">
+          <div class="carrito__detalles">
+            <h4 class="carrito__nombre">${producto.nombre}</h4>
+            <p class="carrito__precio">$${producto.precio.toFixed(2)}</p>
+            <div class="carrito__cantidad">
+              <button class="carrito__btn" data-accion="disminuir" data-id="${producto.id}">-</button>
+              <span>${producto.cantidad || 1}</span>
+              <button class="carrito__btn" data-accion="aumentar" data-id="${producto.id}">+</button>
+            </div>
+          </div>
+          <button class="carrito__eliminar" data-id="${producto.id}">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
+        this.listaCarrito.appendChild(li);
+      }
+    });
+
+    // Actualizar contador y total
+    const totalItems = this.carrito.reduce((sum, p) => sum + (p.cantidad || 1), 0);
+    if (this.contadorCarrito) this.contadorCarrito.textContent = totalItems.toString();
+    if (this.totalElemento) this.totalElemento.textContent = this.total.toFixed(2);
+  }
+
+  public vaciarCarrito() {
+    this.carrito = [];
+    this.guardarCarrito();
+    this.mostrarNotificacion('Carrito vaciado');
+  }
+
+  public procesarPago() {
+    // Implementar lógica de pago aquí
+    alert('Procesando pago...');
+  }
+
+  private mostrarNotificacion(mensaje: string) {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = 'notificacion';
+    notificacion.textContent = mensaje;
+    
+    // Estilos para la notificación
+    notificacion.style.position = 'fixed';
+    notificacion.style.bottom = '20px';
+    notificacion.style.right = '20px';
+    notificacion.style.padding = '15px 25px';
+    notificacion.style.backgroundColor = '#4CAF50';
+    notificacion.style.color = 'white';
+    notificacion.style.borderRadius = '4px';
+    notificacion.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    notificacion.style.zIndex = '1000';
+    notificacion.style.transform = 'translateY(100px)';
+    notificacion.style.opacity = '0';
+    notificacion.style.transition = 'all 0.3s ease-out';
+    
+    // Agregar al documento
+    document.body.appendChild(notificacion);
+    
+    // Forzar reflow para que la animación funcione
+    notificacion.getBoundingClientRect();
+    
+    // Mostrar con animación
+    notificacion.style.transform = 'translateY(0)';
+    notificacion.style.opacity = '1';
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+      notificacion.style.transform = 'translateY(100px)';
+      notificacion.style.opacity = '0';
+      
+      // Eliminar después de la animación
+      setTimeout(() => {
+        if (document.body.contains(notificacion)) {
+          document.body.removeChild(notificacion);
+        }
+      }, 300);
+    }, 3000);
+  }
 }
 
-/**
- * Inicializa los event listeners del carrito
- */
+// Exportar funciones para uso externo
 export function initCartEventListeners(): void {
-  if (typeof document === 'undefined') return;
-  
-  document.addEventListener('click', (e: Event) => {
-    const target = e.target as HTMLElement;
-    const button = target.closest('.add-to-cart-btn');
-    
-    if (!button) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const productId = button.getAttribute('data-product-id');
-    const productName = button.getAttribute('data-product-name');
-    const productPrice = parseFloat(button.getAttribute('data-product-price') || '0');
-    const productImage = button.getAttribute('data-product-image');
-    
-    if (!productId || !productName || isNaN(productPrice)) return;
-    
-    const product = {
-      id: productId,
-      nombre: productName,
-      precio: productPrice,
-      imagen: productImage || ''
-    };
-    
-    addToCart(product);
-  });
+  // Inicializar la instancia del carrito si no existe
+  Carrito.getInstance();
+  console.log('Event listeners del carrito inicializados');
 }
 
-/**
- * Añade un producto al carrito
- */
-function addToCart(product: { id: string; nombre: string; precio: number; imagen: string }): void {
-  if (!window.Carrito || !isCartReady) {
-    console.error('El carrito no está disponible');
-    return;
-  }
-  
-  try {
-    const carrito = new window.Carrito();
-    carrito.agregarProducto(product);
-    showNotification(`¡${product.nombre} añadido al carrito!`);
-  } catch (error) {
-    console.error('Error al agregar al carrito:', error);
-  }
+export function addToCart(producto: Producto): void {
+  const carrito = Carrito.getInstance();
+  carrito.agregarProducto(producto);
 }
 
-/**
- * Inicializa el carrito
- */
+// Inicializar automáticamente si se carga directamente
+// Esta inicialización se maneja desde el Header.astro
+// para asegurar que solo se ejecute una vez
+
+// Inicializa el carrito
 export async function initCart(): Promise<void> {
-  if (typeof window === 'undefined') return;
-  
   try {
-    const module = await import('./carrito');
-    Carrito = module.Carrito;
-    isCartReady = true;
-    window.Carrito = Carrito;
-    window.isCartReady = isCartReady;
+    // Inicializar los event listeners del carrito
+    initCartEventListeners();
+    
+    // Cualquier otra inicialización necesaria
     console.log('Carrito inicializado correctamente');
   } catch (error) {
-    console.error('Error al cargar el carrito:', error);
+    console.error('Error al inicializar el carrito:', error);
   }
-}
-
-// Inicializar el carrito cuando se cargue el módulo
-if (typeof window !== 'undefined') {
-  initCart();
 }

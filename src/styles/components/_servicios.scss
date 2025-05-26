@@ -1,4 +1,5 @@
-// Importar variables y mixins
+// Importar variables y 
+@use 'sass:color';
 @use '../../styles/variables' as *;
 @use '../../styles/mixins' as *;
 
@@ -33,13 +34,13 @@
       transform: translateX(-50%);
       width: 100%;
       height: 3px;
-      background: linear-gradient(90deg, $color-lavanda, lighten($color-lavanda, 20%));
+      background: linear-gradient(90deg, $color-lavanda, color.adjust($color-lavanda, $lightness: 20%));
       border-radius: 3px;
     }
   }
   
   &__subtitulo {
-    color: lighten($color-violeta-oscuro, 20%);
+    color: color.adjust($color-violeta-oscuro, $lightness: 20%);
     font-size: 1.1rem;
     margin-top: 1rem;
   }
@@ -111,7 +112,7 @@
   }
   
   &__descripcion {
-    color: lighten($color-violeta-oscuro, 20%);
+    color: color.adjust($color-violeta-oscuro, $lightness: 20%);
     margin-bottom: 1.5rem;
     line-height: 1.6;
   }

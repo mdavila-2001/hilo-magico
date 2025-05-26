@@ -14,8 +14,34 @@ const enlaces = [
 ---
 
 <script>
+  // Función para alternar el carrito
+  function toggleCarrito(abrir?: boolean) {
+    const carrito = document.getElementById('carrito');
+    const carritoBtn = document.getElementById('carrito-btn');
+    
+    if (carrito && carritoBtn) {
+      // Si abrir es undefined, alternamos el estado actual
+      const estaAbierto = abrir === undefined 
+        ? !carrito.classList.contains('carrito--activo')
+        : abrir;
+      
+      if (estaAbierto) {
+        carrito.classList.add('carrito--activo');
+        carritoBtn.setAttribute('aria-expanded', 'true');
+        // Bloquear el scroll del body cuando el carrito está abierto
+        document.body.style.overflow = 'hidden';
+      } else {
+        carrito.classList.remove('carrito--activo');
+        carritoBtn.setAttribute('aria-expanded', 'false');
+        // Restaurar el scroll del body
+        document.body.style.overflow = '';
+      }
+    }
+  }
+
   // Script que se ejecutará en el cliente
   document.addEventListener('DOMContentLoaded', () => {
+    // Manejo del menú móvil
     const menuBtn = document.querySelector('.header__menu-btn');
     const menu = document.querySelector('.header__nav');
     
@@ -25,9 +51,106 @@ const enlaces = [
         enlace.addEventListener('click', () => {
           menuBtn.setAttribute('aria-expanded', 'false');
           menu.classList.remove('header__nav--activo');
+          const overlay = document.getElementById('menu-overlay');
+          if (overlay) overlay.classList.remove('header__overlay--active');
         });
       });
     }
+    
+    // Manejador para los botones de agregar al carrito
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const botonCarrito = target.closest('.producto__carrito') as HTMLElement;
+      
+      if (botonCarrito) {
+        e.preventDefault();
+        
+        const id = botonCarrito.getAttribute('data-id');
+        const nombre = botonCarrito.getAttribute('data-nombre');
+        const precio = botonCarrito.getAttribute('data-precio');
+        const imagen = botonCarrito.getAttribute('data-imagen');
+        
+        if (id && nombre && precio && imagen) {
+          // Importar dinámicamente la función addToCart
+          import('../scripts/cart').then(({ addToCart }) => {
+            addToCart({
+              id,
+              nombre,
+              precio: parseFloat(precio),
+              imagen
+            });
+            
+            // Mostrar notificación
+            const notificacion = document.createElement('div');
+            notificacion.className = 'notificacion';
+            notificacion.textContent = `"${nombre}" se ha añadido al carrito`;
+            document.body.appendChild(notificacion);
+            
+            // Eliminar la notificación después de 3 segundos
+            setTimeout(() => {
+              notificacion.classList.add('mostrar');
+              
+              setTimeout(() => {
+                notificacion.classList.remove('mostrar');
+                setTimeout(() => {
+                  document.body.removeChild(notificacion);
+                }, 300);
+              }, 3000);
+            }, 0);
+          }).catch(error => {
+            console.error('Error al cargar el módulo del carrito:', error);
+          });
+        }
+      }
+    });
+
+    // Manejar el botón del carrito
+    const carritoBtn = document.getElementById('carrito-btn');
+    if (carritoBtn) {
+      carritoBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleCarrito();
+      });
+    }
+
+    // Manejar el botón de cierre del carrito
+    const cerrarCarritoBtn = document.querySelector('.carrito__cerrar');
+    if (cerrarCarritoBtn) {
+      cerrarCarritoBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleCarrito(false);
+      });
+    }
+    
+    // Manejar clic fuera del carrito para cerrarlo
+    document.addEventListener('click', (e: MouseEvent) => {
+      const carrito = document.getElementById('carrito');
+      const carritoBtn = document.getElementById('carrito-btn');
+      const target = e.target as Node | null;
+      
+      if (carrito && carritoBtn && target && 
+          !carrito.contains(target) && 
+          !carritoBtn.contains(target) &&
+          carrito.classList.contains('carrito--activo')) {
+        toggleCarrito(false);
+      }
+    });
+
+    // Inicializar el carrito
+    (async () => {
+      try {
+        // Cargar el módulo del carrito
+        const { initCartEventListeners } = await import('../scripts/cart');
+        if (typeof initCartEventListeners === 'function') {
+          console.log('Inicializando carrito desde el header...');
+          initCartEventListeners();
+        } else {
+          console.warn('La función initCartEventListeners no está disponible');
+        }
+      } catch (error) {
+        console.error('Error al cargar el carrito:', error);
+      }
+    })();
   });
 </script>
 
@@ -64,10 +187,10 @@ const enlaces = [
       <!-- Botón del carrito -->
       <button 
         class="header__carrito-btn" 
+        id="carrito-btn"
         aria-label="Carrito de compras"
         aria-expanded="false"
         aria-controls="carrito"
-        onclick="document.getElementById('carrito').classList.toggle('carrito--activo'); this.setAttribute('aria-expanded', document.getElementById('carrito').classList.contains('carrito--activo'));"
       >
         <i class="fas fa-shopping-cart" aria-hidden="true"></i>
         <span class="header__carrito-contador" id="contador-carrito">0</span>
@@ -113,5 +236,33 @@ const enlaces = [
     </div>
   </div>
 </header>
+
+<style>
+  /* Estilos para las notificaciones */
+  .notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  }
+  
+  .notificacion.mostrar {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .notificacion:not(.mostrar) {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+</style>
 
 <!-- Los estilos están en /src/styles/components/_header.scss -->
