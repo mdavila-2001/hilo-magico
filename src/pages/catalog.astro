@@ -1,21 +1,10 @@
 ---
 // src/pages/catalog.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import CatalogFilters from '../components/catalog/CatalogFilters.astro';
+import StoresList from '../components/catalog/StoresList.astro';
 import { groupProductsByStore } from '../utils/filters';
-import { productos, tiendas, type Tienda } from '../data/productos';
-
-declare global {
-  interface Window {
-    initCartEventListeners?: () => void;
-  }
-}
-
-// Obtener todas las categorías únicas de las tiendas
-const categoriasUnicas = Array.from(
-  new Set(tiendas.flatMap(tienda => tienda.categorias))
-).sort();
+import { productos, tiendas } from '../data/productos';
 
 // Obtener categorías de la URL
 const url = new URL(Astro.request.url);
@@ -34,129 +23,38 @@ const tiendasConProductos = groupProductsByStore(tiendasFiltradas, productos);
 // Verificar si hay productos en cada tienda
 const tiendasVisibles = tiendasConProductos.filter(tienda => tienda.productos.length > 0);
 
-// Función para construir la URL con las categorías seleccionadas
-const construirUrlConFiltros = (categorias: string[]) => {
-  const params = new URLSearchParams();
-  if (categorias.length > 0) {
-    params.set('categorias', categorias.join(','));
-  }
-  const queryString = params.toString();
-  return queryString ? `?${queryString}` : '';
-};
+// Obtener todas las categorías únicas para los filtros
+const categoriasUnicas = Array.from(
+  new Set(tiendas.flatMap(tienda => tienda.categorias))
+).sort();
 ---
 
 <BaseLayout title="Catálogo | Hilo Mágico" description="Explora nuestra colección de productos únicos y personalizados">
-  <Header />
-  
   <main class="catalog-page">
     <div class="container">
-      <h1>Catálogo de Productos</h1>
+      <h1 class="page-title">Catálogo de Productos</h1>
       
       <div class="catalog-layout">
-        <!-- Sidebar con filtros de categorías -->
-        <aside class="catalog-sidebar">
-          <div class="filters">
-            <h3>Categorías</h3>
-            <div class="filter-group">
-              {categoriasUnicas.map(categoria => {
-                const isChecked = categoriasSeleccionadas.includes(categoria);
-                const nuevasCategorias = isChecked
-                  ? categoriasSeleccionadas.filter(c => c !== categoria)
-                  : [...categoriasSeleccionadas, categoria];
-                
-                return (
-                  <label class="filter-option">
-                    <input 
-                      type="checkbox" 
-                      checked={isChecked}
-                      onchange={`window.location.href='${Astro.url.pathname}${construirUrlConFiltros(nuevasCategorias)}'`}
-                    />
-                    <span>{categoria.charAt(0).toUpperCase() + categoria.slice(1)}</span>
-                  </label>
-                );
-              })}
-            </div>
-            {categoriasSeleccionadas.length > 0 && (
-              <a href="/catalog" class="button">Limpiar filtros</a>
-            )}
-          </div>
-        </aside>
+        <!-- Componente de Filtros -->
+        <CatalogFilters 
+          categorias={categoriasUnicas} 
+          initialCategorias={categoriasSeleccionadas} 
+          onCategoriaChange={(nuevasCategorias: string[]) => {
+            const params = new URLSearchParams();
+            if (nuevasCategorias.length > 0) {
+              params.set('categorias', nuevasCategorias.join(','));
+            }
+            window.location.href = `${Astro.url.pathname}?${params.toString()}`;
+          }}
+        />
         
-        <!-- Contenido principal -->
-        <div class="catalog-content">
-          {tiendasVisibles.length > 0 ? (
-            <div class="catalog__stores">
-              {tiendasVisibles.map(tienda => (
-                <section class="store-section">
-                  <div class="store-header">
-                    <img src={tienda.logo} alt={`Logo de ${tienda.nombre}`} class="store-logo" />
-                    <h2 class="store-name">{tienda.nombre}</h2>
-                  </div>
-                  {tienda.descripcion && <p class="store-description">{tienda.descripcion}</p>}
-                  
-                  <div class="products-grid">
-                    {tienda.productos.map(product => (
-                      <article class="product-card">
-                        <div class="product-card-inner">
-                          <a href={`/producto/${product.id}`} class="product-link">
-                            <div class="product-image-container">
-                              <img 
-                                src={product.imagen} 
-                                alt={product.nombre} 
-                                class="product-image"
-                                loading="lazy"
-                                width="300"
-                                height="300"
-                              />
-                            </div>
-                            <div class="product-info">
-                              <h3 class="product-name">{product.nombre}</h3>
-                              <p class="product-description">{product.descripcion}</p>
-                              <div class="product-meta">
-                                <div class="product-details">
-                                  <span class="product-price">${product.precio.toFixed(2)}</span>
-                                  {typeof product.calificacion !== 'undefined' && (
-                                    <div class="product-rating">
-                                      {[...Array(5)].map((_, i) => (
-                                        <span class={`star ${i < Math.floor(product.calificacion || 0) ? 'filled' : ''}`}>★</span>
-                                      ))}
-                                      <span class="rating-value">{(product.calificacion || 0).toFixed(1)}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </a>
-                          <button 
-                            class="add-to-cart-btn" 
-                            data-product-id={product.id}
-                            data-product-name={product.nombre}
-                            data-product-price={product.precio}
-                            data-product-image={product.imagen}
-                          >
-                            <i class="fas fa-cart-plus"></i> Añadir al carrito
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          ) : (
-            <div class="no-results">
-              <i class="fas fa-box-open"></i>
-              <h3>No se encontraron productos</h3>
-              <p>No hay productos que coincidan con las categorías seleccionadas</p>
-              <a href="/catalog" class="button">Limpiar filtros</a>
-            </div>
-          )}
-        </div>
+        <!-- Componente de Lista de Tiendas -->
+        <StoresList 
+          tiendas={tiendasVisibles}
+        />
       </div>
     </div>
   </main>
-  
-  <Footer />
   
   <script>
     // Importar módulo del carrito
@@ -165,8 +63,6 @@ const construirUrlConFiltros = (categorias: string[]) => {
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
       console.log('Catálogo cargado');
-      
-      // Inicializar el carrito
       initCartEventListeners?.();
     });
   </script>

@@ -1,9 +1,12 @@
 // src/scripts/catalog.ts
 
-// Declarar la interfaz extendida de Window
-interface Window {
-  initCartEventListeners?: () => void;
-  mostrarNotificacion?: (mensaje: string) => void;
+// Ampliar la interfaz Window para incluir nuestras propiedades personalizadas
+declare global {
+  interface Window {
+    initCartEventListeners?: () => void;
+    mostrarNotificacion?: (mensaje: string) => void;
+    // Agregar otras propiedades globales aquí si es necesario
+  }
 }
 
 /**

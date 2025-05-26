@@ -1,14 +1,19 @@
 ---
 // src/components/catalog/CatalogFilters.astro
-import type { Producto } from '../../data/productos';
 
 interface Props {
   categorias: string[];
   initialSearchTerm?: string;
-  initialCategorias?: string[];
+  initialCategorias: string[];
+  onCategoriaChange: (categorias: string[]) => void;
 }
 
-const { categorias, initialSearchTerm = '', initialCategorias = [] } = Astro.props;
+const { 
+  categorias, 
+  initialSearchTerm = '', 
+  initialCategorias = [],
+  onCategoriaChange 
+} = Astro.props;
 ---
 
 <div class="catalog-filters">

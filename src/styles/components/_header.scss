@@ -395,7 +395,7 @@
     color: $color-gris-oscuro;
     
     &:hover {
-      background-color: darken($color-gris-claro, 10%);
+      background-color: color.adjust($color-gris-claro, $lightness: -10%);
     }
   }
   
@@ -404,7 +404,7 @@
     color: white;
     
     &:hover {
-      background-color: darken($color-lavanda, 10%);
+      background-color: color.adjust($color-lavanda, $lightness: -10%);
     }
   }
 }

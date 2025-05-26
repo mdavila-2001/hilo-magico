@@ -10,6 +10,10 @@ interface Props {
 // Valores predeterminados para los props
 const { title = 'Hilo Mágico', description = 'Prendas personalizadas y servicios de costura a medida' } = Astro.props;
 
+// Importamos los componentes
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
 // Importamos los estilos globales
 import '../styles/main.scss';
 ---
@@ -69,11 +73,18 @@ import '../styles/main.scss';
   </head>
   
   <body>
-    <slot /> <!-- Aquí se inyectará el contenido de las páginas -->
+    <!-- Header -->
+    <Header />
+    
+    <!-- Contenido principal -->
+    <main>
+      <slot /> <!-- Aquí se inyectará el contenido de las páginas -->
+    </main>
+    
+    <!-- Footer -->
+    <Footer />
     
     <!-- Scripts del carrito -->
     <script type="module" src="/src/scripts/carrito.js"></script>
-    
-    <!-- El manejo del carrito se realiza en carrito.js -->
   </body>
 </html>
