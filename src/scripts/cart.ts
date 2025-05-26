@@ -172,20 +172,25 @@ class Carrito {
       if (this.listaCarrito) {
         const li = document.createElement('li');
         li.className = 'carrito__item';
+        li.className = 'carrito__item';
         li.innerHTML = `
           <img src="${producto.imagen}" alt="${producto.nombre}" class="carrito__imagen">
           <div class="carrito__detalles">
             <h4 class="carrito__nombre">${producto.nombre}</h4>
             <p class="carrito__precio">$${producto.precio.toFixed(2)}</p>
-            <div class="carrito__cantidad">
-              <button class="carrito__btn" data-accion="disminuir" data-id="${producto.id}">-</button>
-              <span>${producto.cantidad || 1}</span>
-              <button class="carrito__btn" data-accion="aumentar" data-id="${producto.id}">+</button>
+            <div class="carrito__item-cantidad">
+              <button class="carrito__item-btn" data-accion="disminuir" data-id="${producto.id}">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="carrito__item-cantidad-num">${producto.cantidad || 1}</span>
+              <button class="carrito__item-btn" data-accion="aumentar" data-id="${producto.id}">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="carrito__eliminar" data-id="${producto.id}" aria-label="Eliminar producto">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
           </div>
-          <button class="carrito__eliminar" data-id="${producto.id}">
-            <i class="fas fa-trash"></i>
-          </button>
         `;
         this.listaCarrito.appendChild(li);
       }

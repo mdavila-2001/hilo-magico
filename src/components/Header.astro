@@ -228,11 +228,18 @@ const enlaces = [
     </div>
     <div class="carrito__contenido" id="lista-carrito">
       <p class="carrito__vacio">Tu carrito está vacío</p>
+      <!-- Los elementos del carrito se agregarán aquí dinámicamente -->
     </div>
     <div class="carrito__total">
       <p>Total: <span id="total">$0.00</span></p>
-      <button class="carrito__comprar" id="vaciar-carrito">Vaciar Carrito</button>
-      <button class="carrito__comprar" id="procesar-pago">Proceder al Pago</button>
+      <div class="carrito__acciones">
+        <button class="carrito__btn carrito__btn--secundario" id="vaciar-carrito">
+          <i class="fas fa-trash"></i> Vaciar
+        </button>
+        <button class="carrito__btn" id="procesar-pago">
+          <i class="fas fa-credit-card"></i> Pagar
+        </button>
+      </div>
     </div>
   </div>
 </header>
