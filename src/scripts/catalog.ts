@@ -10,9 +10,60 @@ declare global {
 }
 
 /**
- * Inicializa los filtros móviles
+ * Obtiene las categorías seleccionadas de los checkboxes
  */
-function initMobileFilters(): void {
+function getSelectedCategories(): string[] {
+  const checkboxes = document.querySelectorAll<HTMLInputElement>('input[name="categoria"]:checked');
+  return Array.from(checkboxes).map(checkbox => checkbox.value);
+}
+
+/**
+ * Actualiza la URL con los parámetros de búsqueda y filtros
+ */
+function updateUrl(searchTerm: string, categorias: string[]): void {
+  const url = new URL(window.location.href);
+  
+  // Actualizar término de búsqueda
+  if (searchTerm) {
+    url.searchParams.set('q', searchTerm);
+  } else {
+    url.searchParams.delete('q');
+  }
+  
+  // Actualizar categorías
+  if (categorias.length > 0) {
+    url.searchParams.set('categorias', categorias.join(','));
+  } else {
+    url.searchParams.delete('categorias');
+  }
+  
+  // Actualizar la URL sin recargar la página
+  window.history.pushState({}, '', url.toString());
+  
+  // Disparar evento personalizado para notificar cambios
+  document.dispatchEvent(new CustomEvent('filtrosCambiados', { 
+    detail: { searchTerm, categorias } 
+  }));
+}
+
+/**
+ * Inicializa los filtros de categorías
+ */
+function initCategoryFilters(): void {
+  const filterOptions = document.querySelector('.filter-options');
+  if (!filterOptions) return;
+
+  // Manejar cambios en los checkboxes
+  filterOptions.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.matches('input[type="checkbox"]')) {
+      const searchInput = document.querySelector<HTMLInputElement>('input[name="q"]');
+      const searchTerm = searchInput?.value.trim() || '';
+      const selectedCategories = getSelectedCategories();
+      updateUrl(searchTerm, selectedCategories);
+    }
+  });
+
   // Actualizar estado activo de los filtros en móvil
   const updateActiveFilters = (): void => {
     if (window.innerWidth <= 768) {
@@ -34,22 +85,18 @@ function initMobileFilters(): void {
  * Inicializa el formulario de búsqueda
  */
 function initSearchForm(): void {
-  const form = document.getElementById('searchForm') as HTMLFormElement | null;
+  const form = document.querySelector('.search-form') as HTMLFormElement | null;
   if (!form) return;
 
+  // Manejar envío del formulario
   form.addEventListener('submit', (e: Event) => {
     e.preventDefault();
-    const formData = new FormData(form);
-    const searchTerm = formData.get('q')?.toString().trim() || '';
-    const url = new URL(window.location.href);
+    const searchInput = form.querySelector<HTMLInputElement>('input[name="q"]');
+    if (!searchInput) return;
     
-    if (searchTerm) {
-      url.searchParams.set('q', searchTerm);
-    } else {
-      url.searchParams.delete('q');
-    }
-    
-    window.location.href = url.toString();
+    const searchTerm = searchInput.value.trim();
+    const selectedCategories = getSelectedCategories();
+    updateUrl(searchTerm, selectedCategories);
   });
 }
 
@@ -63,7 +110,7 @@ export function initCatalog(): void {
   
   // Inicializar componentes
   initSearchForm();
-  initMobileFilters();
+  initCategoryFilters();
   
   // Inicializar carrito si está disponible
   if (typeof window.initCartEventListeners === 'function') {

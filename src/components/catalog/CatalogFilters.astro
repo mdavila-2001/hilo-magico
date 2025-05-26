@@ -5,19 +5,17 @@ interface Props {
   categorias: string[];
   initialSearchTerm?: string;
   initialCategorias: string[];
-  onCategoriaChange: (categorias: string[]) => void;
 }
 
 const { 
   categorias, 
   initialSearchTerm = '', 
-  initialCategorias = [],
-  onCategoriaChange 
+  initialCategorias = []
 } = Astro.props;
 ---
 
 <div class="catalog-filters">
-  <form class="search-form" onsubmit="event.preventDefault();">
+  <form id="searchForm" class="search-form" onsubmit="event.preventDefault();">
     <div class="search-container">
       <input 
         type="text" 

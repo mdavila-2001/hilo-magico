@@ -6,16 +6,30 @@ import StoresList from '../components/catalog/StoresList.astro';
 import { groupProductsByStore } from '../utils/filters';
 import { productos, tiendas } from '../data/productos';
 
-// Obtener categorías de la URL
+// Obtener parámetros de la URL
 const url = new URL(Astro.request.url);
-const categoriasSeleccionadas = url.searchParams.get('categorias')?.split(',').filter(Boolean) || [];
+const searchParams = url.searchParams;
+const searchTerm = searchParams.get('q')?.toLowerCase() || '';
+const categoriasSeleccionadas = searchParams.get('categorias')?.split(',').filter(Boolean) || [];
 
-// Filtrar tiendas por categorías seleccionadas
-const tiendasFiltradas = categoriasSeleccionadas.length > 0
-  ? tiendas.filter(tienda => 
-      tienda.categorias.some(cat => categoriasSeleccionadas.includes(cat))
-    )
-  : tiendas;
+// Función para filtrar tiendas según los criterios de búsqueda y categorías
+function filtrarTiendas(tiendas: any[], search: string, categorias: string[]) {
+  return tiendas.filter(tienda => {
+    // Filtrar por categorías si hay alguna seleccionada
+    const cumpleCategorias = categorias.length === 0 || 
+      tienda.categorias.some((cat: string) => categorias.includes(cat));
+    
+    // Filtrar por término de búsqueda
+    const cumpleBusqueda = !search || 
+      tienda.nombre.toLowerCase().includes(search) || 
+      tienda.descripcion.toLowerCase().includes(search);
+    
+    return cumpleCategorias && cumpleBusqueda;
+  });
+}
+
+// Filtrar tiendas según los parámetros actuales
+const tiendasFiltradas = filtrarTiendas(tiendas, searchTerm, categoriasSeleccionadas);
 
 // Agrupar productos por tienda
 const tiendasConProductos = groupProductsByStore(tiendasFiltradas, productos);
@@ -38,23 +52,55 @@ const categoriasUnicas = Array.from(
         <!-- Componente de Filtros -->
         <CatalogFilters 
           categorias={categoriasUnicas} 
-          initialCategorias={categoriasSeleccionadas} 
-          onCategoriaChange={(nuevasCategorias: string[]) => {
-            const params = new URLSearchParams();
-            if (nuevasCategorias.length > 0) {
-              params.set('categorias', nuevasCategorias.join(','));
-            }
-            window.location.href = `${Astro.url.pathname}?${params.toString()}`;
-          }}
+          initialCategorias={categoriasSeleccionadas}
+          initialSearchTerm={searchTerm}
         />
         
-        <!-- Componente de Lista de Tiendas -->
-        <StoresList 
-          tiendas={tiendasVisibles}
-        />
+        <!-- Contenedor para la lista de tiendas (se actualizará dinámicamente) -->
+        <div id="tiendas-container">
+          <StoresList tiendas={tiendasVisibles} />
+        </div>
       </div>
     </div>
   </main>
+
+  <!-- Script para manejar la actualización dinámica de la lista de tiendas -->
+  <script>
+    // Función para actualizar la lista de tiendas
+    async function actualizarTiendas() {
+      const searchParams = new URLSearchParams(window.location.search);
+      const searchTerm = searchParams.get('q') || '';
+      const categorias = searchParams.get('categorias') ? searchParams.get('categorias')?.split(',').filter(Boolean) : [];
+      
+      // Mostrar indicador de carga
+      const container = document.getElementById('tiendas-container');
+      if (container) {
+        container.innerHTML = '<div class="loading">Cargando...</div>';
+      }
+      
+      try {
+        // Realizar una nueva solicitud al servidor con los parámetros actuales
+        const response = await fetch(`${window.location.pathname}?fragment=1&${searchParams.toString()}`);
+        const html = await response.text();
+        
+        // Actualizar solo el contenido del contenedor de tiendas
+        if (container) {
+          container.innerHTML = html;
+        }
+      } catch (error) {
+        console.error('Error al cargar las tiendas:', error);
+        if (container) {
+          container.innerHTML = '<div class="error">Error al cargar las tiendas. Inténtalo de nuevo más tarde.</div>';
+        }
+      }
+    }
+    
+    // Escuchar cambios en los filtros
+    document.addEventListener('filtrosCambiados', actualizarTiendas);
+    
+    // Manejar el botón de retroceso/avance del navegador
+    window.addEventListener('popstate', actualizarTiendas);
+  </script>
   
   <script>
     // Scripts específicos del catálogo

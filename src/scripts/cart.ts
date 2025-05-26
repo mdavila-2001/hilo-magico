@@ -129,7 +129,11 @@ class Carrito {
     try {
       const carritoGuardado = localStorage.getItem('carrito');
       if (carritoGuardado) {
-        this.carrito = JSON.parse(carritoGuardado);
+        // Parsear el carrito y asegurar que los precios sean números
+        this.carrito = JSON.parse(carritoGuardado).map((producto: Producto) => ({
+          ...producto,
+          precio: parsearPrecio(producto.precio)
+        }));
         this.actualizarCarrito();
       }
     } catch (error) {
@@ -148,6 +152,12 @@ class Carrito {
   }
 
   public agregarProducto(producto: Producto) {
+    // Asegurarse de que el precio sea un número
+    const productoConPrecioNumerico = {
+      ...producto,
+      precio: parsearPrecio(producto.precio)
+    };
+    
     const productoExistente = this.carrito.find(p => p.id === producto.id);
     let mensaje = '';
     
@@ -155,7 +165,7 @@ class Carrito {
       productoExistente.cantidad = (productoExistente.cantidad || 1) + 1;
       mensaje = `Cantidad de ${producto.nombre} actualizada a ${productoExistente.cantidad}`;
     } else {
-      this.carrito.push({ ...producto, cantidad: 1 });
+      this.carrito.push({ ...productoConPrecioNumerico, cantidad: 1 });
       mensaje = `¡${producto.nombre} agregado al carrito!`;
     }
     
@@ -222,7 +232,7 @@ class Carrito {
     
     const precioElemento = document.createElement('p');
     precioElemento.className = 'carrito__precio';
-    precioElemento.textContent = `$${precio.toFixed(2)}`;
+    precioElemento.textContent = `BOB ${precio.toFixed(2)}`;
     
     // Botones de cantidad
     const btnDisminuir = document.createElement('button');
