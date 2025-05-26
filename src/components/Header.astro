@@ -244,32 +244,6 @@ const enlaces = [
   </div>
 </header>
 
-<style>
-  /* Estilos para las notificaciones */
-  .notificacion {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-  }
-  
-  .notificacion.mostrar {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  
-  .notificacion:not(.mostrar) {
-    transform: translateY(100px);
-    opacity: 0;
-  }
-</style>
+<!-- Los estilos de notificación están en /src/styles/components/_carrito.scss -->
 
 <!-- Los estilos están en /src/styles/components/_header.scss -->

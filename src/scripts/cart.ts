@@ -1,18 +1,45 @@
 // src/scripts/cart.ts
+import { createElement, showNotification } from './utils/domUtils';
+
+// Función para convertir precio a número
+const parsearPrecio = (precio: number | string): number => {
+  if (typeof precio === 'number') return precio;
+  // Eliminar símbolos de moneda, comas y espacios, luego convertir a número
+  const precioLimpio = precio.replace(/[^0-9.,]/g, '').replace(',', '.');
+  return parseFloat(precioLimpio) || 0;
+};
 
 // Definir tipos para TypeScript
 type Producto = {
   id: string;
   nombre: string;
-  precio: number;
+  precio: number | string; // Acepta número o string
   imagen: string;
   cantidad?: number;
 };
+
+// Interfaz para los elementos del DOM
+interface CarritoElements {
+  listaCarrito: HTMLElement | null;
+  contadorCarrito: HTMLElement | null;
+  totalElemento: HTMLElement | null;
+  botonVaciar: HTMLElement | null;
+  botonPagar: HTMLElement | null;
+  carritoVacioMsg: HTMLElement | null;
+}
 
 class Carrito {
   private static instance: Carrito;
   private carrito: Producto[] = [];
   private total: number = 0;
+  private elements: CarritoElements = {
+    listaCarrito: null,
+    contadorCarrito: null,
+    totalElemento: null,
+    botonVaciar: null,
+    botonPagar: null,
+    carritoVacioMsg: null,
+  };
   private listaCarrito: HTMLElement | null = null;
   private contadorCarrito: HTMLElement | null = null;
   private totalElemento: HTMLElement | null = null;
@@ -42,6 +69,11 @@ class Carrito {
     this.botonVaciar = document.getElementById('vaciar-carrito');
     this.botonPagar = document.getElementById('procesar-pago');
     this.carritoVacioMsg = document.querySelector('.carrito__vacio');
+    
+    // Asegurarse de que el contador se inicialice correctamente
+    if (this.contadorCarrito) {
+      this.contadorCarrito.textContent = this.carrito.reduce((sum, p) => sum + (p.cantidad || 1), 0).toString();
+    }
   }
 
   private configurarEventListeners() {
@@ -116,31 +148,135 @@ class Carrito {
   }
 
   public agregarProducto(producto: Producto) {
-    const existe = this.carrito.find(p => p.id === producto.id);
-    if (existe) {
-      existe.cantidad = (existe.cantidad || 1) + 1;
+    const productoExistente = this.carrito.find(p => p.id === producto.id);
+    let mensaje = '';
+    
+    if (productoExistente) {
+      productoExistente.cantidad = (productoExistente.cantidad || 1) + 1;
+      mensaje = `Cantidad de ${producto.nombre} actualizada a ${productoExistente.cantidad}`;
     } else {
       this.carrito.push({ ...producto, cantidad: 1 });
+      mensaje = `¡${producto.nombre} agregado al carrito!`;
     }
+    
     this.guardarCarrito();
-    this.mostrarNotificacion(`"${producto.nombre}" se ha añadido al carrito`);
+    this.actualizarCarrito();
+    this.mostrarNotificacion(mensaje);
+    
+    // Mostrar el contador si estaba oculto
+    if (this.contadorCarrito) {
+      this.contadorCarrito.style.display = 'flex';
+    }
   }
 
   public eliminarProducto(id: string) {
-    this.carrito = this.carrito.filter(p => p.id !== id);
-    this.guardarCarrito();
+    const index = this.carrito.findIndex(p => p.id === id);
+    if (index !== -1) {
+      const productoEliminado = this.carrito[index];
+      this.carrito.splice(index, 1);
+      this.guardarCarrito();
+      this.actualizarCarrito();
+      this.mostrarNotificacion(`Se eliminó ${productoEliminado.nombre} del carrito`);
+    }
   }
 
   public actualizarCantidad(id: string, cantidad: number) {
     const producto = this.carrito.find(p => p.id === id);
     if (producto) {
-      producto.cantidad = cantidad;
-      if (producto.cantidad <= 0) {
+      if (cantidad <= 0) {
         this.eliminarProducto(id);
       } else {
-        this.guardarCarrito();
+        const cantidadAnterior = producto.cantidad || 1;
+        producto.cantidad = cantidad;
+        
+        // Mostrar notificación solo si la cantidad cambió
+        if (cantidadAnterior !== cantidad) {
+          const accion = cantidad > cantidadAnterior ? 'aumentó' : 'disminuyó';
+          this.mostrarNotificacion(`Cantidad de ${producto.nombre} ${accion} a ${cantidad}`);
+        }
       }
+      this.guardarCarrito();
+      this.actualizarCarrito();
     }
+  }
+
+  private createProductElement(producto: Producto): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'carrito__item';
+    li.dataset.id = producto.id;
+    
+    // Asegurarse de que el precio sea un número
+    const precio = parsearPrecio(producto.precio);
+    const cantidad = producto.cantidad || 1;
+    
+    // Crear elementos del producto
+    const img = document.createElement('img');
+    img.src = producto.imagen;
+    img.alt = producto.nombre;
+    img.className = 'carrito__imagen';
+    img.loading = 'lazy';
+    
+    const nombre = document.createElement('h3');
+    nombre.className = 'carrito__nombre';
+    nombre.textContent = producto.nombre;
+    
+    const precioElemento = document.createElement('p');
+    precioElemento.className = 'carrito__precio';
+    precioElemento.textContent = `$${precio.toFixed(2)}`;
+    
+    // Botones de cantidad
+    const btnDisminuir = document.createElement('button');
+    btnDisminuir.className = 'carrito__item-btn';
+    btnDisminuir.dataset.accion = 'disminuir';
+    btnDisminuir.dataset.id = producto.id;
+    btnDisminuir.ariaLabel = 'Disminuir cantidad';
+    btnDisminuir.disabled = cantidad <= 1;
+    const minusIcon = document.createElement('i');
+    minusIcon.className = 'fas fa-minus';
+    btnDisminuir.appendChild(minusIcon);
+    
+    const cantidadElemento = document.createElement('span');
+    cantidadElemento.className = 'carrito__cantidad';
+    cantidadElemento.dataset.id = producto.id;
+    cantidadElemento.textContent = cantidad.toString();
+    
+    const btnAumentar = document.createElement('button');
+    btnAumentar.className = 'carrito__item-btn';
+    btnAumentar.dataset.accion = 'aumentar';
+    btnAumentar.dataset.id = producto.id;
+    btnAumentar.ariaLabel = 'Aumentar cantidad';
+    const plusIcon = document.createElement('i');
+    plusIcon.className = 'fas fa-plus';
+    btnAumentar.appendChild(plusIcon);
+    
+    const btnEliminar = document.createElement('button');
+    btnEliminar.className = 'carrito__eliminar';
+    btnEliminar.dataset.id = producto.id;
+    btnEliminar.ariaLabel = 'Eliminar producto';
+    const trashIcon = document.createElement('i');
+    trashIcon.className = 'fas fa-trash';
+    btnEliminar.appendChild(trashIcon);
+    
+    const cantidadContainer = document.createElement('div');
+    cantidadContainer.className = 'carrito__item-cantidad';
+    cantidadContainer.appendChild(btnDisminuir);
+    cantidadContainer.appendChild(cantidadElemento);
+    cantidadContainer.appendChild(btnAumentar);
+    cantidadContainer.appendChild(btnEliminar);
+    
+    const subtotal = document.createElement('p');
+    subtotal.className = 'carrito__subtotal';
+    
+    const detalles = document.createElement('div');
+    detalles.className = 'carrito__detalles';
+    detalles.appendChild(nombre);
+    detalles.appendChild(precioElemento);
+    detalles.appendChild(cantidadContainer);
+    detalles.appendChild(subtotal);
+    
+    li.appendChild(img);
+    li.appendChild(detalles);
+    return li;
   }
 
   private actualizarCarrito() {
@@ -152,9 +288,9 @@ class Carrito {
       return;
     }
 
-    // Actualizar la lista de productos
-    this.listaCarrito.innerHTML = '';
+    // Reiniciar el total
     this.total = 0;
+    this.listaCarrito.innerHTML = '';
 
     if (this.carrito.length === 0) {
       if (this.carritoVacioMsg) this.carritoVacioMsg.style.display = 'block';
@@ -163,49 +299,49 @@ class Carrito {
       return;
     }
 
+    // Calcular el total de items y el precio total
+    const totalItems = this.carrito.reduce((sum, p) => sum + (p.cantidad || 1), 0);
+    
+    // Calcular el total usando la función parsearPrecio
+    this.total = this.carrito.reduce((sum, producto) => {
+      const cantidad = producto.cantidad || 1;
+      const precio = parsearPrecio(producto.precio);
+      return sum + (precio * cantidad);
+    }, 0);
+    
+    console.log('Total calculado:', this.total); // Para depuración
+
     if (this.carritoVacioMsg) this.carritoVacioMsg.style.display = 'none';
     
+    // Crear elementos del carrito
     this.carrito.forEach(producto => {
-      const subtotal = producto.precio * (producto.cantidad || 1);
-      this.total += subtotal;
-
-      if (this.listaCarrito) {
-        const li = document.createElement('li');
-        li.className = 'carrito__item';
-        li.className = 'carrito__item';
-        li.innerHTML = `
-          <img src="${producto.imagen}" alt="${producto.nombre}" class="carrito__imagen">
-          <div class="carrito__detalles">
-            <h4 class="carrito__nombre">${producto.nombre}</h4>
-            <p class="carrito__precio">$${producto.precio.toFixed(2)}</p>
-            <div class="carrito__item-cantidad">
-              <button class="carrito__item-btn" data-accion="disminuir" data-id="${producto.id}">
-                <i class="fas fa-minus"></i>
-              </button>
-              <span class="carrito__item-cantidad-num">${producto.cantidad || 1}</span>
-              <button class="carrito__item-btn" data-accion="aumentar" data-id="${producto.id}">
-                <i class="fas fa-plus"></i>
-              </button>
-              <button class="carrito__eliminar" data-id="${producto.id}" aria-label="Eliminar producto">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        this.listaCarrito.appendChild(li);
-      }
+      const li = this.createProductElement(producto);
+      this.listaCarrito?.appendChild(li);
     });
 
     // Actualizar contador y total
-    const totalItems = this.carrito.reduce((sum, p) => sum + (p.cantidad || 1), 0);
-    if (this.contadorCarrito) this.contadorCarrito.textContent = totalItems.toString();
-    if (this.totalElemento) this.totalElemento.textContent = this.total.toFixed(2);
+    if (this.contadorCarrito) {
+      this.contadorCarrito.textContent = totalItems.toString();
+      this.contadorCarrito.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+    
+    if (this.totalElemento) {
+      this.totalElemento.textContent = this.total.toFixed(2);
+    }
   }
 
   public vaciarCarrito() {
-    this.carrito = [];
-    this.guardarCarrito();
-    this.mostrarNotificacion('Carrito vaciado');
+    if (this.carrito.length > 0) {
+      this.carrito = [];
+      this.guardarCarrito();
+      this.actualizarCarrito();
+      this.mostrarNotificacion('Se ha vaciado el carrito');
+      
+      // Ocultar el contador
+      if (this.contadorCarrito) {
+        this.contadorCarrito.style.display = 'none';
+      }
+    }
   }
 
   public procesarPago() {
@@ -214,47 +350,18 @@ class Carrito {
   }
 
   private mostrarNotificacion(mensaje: string) {
-    // Crear elemento de notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = 'notificacion';
-    notificacion.textContent = mensaje;
-    
-    // Estilos para la notificación
-    notificacion.style.position = 'fixed';
-    notificacion.style.bottom = '20px';
-    notificacion.style.right = '20px';
-    notificacion.style.padding = '15px 25px';
-    notificacion.style.backgroundColor = '#4CAF50';
-    notificacion.style.color = 'white';
-    notificacion.style.borderRadius = '4px';
-    notificacion.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-    notificacion.style.zIndex = '1000';
-    notificacion.style.transform = 'translateY(100px)';
-    notificacion.style.opacity = '0';
-    notificacion.style.transition = 'all 0.3s ease-out';
-    
-    // Agregar al documento
-    document.body.appendChild(notificacion);
-    
-    // Forzar reflow para que la animación funcione
-    notificacion.getBoundingClientRect();
-    
-    // Mostrar con animación
-    notificacion.style.transform = 'translateY(0)';
-    notificacion.style.opacity = '1';
-    
-    // Ocultar después de 3 segundos
-    setTimeout(() => {
-      notificacion.style.transform = 'translateY(100px)';
-      notificacion.style.opacity = '0';
+    try {
+      // Asegurarse de que el mensaje sea seguro
+      const mensajeSeguro = typeof mensaje === 'string' ? mensaje : 'Operación realizada correctamente';
       
-      // Eliminar después de la animación
-      setTimeout(() => {
-        if (document.body.contains(notificacion)) {
-          document.body.removeChild(notificacion);
-        }
-      }, 300);
-    }, 3000);
+      // Mostrar la notificación
+      showNotification(mensajeSeguro);
+      
+      // Log para depuración
+      console.log('Notificación mostrada:', mensajeSeguro);
+    } catch (error) {
+      console.error('Error al mostrar notificación:', error);
+    }
   }
 }
 

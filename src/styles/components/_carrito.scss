@@ -3,6 +3,36 @@
 @use '../variables' as *;
 @use '../mixins' as *;
 
+// Estilos de notificaciones
+.notificacion {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  padding: 15px 25px !important;
+  background-color: #4CAF50 !important;
+  color: white !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+  z-index: 9999 !important;
+  transform: translateY(100px) !important;
+  opacity: 0 !important;
+  transition: all 0.3s ease-out !important;
+  font-family: $fuente-principal, Arial, sans-serif !important;
+  max-width: 300px !important;
+  word-wrap: break-word !important;
+  pointer-events: auto !important;
+  
+  &--visible {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+  }
+  
+  &--ocultando {
+    transform: translateY(100px) !important;
+    opacity: 0 !important;
+  }
+}
+
 // Estilos del carrito de compras
 .carrito {
   position: fixed;
