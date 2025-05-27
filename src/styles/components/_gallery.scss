@@ -1,0 +1,226 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+/* Filtros de Galería */
+.filtros-galeria {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0 3rem;
+  
+  @include tablet {
+    gap: 1.5rem;
+    margin: 3rem 0 4rem;
+  }
+}
+
+.filtro-galeria {
+  background: transparent;
+  border: 2px solid $color-lavanda;
+  color: $color-lavanda;
+  padding: 0.6rem 1.5rem;
+  border-radius: 2rem;
+  font-family: $fuente-principal;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  @include tablet {
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
+  }
+  
+  &:hover, &.activo {
+    background: $color-lavanda;
+    color: $color-violeta-oscuro;
+  }
+}
+
+/* Grid de Galería */
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+  
+  @include tablet {
+    gap: 2rem;
+  }
+}
+
+/* Items de Galería */
+.galeria-item {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+  
+  &__contenedor {
+    position: relative;
+    padding-top: 125%; /* Relación de aspecto 4:5 */
+    background-color: $color-blanco-calido;
+  }
+  
+  &__imagen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(0deg, rgba($color-violeta-oscuro, 0.9) 0%, rgba($color-violeta-oscuro, 0.7) 50%, rgba($color-violeta-oscuro, 0.4) 100%);
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 1.5rem;
+    
+    @include tablet {
+      padding: 2rem;
+    }
+  }
+  
+  &__contenido {
+    transform: translateY(20px);
+    transition: transform 0.3s ease 0.1s;
+    width: 100%;
+  }
+  
+  &__titulo {
+    color: $color-blanco-calido;
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+    
+    @include tablet {
+      font-size: 1.5rem;
+    }
+  }
+  
+  &__descripcion {
+    color: rgba($color-blanco-calido, 0.9);
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+    
+    @include tablet {
+      font-size: 1rem;
+    }
+  }
+  
+  &__categoria {
+    display: inline-block;
+    background: rgba($color-blanco-calido, 0.2);
+    color: $color-blanco-calido;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Efectos hover */
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    
+    .galeria-item__overlay {
+      opacity: 1;
+    }
+    
+    .galeria-item__contenido {
+      transform: translateY(0);
+    }
+    
+    .galeria-item__imagen {
+      transform: scale(1.05);
+    }
+  }
+  
+  /* Efecto de carga */
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: $i * 0.1s;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para el hero de la galería */
+.hero--small {
+  background: linear-gradient(rgba($color-violeta-oscuro, 0.8), rgba($color-violeta-oscuro, 0.8)), 
+              url('/images/hero-gallery.jpg') center/cover no-repeat;
+  color: $color-blanco-calido;
+  text-align: center;
+  padding: 6rem 1rem;
+  margin-bottom: 3rem;
+  
+  @include tablet {
+    padding: 8rem 1rem;
+  }
+  
+  .hero__titulo {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    
+    @include tablet {
+      font-size: 3.5rem;
+    }
+  }
+  
+  .hero__subtitulo {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    @include tablet {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+/* Estilos para la sección oscura */
+.seccion--oscura {
+  background-color: $color-violeta-oscuro;
+  color: $color-blanco-calido;
+  text-align: center;
+  padding: 4rem 0;
+  
+  .seccion__titulo,
+  .seccion__subtitulo {
+    color: inherit;
+  }
+  
+  .seccion__titulo {
+    margin-bottom: 1rem;
+  }
+  
+  .seccion__subtitulo {
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+}
+
+/* Utilidades */
+.text-center {
+  text-align: center;
+}

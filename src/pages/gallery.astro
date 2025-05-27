@@ -32,68 +32,126 @@ const descripcionPagina = 'Explora nuestra galería de trabajos personalizados y
           <p class="seccion__subtitulo">Algunas de nuestras creaciones más recientes</p>
         </div>
         
-        <div class="galeria">
-          <!-- Fila 1 -->
-          <div class="galeria__fila">
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-1.jpg" alt="Trabajo de costura 1" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Vestido de Verano</h3>
-                  <p class="galeria__descripcion">Vestido floreado con detalles en encaje</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-2.jpg" alt="Trabajo de costura 2" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Blusa Elegante</h3>
-                  <p class="galeria__descripcion">Blusa de seda con detalles en la espalda</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-3.jpg" alt="Trabajo de costura 3" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Conjunto Casual</h3>
-                  <p class="galeria__descripcion">Conjunto de dos piezas en tonos pastel</p>
+        <!-- Filtros de Galería -->
+        <div class="filtros-galeria">
+          <button class="filtro-galeria activo" data-categoria="todos">Todos</button>
+          <button class="filtro-galeria" data-categoria="vestidos">Vestidos</button>
+          <button class="filtro-galeria" data-categoria="blusas">Blusas</button>
+          <button class="filtro-galeria" data-categoria="faldas">Faldas</button>
+          <button class="filtro-galeria" data-categoria="conjuntos">Conjuntos</button>
+          <button class="filtro-galeria" data-categoria="personalizados">Personalizados</button>
+        </div>
+        
+        <div class="galeria-grid">
+          <!-- Item 1 -->
+          <div class="galeria-item" data-categoria="vestidos">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-1.jpg" 
+                alt="Vestido de Verano" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Vestido de Verano</h3>
+                  <p class="galeria-item__descripcion">Vestido floreado con detalles en encaje</p>
+                  <span class="galeria-item__categoria">Vestidos</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <!-- Fila 2 -->
-          <div class="galeria__fila">
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-4.jpg" alt="Trabajo de costura 4" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Vestido de Noche</h3>
-                  <p class="galeria__descripcion">Elegante vestido largo para ocasiones especiales</p>
+          <!-- Item 2 -->
+          <div class="galeria-item" data-categoria="blusas">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-2.jpg" 
+                alt="Blusa Elegante" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Blusa Elegante</h3>
+                  <p class="galeria-item__descripcion">Blusa de seda con detalles en la espalda</p>
+                  <span class="galeria-item__categoria">Blusas</span>
                 </div>
               </div>
             </div>
-            
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-5.jpg" alt="Trabajo de costura 5" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Falda Plisada</h3>
-                  <p class="galeria__descripcion">Falda midi con pliegues y cintura alta</p>
+          </div>
+          
+          <!-- Item 3 -->
+          <div class="galeria-item" data-categoria="conjuntos">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-3.jpg" 
+                alt="Conjunto Casual" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Conjunto Casual</h3>
+                  <p class="galeria-item__descripcion">Conjunto de dos piezas en tonos pastel</p>
+                  <span class="galeria-item__categoria">Conjuntos</span>
                 </div>
               </div>
             </div>
-            
-            <div class="galeria__item">
-              <div class="galeria__imagen-contenedor">
-                <img src="/images/placeholder-6.jpg" alt="Trabajo de costura 6" class="galeria__imagen" />
-                <div class="galeria__overlay">
-                  <h3 class="galeria__titulo">Top con Volados</h3>
-                  <p class="galeria__descripcion">Top con detalles en volados y espalda descubierta</p>
+          </div>
+          
+          <!-- Item 4 -->
+          <div class="galeria-item" data-categoria="vestidos">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-4.jpg" 
+                alt="Vestido de Noche" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Vestido de Noche</h3>
+                  <p class="galeria-item__descripcion">Elegante vestido largo para ocasiones especiales</p>
+                  <span class="galeria-item__categoria">Vestidos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Item 5 -->
+          <div class="galeria-item" data-categoria="faldas">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-5.jpg" 
+                alt="Falda Plisada" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Falda Plisada</h3>
+                  <p class="galeria-item__descripcion">Falda midi con pliegues y cintura alta</p>
+                  <span class="galeria-item__categoria">Faldas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Item 6 -->
+          <div class="galeria-item" data-categoria="personalizados">
+            <div class="galeria-item__contenedor">
+              <img 
+                src="/images/placeholder-6.jpg" 
+                alt="Top con Volados" 
+                class="galeria-item__imagen" 
+                loading="lazy"
+              />
+              <div class="galeria-item__overlay">
+                <div class="galeria-item__contenido">
+                  <h3 class="galeria-item__titulo">Top con Volados</h3>
+                  <p class="galeria-item__descripcion">Top con detalles en volados y espalda descubierta</p>
+                  <span class="galeria-item__categoria">Personalizados</span>
                 </div>
               </div>
             </div>
@@ -116,146 +174,22 @@ const descripcionPagina = 'Explora nuestra galería de trabajos personalizados y
   
   <!-- Footer -->
   <Footer />
+  
+  <!-- Script para el filtrado de la galería -->
+  <script>
+    // Importar la función de inicialización
+    import { initGallery } from '../scripts/gallery';
+    
+    // Inicializar la galería cuando el DOM esté listo
+    document.addEventListener('astro:page-load', () => {
+      initGallery();
+    });
+  </script>
 </BaseLayout>
 
 <!-- Estilos específicos de la página de galería -->
-<style>
+<style lang="scss" is:global>
   @use '../styles/variables' as *;
   @use '../styles/mixins' as *;
-  
-  /* Estilos para el hero pequeño */
-  .hero--small {
-    background: linear-gradient(rgba($color-violeta-oscuro, 0.8), rgba($color-violeta-oscuro, 0.8)), 
-                url('/images/hero-gallery.jpg') center/cover no-repeat;
-    color: $color-blanco-calido;
-    text-align: center;
-    padding: 6rem 1rem;
-    margin-bottom: 3rem;
-    
-    @include tablet {
-      padding: 8rem 1rem;
-    }
-    
-    .hero__titulo {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      font-weight: 700;
-      
-      @include tablet {
-        font-size: 3.5rem;
-      }
-    }
-    
-    .hero__subtitulo {
-      font-size: 1.25rem;
-      opacity: 0.9;
-      max-width: 800px;
-      margin: 0 auto;
-      
-      @include tablet {
-        font-size: 1.5rem;
-      }
-    }
-  }
-  
-  /* Estilos para la galería */
-  .galeria {
-    margin: 3rem 0;
-    
-    &__fila {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      margin-bottom: 2rem;
-      
-      @include tablet {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    
-    &__item {
-      position: relative;
-      border-radius: $radio-borde;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        
-        .galeria__overlay {
-          opacity: 1;
-        }
-      }
-    }
-    
-    &__imagen-contenedor {
-      position: relative;
-      padding-top: 125%; /* Relación de aspecto 4:5 */
-      background-color: $color-fondo-claro;
-    }
-    
-    &__imagen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-    
-    &__overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba($color-violeta-oscuro, 0.9));
-      color: $color-blanco-calido;
-      padding: 2rem 1.5rem 1.5rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      text-align: left;
-    }
-    
-    &__titulo {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-    
-    &__descripcion {
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin: 0;
-    }
-  }
-  
-  /* Estilos para la sección oscura */
-  .seccion--oscura {
-    background-color: $color-violeta-oscuro;
-    color: $color-blanco-calido;
-    text-align: center;
-    padding: 4rem 0;
-    
-    .seccion__titulo,
-    .seccion__subtitulo {
-      color: inherit;
-    }
-    
-    .seccion__titulo {
-      margin-bottom: 1rem;
-    }
-    
-    .seccion__subtitulo {
-      margin-bottom: 2rem;
-      opacity: 0.9;
-    }
-  }
-  
-  /* Utilidades */
-  .text-center {
-    text-align: center;
-  }
+  @use '../styles/components/gallery';
 </style>
