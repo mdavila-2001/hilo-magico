@@ -1,0 +1,261 @@
+---
+// src/pages/gallery.astro
+
+// Importamos los componentes
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// Metadatos para SEO
+const tituloPagina = 'Gallery - Hilo Mágico';
+const descripcionPagina = 'Explora nuestra galería de trabajos personalizados y descubre la calidad de nuestras prendas hechas a mano con amor y dedicación.';
+---
+
+<BaseLayout title={tituloPagina} description={descripcionPagina}>
+  <!-- Header -->
+  <Header />
+  
+  <main>
+    <!-- Hero Section -->
+    <section class="hero hero--small">
+      <div class="contenedor">
+        <h1 class="hero__titulo">Nuestra Galería</h1>
+        <p class="hero__subtitulo">Descubre nuestras creaciones más recientes</p>
+      </div>
+    </section>
+    
+    <!-- Galería de Trabajos -->
+    <section class="seccion">
+      <div class="contenedor">
+        <div class="seccion__encabezado">
+          <h2 class="seccion__titulo">Nuestros Trabajos</h2>
+          <p class="seccion__subtitulo">Algunas de nuestras creaciones más recientes</p>
+        </div>
+        
+        <div class="galeria">
+          <!-- Fila 1 -->
+          <div class="galeria__fila">
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-1.jpg" alt="Trabajo de costura 1" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Vestido de Verano</h3>
+                  <p class="galeria__descripcion">Vestido floreado con detalles en encaje</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-2.jpg" alt="Trabajo de costura 2" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Blusa Elegante</h3>
+                  <p class="galeria__descripcion">Blusa de seda con detalles en la espalda</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-3.jpg" alt="Trabajo de costura 3" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Conjunto Casual</h3>
+                  <p class="galeria__descripcion">Conjunto de dos piezas en tonos pastel</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Fila 2 -->
+          <div class="galeria__fila">
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-4.jpg" alt="Trabajo de costura 4" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Vestido de Noche</h3>
+                  <p class="galeria__descripcion">Elegante vestido largo para ocasiones especiales</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-5.jpg" alt="Trabajo de costura 5" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Falda Plisada</h3>
+                  <p class="galeria__descripcion">Falda midi con pliegues y cintura alta</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="galeria__item">
+              <div class="galeria__imagen-contenedor">
+                <img src="/images/placeholder-6.jpg" alt="Trabajo de costura 6" class="galeria__imagen" />
+                <div class="galeria__overlay">
+                  <h3 class="galeria__titulo">Top con Volados</h3>
+                  <p class="galeria__descripcion">Top con detalles en volados y espalda descubierta</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Sección de CTA -->
+    <section class="seccion seccion--oscura">
+      <div class="contenedor">
+        <h2 class="seccion__titulo">¿Te gustaría algo similar?</h2>
+        <p class="seccion__subtitulo">Contáctanos para realizar un pedido personalizado</p>
+        <div class="text-center">
+          <a href="/contacto" class="boton boton--primario">Solicitar Presupuesto</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer -->
+  <Footer />
+</BaseLayout>
+
+<!-- Estilos específicos de la página de galería -->
+<style>
+  @use '../styles/variables' as *;
+  @use '../styles/mixins' as *;
+  
+  /* Estilos para el hero pequeño */
+  .hero--small {
+    background: linear-gradient(rgba($color-violeta-oscuro, 0.8), rgba($color-violeta-oscuro, 0.8)), 
+                url('/images/hero-gallery.jpg') center/cover no-repeat;
+    color: $color-blanco-calido;
+    text-align: center;
+    padding: 6rem 1rem;
+    margin-bottom: 3rem;
+    
+    @include tablet {
+      padding: 8rem 1rem;
+    }
+    
+    .hero__titulo {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      
+      @include tablet {
+        font-size: 3.5rem;
+      }
+    }
+    
+    .hero__subtitulo {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+      
+      @include tablet {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  
+  /* Estilos para la galería */
+  .galeria {
+    margin: 3rem 0;
+    
+    &__fila {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      
+      @include tablet {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    &__item {
+      position: relative;
+      border-radius: $radio-borde;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        
+        .galeria__overlay {
+          opacity: 1;
+        }
+      }
+    }
+    
+    &__imagen-contenedor {
+      position: relative;
+      padding-top: 125%; /* Relación de aspecto 4:5 */
+      background-color: $color-fondo-claro;
+    }
+    
+    &__imagen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    &__overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba($color-violeta-oscuro, 0.9));
+      color: $color-blanco-calido;
+      padding: 2rem 1.5rem 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-align: left;
+    }
+    
+    &__titulo {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    &__descripcion {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+  }
+  
+  /* Estilos para la sección oscura */
+  .seccion--oscura {
+    background-color: $color-violeta-oscuro;
+    color: $color-blanco-calido;
+    text-align: center;
+    padding: 4rem 0;
+    
+    .seccion__titulo,
+    .seccion__subtitulo {
+      color: inherit;
+    }
+    
+    .seccion__titulo {
+      margin-bottom: 1rem;
+    }
+    
+    .seccion__subtitulo {
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+  }
+  
+  /* Utilidades */
+  .text-center {
+    text-align: center;
+  }
+</style>
