@@ -1,0 +1,110 @@
+---
+// Importaciones
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ServiceCard from '../components/Services/ServiceCard.astro';
+import { serviciosCostura, serviciosMagicos } from '../data/services';
+
+// Tipos para TypeScript
+type Servicio = {
+  titulo: string;
+  descripcion: string;
+  icono: string;
+  precio: string;
+  destacado: boolean;
+  categoria: string;
+  incluye?: string[];
+};
+
+// Metadatos para SEO
+const tituloPagina = 'Servicios - Hilo Mágico';
+const descripcionPagina = 'Descubre nuestros servicios de costura tradicional y nuestros exclusivos servicios mágicos. Desde confección a medida hasta transformaciones únicas.';
+
+// Importar estilos
+import '../styles/pages/services.scss';
+---
+
+<BaseLayout title={tituloPagina} description={descripcionPagina}>
+  <Header />
+  
+  <main>
+    {/* Hero Section */}
+    <section class="hero hero--small">
+      <div class="contenedor">
+        <h1 class="hero__titulo">Nuestros Servicios</h1>
+        <p class="hero__subtitulo">Descubre todo lo que podemos ofrecerte</p>
+      </div>
+    </section>
+    
+    {/* Servicios de Costura */}
+    <section class="seccion">
+      <div class="contenedor">
+        <div class="seccion__encabezado">
+          <h2 class="seccion__titulo">Servicios de Costura</h2>
+          <p class="seccion__descripcion">Servicios profesionales de costura a tu medida</p>
+        </div>
+        
+        <div class="servicios-grid">
+          {serviciosCostura.map((servicio) => {
+            const servicioConIncluye: Servicio = {
+              ...servicio,
+              incluye: 'incluye' in servicio ? (servicio as any).incluye : []
+            };
+            return (
+              <ServiceCard 
+                servicio={servicioConIncluye} 
+                tipo="normal"
+                class="servicio-card-item"
+              />
+            );
+          })}
+        </div>
+      </div>
+    </section>
+    
+    {/* Servicios Mágicos */}
+    <section class="seccion seccion--magica">
+      <div class="contenedor">
+        <div class="seccion__encabezado">
+          <h2 class="seccion__titulo">Servicios Mágicos</h2>
+          <p class="seccion__descripcion">Descubre nuestros servicios con un toque especial de magia.</p>
+        </div>
+        
+        <div class="servicios-magicos">
+          {serviciosMagicos.map((servicio) => {
+            const servicioConIncluye: Servicio = {
+              ...servicio,
+              incluye: 'incluye' in servicio ? (servicio as any).incluye : []
+            };
+            return (
+              <ServiceCard 
+                servicio={servicioConIncluye} 
+                tipo="magico"
+                class="servicio-magico-item"
+              />
+            );
+          })}
+        </div>
+      </div>
+    </section>
+    
+    {/* CTA Section */}
+    <section class="seccion seccion--cta">
+      <div class="contenedor">
+        <div class="cta">
+          <h2 class="cta__titulo">¿Listo para darle magia a tu vestuario?</h2>
+          <p class="cta__texto">Contáctanos para más información sobre nuestros servicios</p>
+          <a href="/contacto" class="boton boton--grande">Solicitar Cotización</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <script>
+    // Scripts específicos de la página de servicios
+    document.addEventListener('astro:page-load', () => {
+      // Inicialización de scripts si es necesario
+    });
+  </script>
+</BaseLayout>

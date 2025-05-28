@@ -1,0 +1,69 @@
+---
+// src/components/Services/ServiceCard.astro
+
+export interface Props {
+  servicio: {
+    titulo: string;
+    descripcion: string;
+    icono: string;
+    precio: string;
+    destacado: boolean;
+    categoria: string;
+    incluye?: string[];
+  };
+  tipo: 'normal' | 'magico';
+  class?: string;
+}
+
+const { servicio, tipo, class: className = '' } = Astro.props;
+
+// Clases base para las tarjetas
+const baseClasses = {
+  normal: 'servicio-card',
+  magico: 'servicio-magico',
+};
+
+const destacadoClass = servicio.destacado ? ' destacado' : '';
+const cardClass = `${baseClasses[tipo]}${destacadoClass} ${className}`.trim();
+---
+
+{tipo === 'normal' ? (
+  <article class={cardClass} data-categoria={servicio.categoria}>
+    <div class="servicio-card__icono">
+      {servicio.icono}
+    </div>
+    <h3 class="servicio-card__titulo">{servicio.titulo}</h3>
+    <p class="servicio-card__precio">{servicio.precio}</p>
+    <p class="servicio-card__descripcion">{servicio.descripcion}</p>
+    <button class="boton boton--primario">Solicitar Servicio</button>
+  </article>
+) : (
+  <article class={cardClass} data-categoria={servicio.categoria}>
+    <div class="servicio-magico__contenido">
+      <div class="servicio-magico__icono">
+        {servicio.icono}
+      </div>
+      <h3 class="servicio-magico__titulo">{servicio.titulo}</h3>
+      <p class="servicio-magico__precio">{servicio.precio}</p>
+      <p class="servicio-magico__descripcion">{servicio.descripcion}</p>
+      
+      {servicio.incluye && servicio.incluye.length > 0 && (
+        <div class="servicio-magico__incluye">
+          <h4>Incluye:</h4>
+          <ul>
+            {servicio.incluye.map((item, index) => {
+              const uniqueKey = `${servicio.titulo}-item-${index}`.replace(/\s+/g, '-').toLowerCase();
+              return (
+                <li data-key={uniqueKey}>
+                  {item}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      
+      <button class="boton boton--secundario">¡Quiero esta magia!</button>
+    </div>
+  </article>
+)}

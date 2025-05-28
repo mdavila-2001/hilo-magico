@@ -1,0 +1,359 @@
+@use '../variables' as *;
+
+// Estilos para los encabezados de sección
+.seccion__encabezado {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .seccion__titulo {
+    color: $color-violeta-oscuro;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-family: $fuente-titulos;
+  }
+  
+  .seccion__descripcion {
+    color: lighten($color-violeta-oscuro, 20%);
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 auto;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+}
+
+// Estilos para la sección de servicios
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+// Estilos para las tarjetas de servicio normales
+.servicio-card {
+  background: $color-blanco;
+  border-radius: $radio-borde;
+  padding: 2rem;
+  box-shadow: $sombra-suave;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  
+  &--destacado {
+    border: 2px solid $color-violeta-oscuro;
+    position: relative;
+    
+    &::before {
+      content: '¡Más popular!';
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: $color-violeta-oscuro;
+      color: $color-blanco;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: $fuente-secundaria;
+    }
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  &__icono {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  &__titulo {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    color: $color-violeta-oscuro;
+    font-family: $fuente-titulos;
+    text-align: center;
+  }
+  
+  &__precio {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $color-violeta-oscuro;
+    margin: 0 0 1rem;
+    font-family: $fuente-secundaria;
+    text-align: center;
+  }
+  
+  &__descripcion {
+    color: $color-gris-oscuro;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+    font-family: $fuente-principal;
+    line-height: 1.6;
+  }
+  
+  .boton {
+    align-self: center;
+    margin-top: auto;
+  }
+}
+
+// Estilos para servicios mágicos
+.servicios-magicos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.servicio-magico {
+  background: rgba($color-violeta-oscuro, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba($color-violeta-oscuro, 0.1);
+  
+  &--destacado {
+    border: 2px solid $color-rosa-pastel;
+    position: relative;
+    
+    &::before {
+      content: '¡Más solicitado!';
+      position: absolute;
+      top: 15px;
+      right: -35px;
+      background: $color-rosa-pastel;
+      color: $color-violeta-oscuro;
+      padding: 0.25rem 2rem;
+      transform: rotate(45deg);
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: $fuente-secundaria;
+    }
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba($color-violeta-oscuro, 0.1);
+  }
+  
+  &__contenido {
+    padding: 2.5rem 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  &__icono {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: $color-rosa-pastel;
+  }
+  
+  &__titulo {
+    font-size: 1.75rem;
+    margin: 0 0 0.5rem;
+    color: $color-violeta-oscuro;
+    font-family: $fuente-titulos;
+  }
+  
+  &__precio {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-rosa-pastel;
+    margin: 0 0 1.5rem;
+    font-family: $fuente-secundaria;
+  }
+  
+  &__descripcion {
+    color: $color-gris-oscuro;
+    margin-bottom: 1.5rem;
+    font-family: $fuente-principal;
+    line-height: 1.6;
+  }
+  
+  &__incluye {
+    background: rgba($color-rosa-pastel, 0.1);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    width: 100%;
+    text-align: left;
+    
+    h4 {
+      color: $color-violeta-oscuro;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      font-family: $fuente-secundaria;
+    }
+    
+    ul {
+      margin: 0;
+      padding: 0 0 0 1.25rem;
+      color: $color-gris-oscuro;
+      font-family: $fuente-principal;
+      
+      li {
+        margin-bottom: 0.5rem;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+  
+  .boton {
+    margin-top: auto;
+  }
+}
+
+// Estilos para la sección CTA
+.seccion--cta {
+  position: relative;
+  background: linear-gradient(to bottom, #fdf7f2 0%, #3e195f 100%);
+  color: $color-blanco;
+  text-align: center;
+  padding: 5rem 1rem;
+  margin-top: 4rem;
+  overflow: hidden;
+  color: $color-violeta-oscuro; // Asegurar que el texto sea visible con el fondo claro
+  
+  // Efecto de partículas sutiles
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  // Efecto de fade de arriba hacia abajo
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.1) 30%,
+      rgba(255, 255, 255, 0.05) 60%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+  }
+  
+  .cta {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    
+    &__titulo {
+      font-size: 2.5rem;
+      margin: 0 0 1.5rem;
+      font-family: $fuente-titulos;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    
+    &__texto {
+      font-size: 1.3rem;
+      margin: 0 auto 2.5rem;
+      opacity: 0.95;
+      max-width: 700px;
+      line-height: 1.7;
+      font-weight: 300;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .boton--grande {
+      font-size: 1.1rem;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      border: none;
+      background: linear-gradient(45deg, $color-rosa-pastel, lighten($color-rosa-pastel, 10%));
+      color: $color-violeta-oscuro;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, lighten($color-rosa-pastel, 10%), $color-rosa-pastel);
+        z-index: -1;
+        transition: opacity 0.4s ease;
+        opacity: 0;
+        border-radius: 50px;
+      }
+      
+      &:hover {
+        background: lighten($color-rosa-pastel, 10%);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 768px) {
+  .servicios-grid,
+  .servicios-magicos {
+    grid-template-columns: 1fr;
+  }
+  
+  .servicio-magico {
+    &--destacado::before {
+      font-size: 0.7rem;
+      right: -45px;
+    }
+  }
+  
+  .seccion--cta {
+    padding: 3rem 1rem;
+    
+    .cta {
+      &__titulo {
+        font-size: 1.75rem;
+      }
+      
+      &__texto {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+// Clases de utilidad
+.text-center {
+  text-align: center;
+}
+
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
