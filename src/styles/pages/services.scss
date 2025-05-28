@@ -13,7 +13,7 @@
   }
   
   .seccion__descripcion {
-    color: lighten($color-violeta-oscuro, 20%);
+    color: #8a6da8; /* lighten($color-violeta-oscuro, 20%) */
     font-size: 1.2rem;
     font-weight: 500;
     margin: 0 auto;
@@ -295,7 +295,7 @@
       overflow: hidden;
       z-index: 1;
       border: none;
-      background: linear-gradient(45deg, $color-rosa-pastel, lighten($color-rosa-pastel, 10%));
+      background: linear-gradient(45deg, $color-rosa-pastel, #ffb6d4); /* lighten($color-rosa-pastel, 10%) */
       color: $color-violeta-oscuro;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       
@@ -306,7 +306,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(45deg, lighten($color-rosa-pastel, 10%), $color-rosa-pastel);
+        background: linear-gradient(45deg, #ffb6d4, $color-rosa-pastel); /* lighten($color-rosa-pastel, 10%) */
         z-index: -1;
         transition: opacity 0.4s ease;
         opacity: 0;
@@ -314,7 +314,7 @@
       }
       
       &:hover {
-        background: lighten($color-rosa-pastel, 10%);
+        background: #ffb6d4; /* lighten($color-rosa-pastel, 10%) */
         transform: translateY(-2px);
       }
     }
