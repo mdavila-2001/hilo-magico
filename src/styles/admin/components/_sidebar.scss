@@ -1,0 +1,152 @@
+// src/styles/admin/components/_sidebar.scss
+
+.admin-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--white);
+  box-shadow: var(--shadow-md);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  transition: var(--transition-default);
+  overflow-y: auto;
+  
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: var(--primary);
+      
+      img {
+        height: 2rem;
+      }
+    }
+    
+    .toggle-sidebar {
+      background: none;
+      border: none;
+      color: var(--gray-500);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      
+      &:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-700);
+      }
+    }
+  }
+  
+  .sidebar-menu {
+    padding: 1rem 0;
+    
+    .menu-section {
+      margin-bottom: 1.5rem;
+      
+      .section-title {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-500);
+      }
+      
+      .menu-items {
+        .menu-item {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem 1.5rem;
+          color: var(--gray-700);
+          text-decoration: none;
+          transition: var(--transition-default);
+          
+          &:hover {
+            background-color: var(--gray-50);
+            color: var(--primary);
+          }
+          
+          &.active {
+            background-color: var(--primary-lighter);
+            color: var(--primary);
+            font-weight: 500;
+            border-right: 3px solid var(--primary);
+          }
+          
+          .menu-icon {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+          }
+          
+          .menu-text {
+            flex: 1;
+          }
+          
+          .menu-badge {
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+          }
+        }
+      }
+    }
+  }
+  
+  &.collapsed {
+    left: calc(-1 * var(--sidebar-width));
+    
+    & + .admin-main {
+      margin-left: 0;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    left: calc(-1 * var(--sidebar-width));
+    
+    &.mobile-visible {
+      left: 0;
+    }
+    
+    & + .admin-main {
+      margin-left: 0;
+    }
+  }
+}
+
+// Estilos para el overlay del menú móvil
+.mobile-sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 30;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+  &.visible {
+    display: block;
+    opacity: 1;
+  }
+  
+  @media (min-width: 1024px) {
+    display: none !important;
+  }
+}

@@ -1,0 +1,34 @@
+// src/styles/admin/main.scss
+
+// Importar variables y mixins
+@use 'variables' as *;
+
+// Reset y estilos base
+@import 'reset';
+@import 'base';
+
+// Componentes
+@import 'components/buttons';
+@import 'components/forms';
+@import 'components/tables';
+@import 'components/cards';
+@import 'components/alerts';
+@import 'components/badges';
+@import 'components/modals';
+@import 'components/sidebar';
+@import 'components/header';
+@import 'components/footer';
+
+// Páginas
+@import 'pages/dashboard';
+@import 'pages/login';
+@import 'pages/admin-layout';
+
+// Utilidades
+@import 'utilities/utilities';
+@import 'utilities';
+
+// Estilos de impresión
+@media print {
+  @import 'print';
+}

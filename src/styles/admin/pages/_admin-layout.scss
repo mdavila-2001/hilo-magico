@@ -1,0 +1,310 @@
+// src/styles/admin/pages/_admin-layout.scss
+
+// Contenedor principal del admin
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--gray-50);
+  
+  // Contenido principal
+  .admin-main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding-top: var(--header-height);
+    transition: var(--transition-default);
+    
+    // Contenido de la página
+    .admin-content {
+      min-height: calc(100vh - var(--header-height));
+      padding: 1.5rem;
+      
+      @media (min-width: 1024px) {
+        padding: 2rem;
+      }
+    }
+  }
+  
+  // Cuando el sidebar está colapsado
+  &.sidebar-collapsed {
+    .admin-main {
+      margin-left: 0;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .admin-main {
+      margin-left: 0;
+    }
+  }
+}
+
+// Estilos para el contenedor de la página
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Header de la página
+.page-header {
+  margin-bottom: 2rem;
+  
+  .page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-description {
+    color: var(--gray-500);
+    font-size: 1rem;
+  }
+  
+  .page-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      transition: var(--transition-default);
+      cursor: pointer;
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      
+      &-primary {
+        background-color: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+        
+        &:hover:not(:disabled) {
+          background-color: var(--primary-dark);
+          border-color: var(--primary-dark);
+        }
+      }
+    }
+  }
+}
+
+// Tarjetas
+.card {
+  background-color: var(--white);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  
+  .card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    .card-title {
+      font-weight: 600;
+      color: var(--gray-900);
+      font-size: 1.125rem;
+      margin: 0;
+    }
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Grid de tarjetas
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Estadísticas
+.stats-card {
+  padding: 1.5rem;
+  
+  .stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--gray-900);
+    margin: 0.5rem 0;
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    
+    &-primary {
+      background-color: var(--primary-lighter);
+      color: var(--primary);
+    }
+  }
+}
+
+// Tablas
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5rem;
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    th {
+      background-color: var(--gray-50);
+      color: var(--gray-700);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+    
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      
+      &-active {
+        background-color: var(--success-lighter);
+        color: var(--success-dark);
+      }
+    }
+  }
+}
+
+// Formularios
+.form-group {
+  margin-bottom: 1.5rem;
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray-700);
+  }
+  
+  .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--gray-900);
+    background-color: white;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.375rem;
+    transition: var(--transition-default);
+    
+    &:focus {
+      border-color: var(--primary);
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(126, 34, 206, 0.25);
+    }
+  }
+}
+
+// Alertas
+.alert {
+  position: relative;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  
+  &-success {
+    color: #065f46;
+    background-color: #d1fae5;
+    border-color: #a7f3d0;
+  }
+  
+  &-danger {
+    color: #991b1b;
+    background-color: #fee2e2;
+    border-color: #fecaca;
+  }
+}
+
+// Badges
+.badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  
+  &-primary {
+    color: white;
+    background-color: var(--primary);
+  }
+  
+  &-success {
+    color: white;
+    background-color: var(--success);
+  }
+  
+  &-danger {
+    color: white;
+    background-color: var(--danger);
+  }
+}
+
+// Utilidades
+.d-flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.w-full { width: 100%; }
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+.p-4 { padding: 1rem; }
+.text-sm { font-size: 0.875rem; }
+.text-gray-500 { color: var(--gray-500); }
