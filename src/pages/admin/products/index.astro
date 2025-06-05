@@ -1,0 +1,92 @@
+---
+// src/pages/admin/products/index.astro
+import AdminLayout from '../../../layouts/admin/AdminLayout.astro';
+
+// Título y descripción para el SEO
+const pageTitle = 'Gestión de Productos';
+const pageDescription = 'Administra los productos de Hilo Mágico';
+---
+
+<AdminLayout title={pageTitle} description={pageDescription}>
+  <div class="admin-content">
+    <div class="admin-header">
+      <h1>Gestión de Productos</h1>
+      <a href="/admin/products/nuevo" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Producto
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Ejemplo de fila de producto -->
+              <tr>
+                <td><img src="/images/placeholder.jpg" alt="Producto" class="product-thumbnail"></td>
+                <td>Vestido floral</td>
+                <td>Vestidos</td>
+                <td>$59.99</td>
+                <td>15</td>
+                <td><span class="badge bg-success">Activo</span></td>
+                <td class="actions">
+                  <a href="/admin/products/editar/1" class="btn btn-sm btn-icon" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button class="btn btn-sm btn-icon btn-danger" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Fin de ejemplo -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .product-thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    
+    .actions {
+      white-space: nowrap;
+    }
+    
+    .btn-icon {
+      padding: 0.25rem 0.5rem;
+      margin: 0 2px;
+    }
+  </style>
+</AdminLayout>

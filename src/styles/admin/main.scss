@@ -4,10 +4,13 @@
 @use 'variables' as *;
 
 // Reset y estilos base
-@import 'reset';
-@import 'base';
+@import '_reset';
+@import '_variables';
 
-// Componentes
+// Utilidades
+@import 'utilities/utilities';
+
+// Importar estilos de componentes si existen
 @import 'components/buttons';
 @import 'components/forms';
 @import 'components/tables';
@@ -19,14 +22,10 @@
 @import 'components/header';
 @import 'components/footer';
 
-// Páginas
+// Importar estilos de páginas
 @import 'pages/dashboard';
 @import 'pages/login';
 @import 'pages/admin-layout';
-
-// Utilidades
-@import 'utilities/utilities';
-@import 'utilities';
 
 // Estilos de impresión
 @media print {
