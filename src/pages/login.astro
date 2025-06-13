@@ -1,0 +1,198 @@
+---
+// src/pages/login.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LoginForm from '../components/auth/LoginForm.astro';
+
+const pageTitle = 'Iniciar Sesión';
+
+// Verificar si el usuario ya está autenticado
+if (Astro.cookies.has('user_token')) {
+  return Astro.redirect('/mi-cuenta');
+}
+
+// Manejar mensajes de error de autenticación
+const error = Astro.url.searchParams.get('error');
+let errorMessage = '';
+
+if (error) {
+  switch (error) {
+    case 'invalid_credentials':
+      errorMessage = 'Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.';
+      break;
+    case 'unauthorized':
+      errorMessage = 'Por favor, inicia sesión para acceder a esta página.';
+      break;
+    case 'session_expired':
+      errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+      break;
+    default:
+      errorMessage = 'Ocurrió un error al iniciar sesión. Por favor, inténtalo de nuevo.';
+  }
+}
+---
+
+<BaseLayout title={pageTitle}>
+  <main class="login-page">
+    <section class="login-hero">
+      <div class="container">
+        <div class="login-content">
+          <div class="login-intro">
+            <h1>Bienvenido a Hilo Mágico</h1>
+            <p>Inicia sesión para acceder a tu cuenta y disfrutar de una experiencia personalizada.</p>
+            <div class="login-features">
+              <div class="feature">
+                <i class="fas fa-truck"></i>
+                <span>Seguimiento de pedidos</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-heart"></i>
+                <span>Lista de deseos</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-tag"></i>
+                <span>Ofertas exclusivas</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="login-box">
+            <div class="login-header">
+              <h2>Iniciar Sesión</h2>
+              <p>Ingresa tus credenciales para acceder a tu cuenta</p>
+            </div>
+            
+            <LoginForm error={errorMessage} />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  /* Estilos específicos para la página de login */
+  .login-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    background-color: var(--color-blanco-calido);
+  }
+  
+  .login-hero {
+    width: 100%;
+    padding: 4rem 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .login-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  .login-intro {
+    padding: 3rem;
+    background: linear-gradient(135deg, var(--color-lavanda) 0%, var(--color-violeta-oscuro) 100%);
+    color: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .login-intro h1 {
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--fuente-titulos);
+    line-height: 1.2;
+  }
+  
+  .login-intro p {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+  
+  .login-features {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: auto;
+  }
+  
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .feature i {
+    background: rgba(255, 255, 255, 0.2);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  
+  .login-box {
+    padding: 3rem 2.5rem;
+  }
+  
+  .login-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .login-header h2 {
+    color: var(--color-violeta-oscuro);
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--fuente-titulos);
+  }
+  
+  .login-header p {
+    color: var(--color-gris-oscuro);
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 992px) {
+    .login-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .login-intro {
+      display: none;
+    }
+    
+    .login-box {
+      padding: 2.5rem 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .login-hero {
+      padding: 2rem 0;
+    }
+    
+    .login-box {
+      padding: 2rem 1.5rem;
+    }
+    
+    .container {
+      padding: 0 1rem;
+    }
+  }
+</style>
