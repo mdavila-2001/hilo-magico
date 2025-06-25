@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie": "^0.6.0",
     "astro": "^5.8.0",
     "axios": "^1.9.0",
