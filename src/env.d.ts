@@ -1,4 +1,26 @@
-/// <reference types="astro/client" />
+// <reference types="astro/client" />
+
+interface ImportMetaEnv {
+  readonly OPENROUTER_API_KEY: string;
+  readonly OPENROUTER_API_URL: string;
+  readonly MODEL_NAME: string;
+  readonly TEMPERATURE: string;
+  readonly MAX_TOKENS: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
+declare module '*.astro' {
+  const Component: any;
+  export default Component;
+}
+
+declare module '*.ts' {
+  const content: any;
+  export default content;
+}
 
 // Para que TypeScript reconozca las importaciones con @/
 declare module '@/lib/*' {

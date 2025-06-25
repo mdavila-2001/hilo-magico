@@ -1,6 +1,6 @@
 ---
 // Componente de burbuja de chat flotante con modal
-const isOpen = false; // Estado inicial del chat
+import { sendChatMessage, createMessageElement, createTypingIndicator } from '../utils/chat';
 
 ---
 
@@ -28,28 +28,27 @@ const isOpen = false; // Estado inicial del chat
   </div>
 </div>
 
-<script define:vars={{ isOpen }}>
-  // Variables globales
+<script>
+  // Elementos del DOM
   const chatBubble = document.getElementById('chatBubble');
   const chatModal = document.getElementById('chatModal');
   const closeChat = document.querySelector('.close-chat');
   const chatMessages = document.getElementById('chatMessages');
-  const userInput = document.getElementById('userInput');
+  const userInput = document.getElementById('userInput') as HTMLInputElement;
   const sendButton = document.getElementById('sendMessage');
   
-  // Mostrar/ocultar modal
+  // Abrir/cerrar el chat
   chatBubble?.addEventListener('click', () => {
     chatModal?.classList.toggle('active');
   });
   
-  // Cerrar modal
   closeChat?.addEventListener('click', (e) => {
     e.stopPropagation();
     chatModal?.classList.remove('active');
   });
   
   // Enviar mensaje al presionar Enter
-  userInput?.addEventListener('keypress', (e) => {
+  userInput?.addEventListener('keypress', (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       sendMessage();
     }
@@ -58,64 +57,46 @@ const isOpen = false; // Estado inicial del chat
   // Enviar mensaje al hacer clic en el botón
   sendButton?.addEventListener('click', sendMessage);
   
-  function addMessage(sender, text) {
-    if (!chatMessages) return;
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', `${sender}-message`);
-    messageDiv.textContent = text;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-  
-  function addTypingIndicator() {
-    if (!chatMessages) return null;
-    
-    const typingDiv = document.createElement('div');
-    typingDiv.classList.add('message', 'assistant-message', 'typing-indicator');
-    typingDiv.innerHTML = '<span></span><span></span><span></span>';
-    chatMessages.appendChild(typingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return typingDiv;
-  }
-
-  async function sendMessage() {
+  // Función para enviar mensaje
+  async function sendMessage(): Promise<void> {
     if (!userInput || !chatMessages) return;
     
     const message = userInput.value.trim();
     if (!message) return;
     
     // Agregar mensaje del usuario al chat
-    addMessage('user', message);
+    const userMessage = createMessageElement(message, true);
+    chatMessages.appendChild(userMessage);
     userInput.value = '';
     
+    // Mostrar indicador de escritura
+    const typingIndicator = createTypingIndicator();
+    chatMessages.appendChild(typingIndicator);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
     try {
-      // Mostrar indicador de escritura
-      const typingIndicator = addTypingIndicator();
+      // Enviar mensaje al servidor
+      const response = await sendChatMessage(message);
       
-      // Aquí iría la llamada a tu API de DeepSeek
-      // Por ahora, simulamos una respuesta después de un retraso
-      setTimeout(() => {
-        // Eliminar indicador de escritura
-        typingIndicator.remove();
-        
-        // Simular respuesta del asistente
-        const responses = [
-          "¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?",
-          "Entiendo tu consulta. Déjame ver cómo puedo ayudarte con eso.",
-          "¡Claro! Estoy aquí para responder a todas tus preguntas.",
-          "Gracias por tu mensaje. ¿Neitas ayuda con algo más?"
-        ];
-        const response = responses[Math.floor(Math.random() * responses.length)];
-        
-        addMessage('assistant', response);
-      }, 1000);
+      // Eliminar indicador de escritura
+      typingIndicator.remove();
+      
+      // Mostrar respuesta del asistente
+      const assistantMessage = createMessageElement(response, false);
+      chatMessages.appendChild(assistantMessage);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
       
     } catch (error) {
       console.error('Error al enviar el mensaje:', error);
-      addMessage('assistant', 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.');
+      typingIndicator.remove();
+      
+      const errorMessage = createMessageElement(
+        'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
+        false
+      );
+      chatMessages.appendChild(errorMessage);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
   }
-  
 
 </script>
