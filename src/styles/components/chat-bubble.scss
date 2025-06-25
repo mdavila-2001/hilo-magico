@@ -1,10 +1,14 @@
 @use 'sass:color';
 @use '../../styles/variables' as *;
 
-.chat-bubble {
+.chat-container {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  z-index: 1000;
+}
+
+.chat-bubble {
   width: 60px;
   height: 60px;
   background: $color-lavanda;
@@ -15,7 +19,6 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
-  z-index: 1000;
 
   i {
     font-size: 24px;
@@ -26,9 +29,188 @@
     transform: scale(1.1);
     background: color.adjust($color-lavanda, $lightness: -10%);
   }
+}
 
-  &.chat-open {
-    transform: scale(1.1);
-    background: color.adjust($color-lavanda, $lightness: -10%);
+.chat-modal {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 350px;
+  max-width: 90%;
+  height: 500px;
+  max-height: 70vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1001;
+
+  &.active {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8f9fa;
+}
+
+.chat-header {
+  background: $color-lavanda;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+  }
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    position: relative;
+    word-wrap: break-word;
+
+    &.user-message {
+      align-self: flex-end;
+      background: $color-lavanda;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    &.assistant-message {
+      align-self: flex-start;
+      background: white;
+      color: #333;
+      border: 1px solid #e0e0e0;
+      border-bottom-left-radius: 4px;
+    }
+
+    &.typing-indicator {
+      background: white;
+      padding: 10px 15px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      height: 40px;
+
+      span {
+        width: 8px;
+        height: 8px;
+        background-color: #9e9e9e;
+        border-radius: 50%;
+        display: inline-block;
+        animation: typing 1s infinite ease-in-out;
+
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+
+        &:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+      }
+    }
+  }
+}
+
+.chat-input-container {
+  display: flex;
+  padding: 15px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+
+  input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.9rem;
+
+    &:focus {
+      border-color: $color-lavanda;
+    }
+  }
+
+  button {
+    background: $color-lavanda;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: color.adjust($color-lavanda, $lightness: -10%);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+@keyframes typing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 480px) {
+  .chat-modal {
+    width: 90%;
+    right: 5%;
+    bottom: 80px;
+    height: 60vh;
+  }
+  
+  .chat-messages .message {
+    max-width: 90%;
   }
 }

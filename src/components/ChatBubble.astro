@@ -1,18 +1,121 @@
 ---
-interface Props {
-  isOpen?: boolean;
-}
+// Componente de burbuja de chat flotante con modal
+const isOpen = false; // Estado inicial del chat
 
-const { isOpen } = Astro.props;
-
-const toggleChat = () => {
-  const chatBubble = document.querySelector('.chat-bubble');
-  if (chatBubble) {
-    chatBubble.classList.toggle('chat-open');
-  }
-};
 ---
 
-<div class="chat-bubble" onclick="toggleChat()">
-  <i class="fas fa-comment-dots"></i>
+<div class="chat-container">
+  <div class="chat-bubble" id="chatBubble">
+    <i class="fas fa-comment-dots"></i>
+  </div>
+  
+  <div class="chat-modal" id="chatModal">
+    <div class="chat-modal-content">
+      <div class="chat-header">
+        <h3>Hola, ¿en qué puedo ayudarte?</h3>
+        <button class="close-chat">&times;</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- Mensajes aparecerán aquí -->
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="userInput" placeholder="Escribe tu mensaje..." />
+        <button id="sendMessage">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script define:vars={{ isOpen }}>
+  // Variables globales
+  const chatBubble = document.getElementById('chatBubble');
+  const chatModal = document.getElementById('chatModal');
+  const closeChat = document.querySelector('.close-chat');
+  const chatMessages = document.getElementById('chatMessages');
+  const userInput = document.getElementById('userInput');
+  const sendButton = document.getElementById('sendMessage');
+  
+  // Mostrar/ocultar modal
+  chatBubble?.addEventListener('click', () => {
+    chatModal?.classList.toggle('active');
+  });
+  
+  // Cerrar modal
+  closeChat?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    chatModal?.classList.remove('active');
+  });
+  
+  // Enviar mensaje al presionar Enter
+  userInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+  
+  // Enviar mensaje al hacer clic en el botón
+  sendButton?.addEventListener('click', sendMessage);
+  
+  function addMessage(sender, text) {
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', `${sender}-message`);
+    messageDiv.textContent = text;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  function addTypingIndicator() {
+    if (!chatMessages) return null;
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.classList.add('message', 'assistant-message', 'typing-indicator');
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return typingDiv;
+  }
+
+  async function sendMessage() {
+    if (!userInput || !chatMessages) return;
+    
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    // Agregar mensaje del usuario al chat
+    addMessage('user', message);
+    userInput.value = '';
+    
+    try {
+      // Mostrar indicador de escritura
+      const typingIndicator = addTypingIndicator();
+      
+      // Aquí iría la llamada a tu API de DeepSeek
+      // Por ahora, simulamos una respuesta después de un retraso
+      setTimeout(() => {
+        // Eliminar indicador de escritura
+        typingIndicator.remove();
+        
+        // Simular respuesta del asistente
+        const responses = [
+          "¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?",
+          "Entiendo tu consulta. Déjame ver cómo puedo ayudarte con eso.",
+          "¡Claro! Estoy aquí para responder a todas tus preguntas.",
+          "Gracias por tu mensaje. ¿Neitas ayuda con algo más?"
+        ];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        
+        addMessage('assistant', response);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error al enviar el mensaje:', error);
+      addMessage('assistant', 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.');
+    }
+  }
+  
+
+</script>
