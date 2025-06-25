@@ -179,6 +179,35 @@
       color: color.adjust($color-gris-oscuro, $lightness: 40%);
       pointer-events: none;
       z-index: 2;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      
+      i {
+        font-size: 1rem;
+      }
+    }
+    
+    // Estilo para el botón de mostrar/ocultar contraseña
+    button#togglePassword {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: color.adjust($color-gris-oscuro, $lightness: 40%);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      
+      &:hover, &:focus {
+        color: $color-violeta-oscuro;
+        outline: none;
+      }
       
       i {
         font-size: 1rem;
@@ -197,12 +226,14 @@
     color: $color-gris-oscuro;
     font-family: $fuente-principal;
     height: 3rem;
+    box-sizing: border-box;
     
     &.pl-10 {
       padding-left: 2.5rem;
     }
     
-    &.pr-10 {
+    // Asegurar que el input con ícono a la derecha tenga suficiente padding
+    &[type="password"] {
       padding-right: 2.5rem;
     }
     
