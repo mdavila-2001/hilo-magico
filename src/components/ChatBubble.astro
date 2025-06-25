@@ -1,7 +1,5 @@
 ---
 // Componente de burbuja de chat flotante con modal
-import { sendChatMessage, createMessageElement, createTypingIndicator } from '../utils/chat';
-
 ---
 
 <div class="chat-container">
@@ -29,74 +27,99 @@ import { sendChatMessage, createMessageElement, createTypingIndicator } from '..
 </div>
 
 <script>
-  // Elementos del DOM
-  const chatBubble = document.getElementById('chatBubble');
-  const chatModal = document.getElementById('chatModal');
-  const closeChat = document.querySelector('.close-chat');
-  const chatMessages = document.getElementById('chatMessages');
-  const userInput = document.getElementById('userInput') as HTMLInputElement;
-  const sendButton = document.getElementById('sendMessage');
-  
-  // Abrir/cerrar el chat
-  chatBubble?.addEventListener('click', () => {
-    chatModal?.classList.toggle('active');
-  });
-  
-  closeChat?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    chatModal?.classList.remove('active');
-  });
-  
-  // Enviar mensaje al presionar Enter
-  userInput?.addEventListener('keypress', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  });
-  
-  // Enviar mensaje al hacer clic en el botón
-  sendButton?.addEventListener('click', sendMessage);
-  
-  // Función para enviar mensaje
-  async function sendMessage(): Promise<void> {
-    if (!userInput || !chatMessages) return;
-    
-    const message = userInput.value.trim();
-    if (!message) return;
-    
-    // Agregar mensaje del usuario al chat
-    const userMessage = createMessageElement(message, true);
-    chatMessages.appendChild(userMessage);
-    userInput.value = '';
-    
-    // Mostrar indicador de escritura
-    const typingIndicator = createTypingIndicator();
-    chatMessages.appendChild(typingIndicator);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
+  // Funciones de utilidad
+  function createMessageElement(message: string, isUser: boolean): HTMLElement {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : 'assistant'}-message`;
+    messageDiv.textContent = message;
+    return messageDiv;
+  }
+
+  function createTypingIndicator(): HTMLElement {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message assistant-message typing-indicator';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    return typingDiv;
+  }
+
+  async function sendChatMessage(message: string): Promise<string> {
     try {
-      // Enviar mensaje al servidor
-      const response = await sendChatMessage(message);
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
       
-      // Eliminar indicador de escritura
-      typingIndicator.remove();
+      if (!response.ok) throw new Error('Error en la respuesta del servidor');
       
-      // Mostrar respuesta del asistente
-      const assistantMessage = createMessageElement(response, false);
-      chatMessages.appendChild(assistantMessage);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      
+      const data = await response.json();
+      return data.reply || 'Lo siento, no pude procesar tu mensaje.';
     } catch (error) {
       console.error('Error al enviar el mensaje:', error);
-      typingIndicator.remove();
-      
-      const errorMessage = createMessageElement(
-        'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
-        false
-      );
-      chatMessages.appendChild(errorMessage);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.';
     }
   }
 
+  // Elementos del DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatBubble = document.getElementById('chatBubble');
+    const chatModal = document.getElementById('chatModal');
+    const closeChat = document.querySelector<HTMLButtonElement>('.close-chat');
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.querySelector<HTMLInputElement>('#userInput');
+    const sendButton = document.getElementById('sendMessage');
+
+    // Abrir/cerrar el chat
+    chatBubble?.addEventListener('click', () => {
+      chatModal?.classList.toggle('active');
+    });
+
+    closeChat?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      chatModal?.classList.remove('active');
+    });
+
+    // Enviar mensaje al presionar Enter
+    userInput?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Enviar mensaje al hacer clic en el botón
+    sendButton?.addEventListener('click', sendMessage);
+
+    // Función para enviar mensaje
+    async function sendMessage() {
+      if (!userInput || !chatMessages) return;
+      
+      const message = userInput.value.trim();
+      if (!message) return;
+      
+      // Agregar mensaje del usuario al chat
+      chatMessages.appendChild(createMessageElement(message, true));
+      userInput.value = '';
+      
+      // Mostrar indicador de escritura
+      const typingIndicator = createTypingIndicator();
+      chatMessages.appendChild(typingIndicator);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      try {
+        // Enviar mensaje al servidor
+        const response = await sendChatMessage(message);
+        
+        // Eliminar indicador de escritura y mostrar respuesta
+        typingIndicator.remove();
+        chatMessages.appendChild(createMessageElement(response, false));
+        
+      } catch (error) {
+        console.error('Error:', error);
+        typingIndicator.remove();
+        chatMessages.appendChild(
+          createMessageElement('Lo siento, ha ocurrido un error.', false)
+        );
+      }
+      
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  });
 </script>
