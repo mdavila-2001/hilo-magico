@@ -1,11 +1,15 @@
 // <reference types="astro/client" />
 
 interface ImportMetaEnv {
+  // Variables de entorno de la aplicación
   readonly OPENROUTER_API_KEY: string;
   readonly OPENROUTER_API_URL: string;
   readonly MODEL_NAME: string;
   readonly TEMPERATURE: string;
   readonly MAX_TOKENS: string;
+  
+  // URL del backend para autenticación
+  readonly BACKEND_API_URL: string;
 }
 
 interface ImportMeta {

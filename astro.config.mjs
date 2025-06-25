@@ -22,7 +22,8 @@ export default defineConfig({
   vite: {
     define: {
       // Hacer que las variables de entorno estén disponibles en el cliente
-      'import.meta.env.PUBLIC_API_URL': JSON.stringify(process.env.PUBLIC_API_URL || 'http://localhost:8000/api/v1'),
+      //'import.meta.env.PUBLIC_API_URL': JSON.stringify(process.env.PUBLIC_API_URL || 'http://localhost:8000/api/v1'),
+      'import.meta.env.BACKEND_API_URL': JSON.stringify(process.env.BACKEND_API_URL || 'http://localhost:8000/api/v1'),
       'import.meta.env.API_TIMEOUT': JSON.stringify(process.env.API_TIMEOUT || '10000'),
       'import.meta.env.API_RETRY_ATTEMPTS': JSON.stringify(process.env.API_RETRY_ATTEMPTS || '3'),
       'import.meta.env.JWT_SECRET': JSON.stringify(process.env.JWT_SECRET || 'hilo-magico-secret-key-dev'),

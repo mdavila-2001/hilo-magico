@@ -1,0 +1,377 @@
+// Importar variables y funciones
+@use 'sass:color';
+@use 'sass:math';
+@use '../variables' as *;
+
+// Animaciones
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+// Estilos para el layout de autenticación
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $espaciado-base;
+  background: linear-gradient(135deg, color.adjust($color-lavanda, $lightness: 25%) 0%, color.adjust($color-violeta-oscuro, $lightness: 50%) 100%);
+  font-family: $fuente-principal;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+  
+  main {
+    width: 100%;
+    max-width: 28rem;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 0.6s ease-out;
+  }
+}
+
+// Tarjeta de autenticación
+.auth-card {
+  background: rgba($color-blanco, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba($color-blanco, 0.8);
+  border-radius: $radio-borde * 2;
+  padding: $espaciado-grande;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $color-lavanda, $color-violeta-oscuro);
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  @media (max-width: $breakpoint-movil) {
+    padding: $espaciado-medio;
+  }
+}
+
+// Encabezado de autenticación
+.auth-header {
+  text-align: center;
+  margin-bottom: $espaciado-grande;
+  animation: slideIn 0.5s ease-out 0.2s both;
+  
+  .auth-logo {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto $espaciado-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, $color-lavanda, $color-violeta-oscuro);
+    border-radius: 50%;
+    color: $color-blanco;
+    font-size: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
+  }
+  
+  h1 {
+    font-family: $fuente-titulos;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: $color-violeta-oscuro;
+    margin-bottom: $espaciado-base / 2;
+  }
+  
+  p {
+    color: color.adjust($color-gris-oscuro, $lightness: 20%);
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  @media (max-width: $breakpoint-movil) {
+    margin-bottom: $espaciado-medio;
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    p {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Grupos de formulario
+.form-group {
+  margin-bottom: $espaciado-medio;
+  animation: slideIn 0.5s ease-out 0.3s both;
+  
+  &:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: $espaciado-base / 2;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: $color-gris-oscuro;
+    transition: color 0.3s ease;
+  }
+  
+  &:focus-within label {
+    color: $color-violeta-oscuro;
+  }
+  
+  .input-group {
+    position: relative;
+    transition: all 0.3s ease;
+    
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: color.adjust($color-gris-oscuro, $lightness: 30%);
+      transition: color 0.3s ease;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: lighten($color-gris-oscuro, 40%);
+      pointer-events: none;
+    }
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 2px solid color.adjust($color-gris-oscuro, $lightness: 60%);
+    border-radius: $radio-borde;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: rgba($color-blanco, 0.8);
+    color: $color-gris-oscuro;
+    font-family: $fuente-principal;
+    
+    &::placeholder {
+      color: lighten($color-gris-oscuro, 40%);
+      font-family: $fuente-principal;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: $color-violeta-oscuro;
+      box-shadow: 0 0 0 3px rgba($color-violeta-oscuro, 0.1);
+      background-color: $color-blanco;
+    }
+    
+    &:hover:not(:focus) {
+      border-color: color.adjust($color-gris-oscuro, $lightness: 40%);
+    }
+  }
+  
+  .form-help {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: lighten($color-gris-oscuro, 40%);
+  }
+}
+
+// Botones
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: $radio-borde;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  
+  &-primary {
+    background-color: $color-violeta-oscuro;
+    color: $color-blanco;
+    
+    &:hover, &:focus {
+      background-color: darken($color-violeta-oscuro, 10%);
+      outline: none;
+    }
+  }
+  
+  &-block {
+    width: 100%;
+    display: flex;
+  }
+  
+  &-icon {
+    margin-right: 0.5rem;
+  }
+}
+
+// Botón de envío
+.btn-submit {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $color-violeta-oscuro, darken($color-violeta-oscuro, 10%));
+  color: $color-blanco;
+  border: none;
+  border-radius: $radio-borde;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba($color-violeta-oscuro, 0.2);
+  animation: slideIn 0.5s ease-out 0.5s both;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba($color-violeta-oscuro, 0.3);
+    
+    &::before {
+      transform: translateX(100%);
+    }
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba($color-violeta-oscuro, 0.3);
+  }
+  
+  &:disabled {
+    background: color.adjust($color-gris-oscuro, $lightness: 50%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// Enlaces
+a {
+  color: $color-violeta-oscuro;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: darken($color-violeta-oscuro, 10%);
+    text-decoration: underline;
+  }
+}
+
+// Mensajes de retroalimentación
+.message {
+  padding: 1rem 1.25rem;
+  margin-bottom: $espaciado-medio;
+  border-radius: $radio-borde;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.5s ease-out;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  &-error {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+    
+    &::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' /%3E%3C/svg%3E");
+    }
+  }
+  
+  &-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border-left: 4px solid #16a34a;
+    
+    &::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+    }
+  }
+}
+
+// Enlaces de autenticación
+.auth-links {
+  margin-top: $espaciado-grande;
+  text-align: center;
+  font-size: 0.9375rem;
+  animation: slideIn 0.5s ease-out 0.6s both;
+  
+  a {
+    color: $color-violeta-oscuro;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  .divider {
+    margin: 0 0.5rem;
+    color: lighten($color-gris-oscuro, 60%);
+  }
+}
