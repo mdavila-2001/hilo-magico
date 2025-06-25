@@ -1,0 +1,34 @@
+@use 'sass:color';
+@use '../../styles/variables' as *;
+
+.chat-bubble {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: $color-lavanda;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  i {
+    font-size: 24px;
+    color: white;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    background: color.adjust($color-lavanda, $lightness: -10%);
+  }
+
+  &.chat-open {
+    transform: scale(1.1);
+    background: color.adjust($color-lavanda, $lightness: -10%);
+  }
+}

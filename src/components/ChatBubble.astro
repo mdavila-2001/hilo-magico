@@ -1,0 +1,18 @@
+---
+interface Props {
+  isOpen?: boolean;
+}
+
+const { isOpen } = Astro.props;
+
+const toggleChat = () => {
+  const chatBubble = document.querySelector('.chat-bubble');
+  if (chatBubble) {
+    chatBubble.classList.toggle('chat-open');
+  }
+};
+---
+
+<div class="chat-bubble" onclick="toggleChat()">
+  <i class="fas fa-comment-dots"></i>
+</div>
