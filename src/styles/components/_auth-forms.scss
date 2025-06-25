@@ -132,6 +132,22 @@
 
 // Grupos de formulario
 .form-group {
+  position: relative; // Para posicionar los mensajes de error
+  
+  .field-error {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    animation: slideIn 0.2s ease-out;
+  }
+  
+  .input-error {
+    border-color: #dc2626 !important;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+  }
   margin-bottom: $espaciado-medio;
   animation: slideIn 0.5s ease-out 0.3s both;
   
@@ -154,26 +170,25 @@
   
   .input-group {
     position: relative;
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
     
-    .input-icon {
+    span {
       position: absolute;
-      top: 50%;
       left: 1rem;
-      transform: translateY(-50%);
-      color: color.adjust($color-gris-oscuro, $lightness: 30%);
-      transition: color 0.3s ease;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: lighten($color-gris-oscuro, 40%);
+      color: color.adjust($color-gris-oscuro, $lightness: 40%);
       pointer-events: none;
+      z-index: 2;
+      
+      i {
+        font-size: 1rem;
+      }
     }
   }
   
   input {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 3rem;
+    padding: 0.875rem 1rem 0.875rem 2.5rem;
     border: 2px solid color.adjust($color-gris-oscuro, $lightness: 60%);
     border-radius: $radio-borde;
     font-size: 1rem;
@@ -181,9 +196,18 @@
     background-color: rgba($color-blanco, 0.8);
     color: $color-gris-oscuro;
     font-family: $fuente-principal;
+    height: 3rem;
+    
+    &.pl-10 {
+      padding-left: 2.5rem;
+    }
+    
+    &.pr-10 {
+      padding-right: 2.5rem;
+    }
     
     &::placeholder {
-      color: lighten($color-gris-oscuro, 40%);
+      color: color.adjust($color-gris-oscuro, $lightness: 40%);
       font-family: $fuente-principal;
     }
     
@@ -203,6 +227,24 @@
     margin-top: 0.5rem;
     font-size: 0.75rem;
     color: lighten($color-gris-oscuro, 40%);
+  }
+}
+
+// Estilos específicos para el botón de mostrar/ocultar contraseña
+#togglePassword {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 0.25rem;
+  
+  &:hover, &:focus {
+    color: $color-violeta-oscuro;
+    outline: none;
+  }
+  
+  i {
+    font-size: 1rem;
   }
 }
 

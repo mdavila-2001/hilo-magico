@@ -11,12 +11,49 @@ function showMessage(message: string, type: MessageType = 'error'): void {
     messageEl.className = 'message';
     
     // Añadir clase según el tipo
-    messageEl.classList.add(type === 'error' ? 'message-error' : 'message-success');
+    messageEl.classList.add('message-error'); // Siempre usamos error para simplificar
     
     // Mostrar mensaje
     messageText.textContent = message;
     messageEl.classList.remove('hidden');
   }
+}
+
+// Función para validar email
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Función para mostrar errores en los campos
+function showFieldError(input: HTMLInputElement, message: string): void {
+  const formGroup = input.closest('.form-group');
+  if (!formGroup) return;
+  
+  // Remover errores previos
+  const existingError = formGroup.querySelector('.field-error');
+  if (existingError) existingError.remove();
+  
+  // Añadir clase de error al input
+  input.classList.add('input-error');
+  
+  // Crear y mostrar mensaje de error
+  const errorEl = document.createElement('div');
+  errorEl.className = 'field-error';
+  errorEl.textContent = message;
+  formGroup.appendChild(errorEl);
+}
+
+// Función para limpiar errores de un campo
+function clearFieldError(input: HTMLInputElement): void {
+  const formGroup = input.closest('.form-group');
+  if (!formGroup) return;
+  
+  // Remover mensajes de error
+  const error = formGroup.querySelector('.field-error');
+  if (error) error.remove();
+  
+  // Remover clase de error
+  input.classList.remove('input-error');
 }
 
 // Inicialización del formulario de login
@@ -44,27 +81,45 @@ export function initLoginForm(apiUrl: string): void {
   // Manejar el envío del formulario
   const loginForm = document.getElementById('loginForm') as HTMLFormElement | null;
   if (loginForm) {
+    // Limpiar errores al cambiar los campos
+    const emailInput = document.getElementById('email') as HTMLInputElement | null;
+    const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+    
+    emailInput?.addEventListener('input', () => clearFieldError(emailInput));
+    passwordInput?.addEventListener('input', () => passwordInput && clearFieldError(passwordInput));
+    
     loginForm.addEventListener('submit', async (e: Event) => {
       e.preventDefault();
       
-      const emailInput = document.getElementById('email') as HTMLInputElement | null;
-      const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+      // Ocultar mensaje general si existe
+      const messageEl = document.getElementById('message');
+      if (messageEl) messageEl.classList.add('hidden');
+      
       const buttonText = document.getElementById('buttonText');
       const loginButton = document.getElementById('loginButton') as HTMLButtonElement | null;
       
-      const email = emailInput?.value.trim();
-      const password = passwordInput?.value;
+      const email = emailInput?.value.trim() || '';
+      const password = passwordInput?.value || '';
       
-      if (!email || !password) {
-        showMessage('Por favor, completa todos los campos');
-        return;
+      // Validaciones
+      let isValid = true;
+      
+      // Validar email
+      if (!email) {
+        if (emailInput) showFieldError(emailInput, 'El correo electrónico es requerido');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        if (emailInput) showFieldError(emailInput, 'Por favor, ingresa un correo electrónico válido');
+        isValid = false;
       }
       
-      // Validación de formato de email
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showMessage('Por favor, ingresa un correo electrónico válido');
-        return;
+      // Validar contraseña
+      if (!password) {
+        if (passwordInput) showFieldError(passwordInput, 'La contraseña es requerida');
+        isValid = false;
       }
+      
+      if (!isValid) return;
       
       // Mostrar estado de carga
       if (buttonText && loginButton) {
@@ -89,10 +144,7 @@ export function initLoginForm(apiUrl: string): void {
         }
         
         // Redirigir al dashboard o página de inicio
-        showMessage('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
+        window.location.href = '/';
         
       } catch (error: unknown) {
         console.error('Error al iniciar sesión:', error);
