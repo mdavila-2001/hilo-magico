@@ -3,6 +3,8 @@ type User = {
   id: string;
   email: string;
   role: string;
+  name?: string;
+  username?: string;
   // Agrega aquí otros campos del usuario si es necesario
 };
 

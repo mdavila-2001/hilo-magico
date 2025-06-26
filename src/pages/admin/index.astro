@@ -1,0 +1,304 @@
+---
+// src/pages/admin/index.astro
+import AdminLayout from '../../layouts/admin/AdminLayout.astro';
+import { getCurrentUser } from '../../utils/auth';
+
+// Configuración de la página
+const pageTitle = 'Dashboard';
+const pageDescription = 'Vista general del panel de administración';
+
+// Obtener información del usuario actual
+const currentUser = getCurrentUser();
+
+// Si no hay usuario, redirigir al login
+if (!currentUser) {
+  return Astro.redirect('/auth/login');
+}
+
+// Si no es admin, redirigir al inicio
+if (currentUser.role !== 'admin') {
+  return Astro.redirect('/');
+}
+
+// Datos de ejemplo para el dashboard
+const stats = [
+  { 
+    name: 'Ventas Totales', 
+    value: '$12,450', 
+    change: '+12%', 
+    changeType: 'increase',
+    icon: 'fas fa-shopping-cart',
+    color: 'bg-blue-100 text-blue-600'
+  },
+  { 
+    name: 'Pedidos', 
+    value: '1,234', 
+    change: '+5%', 
+    changeType: 'increase',
+    icon: 'fas fa-box',
+    color: 'bg-green-100 text-green-600'
+  },
+  { 
+    name: 'Clientes', 
+    value: '845', 
+    change: '+8%', 
+    changeType: 'increase',
+    icon: 'fas fa-users',
+    color: 'bg-purple-100 text-purple-600'
+  },
+  { 
+    name: 'Tasa de Conversión', 
+    value: '3.2%', 
+    change: '-0.5%', 
+    changeType: 'decrease',
+    icon: 'fas fa-chart-line',
+    color: 'bg-yellow-100 text-yellow-600'
+  }
+];
+
+const recentOrders = [
+  { id: '#ORD-001', customer: 'María Gómez', date: '15 Jun 2023', amount: '$120.00', status: 'Completado', statusColor: 'bg-green-100 text-green-800' },
+  { id: '#ORD-002', customer: 'Carlos López', date: '14 Jun 2023', amount: '$85.50', status: 'En Proceso', statusColor: 'bg-blue-100 text-blue-800' },
+  { id: '#ORD-003', customer: 'Ana Martínez', date: '14 Jun 2023', amount: '$210.75', status: 'Enviado', statusColor: 'bg-yellow-100 text-yellow-800' },
+  { id: '#ORD-004', customer: 'Juan Pérez', date: '13 Jun 2023', amount: '$65.99', status: 'Pendiente', statusColor: 'bg-gray-100 text-gray-800' },
+  { id: '#ORD-005', customer: 'Laura Sánchez', date: '12 Jun 2023', amount: '$175.25', status: 'Completado', statusColor: 'bg-green-100 text-green-800' }
+];
+
+const topProducts = [
+  { name: 'Vestido Floral', sales: 142, revenue: '$2,840.00', image: '/images/products/dress-1.jpg' },
+  { name: 'Blusa de Encaje', sales: 98, revenue: '$1,764.00', image: '/images/products/blouse-1.jpg' },
+  { name: 'Falda Plisada', sales: 75, revenue: '$1,350.00', image: '/images/products/skirt-1.jpg' },
+  { name: 'Conjunto Deportivo', sales: 63, revenue: '$1,197.00', image: '/images/products/activewear-1.jpg' },
+  { name: 'Abrigo Largo', sales: 51, revenue: '$1,275.00', image: '/images/products/coat-1.jpg' }
+];
+---
+
+<AdminLayout title={pageTitle} description={pageDescription} currentPage="dashboard">
+  <div class="space-y-6">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Hola, {currentUser?.name || currentUser?.username || 'Administrador'}</h1>
+        <p class="text-gray-600">Bienvenido al panel de control. Aquí tienes un resumen de tu tienda.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="/admin/orders/new" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-plus mr-2"></i> Nuevo Pedido
+        </a>
+        <a href="/admin/products/new" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-plus mr-2"></i> Nuevo Producto
+        </a>
+      </div>
+    </div>
+    
+    <!-- Tarjetas de estadísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat) => (
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500">{stat.name}</p>
+              <p class="mt-1 text-2xl font-semibold text-gray-900">{stat.value}</p>
+            </div>
+            <div class={`p-3 rounded-full ${stat.color} bg-opacity-20`}>
+              <i class={`${stat.icon} text-lg`}></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class={`inline-flex items-center text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
+              {stat.changeType === 'increase' ? (
+                <i class="fas fa-arrow-up mr-1"></i>
+              ) : (
+                <i class="fas fa-arrow-down mr-1"></i>
+              )}
+              {stat.change}
+            </div>
+            <span class="text-sm text-gray-500 ml-2">vs mes anterior</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Gráfico de ventas -->
+      <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="text-lg font-semibold text-gray-900">Resumen de ventas</h2>
+          <div class="mt-3 sm:mt-0">
+            <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <option>Últimos 7 días</option>
+              <option>Últimos 30 días</option>
+              <option>Últimos 90 días</option>
+              <option>Último año</option>
+            </select>
+          </div>
+        </div>
+        <div class="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
+          <div class="text-center p-6">
+            <i class="fas fa-chart-line text-4xl text-gray-300 mb-2"></i>
+            <p class="text-gray-500">Gráfico de ventas</p>
+            <p class="text-sm text-gray-400 mt-1">Se mostrará el gráfico de ventas aquí</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos más vendidos -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Productos más vendidos</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          {topProducts.map((product, index) => (
+            <a href={`/admin/products/${product.name.toLowerCase().replace(/\s+/g, '-')}`} class="block hover:bg-gray-50 transition-colors">
+              <div class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-12 w-12 bg-gray-200 rounded-lg overflow-hidden">
+                    {product.image ? (
+                      <img src={product.image} alt={product.name} class="h-full w-full object-cover" />
+                    ) : (
+                      <div class="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400">
+                        <i class="fas fa-box text-xl"></i>
+                      </div>
+                    )}
+                  </div>
+                  <div class="ml-4 flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                    <div class="flex items-center mt-1">
+                      <span class="text-xs text-gray-500">{product.sales} ventas</span>
+                      <span class="mx-2 text-gray-300">•</span>
+                      <span class="text-xs font-medium text-gray-900">{product.revenue}</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <i class="fas fa-arrow-up mr-1 text-xs"></i> 12.5%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="bg-gray-50 px-6 py-3 text-right">
+          <a href="/admin/products" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todos los productos</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Pedidos recientes -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Pedidos recientes</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th scope="col" class="relative px-6 py-3">
+                  <span class="sr-only">Acciones</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {recentOrders.map((order) => (
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{order.id}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{order.amount}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <span class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.statusColor}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href={`/admin/orders/${order.id.replace('#', '')}`} class="text-indigo-600 hover:text-indigo-900 mr-4">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="bg-gray-50 px-6 py-3 text-right">
+          <a href="/admin/orders" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todos los pedidos</a>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Actividad reciente</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          {[
+            { 
+              user: 'Tú', 
+              action: 'actualizaste el estado del pedido', 
+              target: '#ORD-003', 
+              time: 'Hace 5 minutos',
+              icon: 'fas fa-edit',
+              iconColor: 'bg-blue-100 text-blue-600'
+            },
+            { 
+              user: 'María Gómez', 
+              action: 'creó una nueva cuenta', 
+              target: '', 
+              time: 'Hace 1 hora',
+              icon: 'fas fa-user-plus',
+              iconColor: 'bg-green-100 text-green-600'
+            },
+            { 
+              user: 'Sistema', 
+              action: 'Pedido completado', 
+              target: '#ORD-002', 
+              time: 'Hace 3 horas',
+              icon: 'fas fa-check-circle',
+              iconColor: 'bg-purple-100 text-purple-600'
+            },
+            { 
+              user: 'Tú', 
+              action: 'añadiste un nuevo producto', 
+              target: 'Vestido de Verano', 
+              time: 'Ayer',
+              icon: 'fas fa-plus-circle',
+              iconColor: 'bg-yellow-100 text-yellow-600'
+            },
+            { 
+              user: 'Carlos López', 
+              action: 'realizó un pedido', 
+              target: '#ORD-001', 
+              time: 'Ayer',
+              icon: 'fas fa-shopping-cart',
+              iconColor: 'bg-indigo-100 text-indigo-600'
+            }
+          ].map((activity) => (
+            <div class="px-6 py-4">
+              <div class="flex items-start">
+                <div class={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${activity.iconColor} text-lg`}>
+                  <i class={activity.icon}></i>
+                </div>
+                <div class="ml-4 flex-1">
+                  <p class="text-sm text-gray-700">
+                    <span class="font-medium">{activity.user}</span> {activity.action} {activity.target && <span class="text-indigo-600">{activity.target}</span>}
+                  </p>
+                  <p class="text-xs text-gray-500">{activity.time}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

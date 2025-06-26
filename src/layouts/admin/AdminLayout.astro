@@ -1,13 +1,14 @@
 ---
 // src/layouts/admin/AdminLayout.astro
 
-import { getCurrentUser } from '../../utils/auth';
+import { getCurrentUser, type User } from '../../utils/auth';
 import type { APIRoute } from 'astro';
 
 interface Props {
   title: string;
   description?: string;
   currentPage?: string;
+  extraHead?: string;
 }
 
 const { title, description = 'Panel de administración', currentPage = '' } = Astro.props;
@@ -98,10 +99,10 @@ const userNavigation = [
               <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                 <i class="fas fa-user text-gray-600"></i>
               </div>
-              <div class="ml-3">
-                <p class="text-base font-medium text-gray-700">{user.name || user.email}</p>
-                <p class="text-sm font-medium text-gray-500">Ver perfil</p>
-              </div>
+              <span class="ml-3">
+                <span class="text-sm font-medium text-gray-700">{user?.name || user?.username || 'Administrador'}</span>
+                <span class="text-xs text-gray-500 block">{user?.role || 'admin'}</span>
+              </span>
             </div>
           </div>
         </div>
@@ -245,7 +246,9 @@ const userNavigation = [
         const userMenuButton = document.getElementById('user-menu-button');
         const userMenu = document.getElementById('user-menu');
         
-        function toggleMenu(show) {
+        function toggleMenu(show: boolean) {
+          if (!mobileMenu) return;
+          
           if (show) {
             mobileMenu.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -269,15 +272,19 @@ const userNavigation = [
         
         // Toggle user menu
         if (userMenuButton && userMenu) {
-          userMenuButton.addEventListener('click', () => {
+          userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             const expanded = userMenuButton.getAttribute('aria-expanded') === 'true';
-            userMenuButton.setAttribute('aria-expanded', !expanded);
+            userMenuButton.setAttribute('aria-expanded', (!expanded).toString());
             userMenu.classList.toggle('hidden');
           });
           
           // Cerrar menú al hacer clic fuera
           document.addEventListener('click', (e) => {
-            if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+            const target = e.target as HTMLElement;
+            if (userMenuButton && userMenu && 
+                !userMenuButton.contains(target) && 
+                !userMenu.contains(target)) {
               userMenu.classList.add('hidden');
               userMenuButton.setAttribute('aria-expanded', 'false');
             }
