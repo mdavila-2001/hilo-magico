@@ -1,861 +1,289 @@
 ---
 // src/layouts/admin/AdminLayout.astro
-import { isAdmin } from '../../utils/auth';
 
-// Verificar si el usuario es administrador
-if (!isAdmin()) {
-  return Astro.redirect('/');
-}
+import { getCurrentUser } from '../../utils/auth';
+import type { APIRoute } from 'astro';
 
 interface Props {
   title: string;
   description?: string;
-  fullWidth?: boolean;
+  currentPage?: string;
 }
 
-const { title, description = 'Panel de administración de Hilo Mágico', fullWidth = false } = Astro.props;
+const { title, description = 'Panel de administración', currentPage = '' } = Astro.props;
 
-// Menú de navegación
-const navItems = [
-  { name: 'Dashboard', href: '/admin', icon: 'fas fa-tachometer-alt' },
-  { name: 'Productos', href: '/admin/products', icon: 'fas fa-box' },
-  { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-shopping-bag' },
-  { name: 'Clientes', href: '/admin/customers', icon: 'fas fa-users' },
-  { name: 'Reseñas', href: '/admin/reviews', icon: 'fas fa-star' },
-  { name: 'Configuración', href: '/admin/settings', icon: 'fas fa-cog' },
+// Verificar autenticación y rol de administrador
+const user = getCurrentUser();
+
+if (!user) {
+  return Astro.redirect('/auth/login');
+}
+
+if (user.role !== 'admin') {
+  return Astro.redirect('/');
+}
+
+const navigation = [
+  { name: 'Dashboard', href: '/admin', icon: 'fas fa-tachometer-alt', current: currentPage === 'dashboard' },
+  { name: 'Productos', href: '/admin/products', icon: 'fas fa-tshirt', current: currentPage === 'products' },
+  { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-shopping-bag', current: currentPage === 'orders' },
+  { name: 'Clientes', href: '/admin/customers', icon: 'fas fa-users', current: currentPage === 'customers' },
+  { name: 'Configuración', href: '/admin/settings', icon: 'fas fa-cog', current: currentPage === 'settings' },
+];
+
+const userNavigation = [
+  { name: 'Tu perfil', href: '#' },
+  { name: 'Configuración', href: '#' },
+  { name: 'Cerrar sesión', href: '/auth/logout' },
 ];
 ---
 
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} | Admin - Hilo Mágico</title>
-  <meta name="description" content={description}>
+<html lang="es" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} | Panel de Administración</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    {Astro.props.extraHead || ''}
+  </head>
   
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/favicon.ico">
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Estilos -->
-  <style is:global>
-    /* Variables CSS */
-    :root {
-      /* Colores base */
-      --primary: #7e22ce;
-      --primary-dark: #6b21a8;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --warning-light: #fbbf24;
-      --warning-lighter: #fef3c7;
-      --info: #3b82f6;
-      --info-dark: #2563eb;
-      --info-light: #60a5fa;
-      --info-lighter: #dbeafe;
-      
-      /* Escala de grises */
-      --white: #ffffff;
-      --light: #f9fafb;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --gray-900: #111827;
-      --dark: #1f2937;
-      
-      /* Sombras */
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-      --shadow-none: 0 0 transparent;
-      
-      /* Transiciones */
-      --transition-default: all 0.2s ease-in-out;
-      --transition-slow: all 0.3s ease-in-out;
-      --transition-fast: all 0.1s ease-in-out;
-    }
-    
-    /* Estilos base */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      font-size: 1rem;
-      line-height: 1.5;
-      color: var(--gray-800);
-      background-color: var(--light);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    
-    a {
-      color: var(--primary);
-      text-decoration: none;
-      transition: var(--transition-default);
-    }
-    
-    a:hover {
-      color: var(--primary-dark);
-    }
-    
-    button {
-      cursor: pointer;
-      font-family: inherit;
-      background: none;
-      border: none;
-    }
-    
-    /* Utilidades */
-    .container {
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-    
-    .text-center { text-align: center; }
-    .text-gray-500 { color: var(--gray-500); }
-    .text-danger { color: var(--danger); }
-    .text-success { color: var(--success); }
-    .text-warning { color: var(--warning); }
-    .d-none { display: none !important; }
-    
-    /* Componentes */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition-default);
-      border: 1px solid transparent;
-    }
-    
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-    }
-    
-    .card {
-      background: white;
-      border-radius: 0.5rem;
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .img-thumbnail {
-      border: 1px solid var(--gray-200);
-      border-radius: 0.375rem;
-      max-width: 100%;
-      height: auto;
-    }
-    
-    /* Validación de formularios */
-    .was-validated .form-control:invalid,
-    .form-control.is-invalid {
-      border-color: var(--danger);
-      padding-right: calc(1.5em + 0.75rem);
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23ef4444' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right calc(0.375em + 0.1875rem) center;
-      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    }
-    
-    .invalid-feedback {
-      display: none;
-      width: 100%;
-      margin-top: 0.25rem;
-      font-size: 0.875em;
-      color: var(--danger);
-    }
-    
-    .was-validated .form-control:invalid ~ .invalid-feedback,
-    .form-control.is-invalid ~ .invalid-feedback {
-      display: block;
-    }
-  </style>
-</head>
-<body class="bg-gray-50">
-  <div class="min-h-screen flex bg-gray-100">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-indigo-800 text-white transition-all duration-300 ease-in-out fixed h-full z-40 lg:relative lg:translate-x-0 -translate-x-full" id="sidebar">
-      <div class="p-4 border-b border-indigo-700">
-        <h1 class="text-2xl font-bold flex items-center">
-          <i class="fas fa-magic mr-2"></i>
-          <span>Hilo Mágico</span>
-        </h1>
-        <p class="text-xs text-indigo-300 mt-1">Panel de Administración</p>
-      </div>
-      
-      <nav class="mt-6">
-        <ul>
-          {navItems.map((item) => {
-            const isActive = Astro.url.pathname === item.href;
-            return (
-              <li key={item.name} class="mb-1">
-                <a 
-                  href={item.href}
-                  class={`flex items-center py-3 px-6 text-sm ${isActive ? 'bg-indigo-900 text-white' : 'text-indigo-200 hover:bg-indigo-700'}`}
-                >
-                  <i class={`${item.icon} w-6 text-center mr-3`}></i>
-                  {item.name}
-                  {isActive && <span class="ml-auto w-1 h-6 bg-white rounded-full"></span>}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-      
-      <div class="absolute bottom-0 w-full p-4 border-t border-indigo-700">
-        <button 
-          id="logoutBtn"
-          class="w-full flex items-center text-sm text-red-200 hover:text-white p-2 rounded hover:bg-red-700/30 transition-colors"
-        >
-          <i class="fas fa-sign-out-alt mr-2"></i>
-          Cerrar sesión
-        </button>
-      </div>
-    </aside>
-    
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
-      <!-- Top Navigation -->
-      <header class="bg-white shadow-sm z-30">
-        <div class="flex items-center justify-between p-4">
-          <div class="flex items-center">
-            <button 
-              id="sidebarToggle"
-              class="text-gray-500 hover:text-gray-700 focus:outline-none mr-4 lg:hidden"
-              aria-label="Toggle sidebar"
-            >
-              <i class="fas fa-bars text-xl"></i>
+  <body class="h-full">
+    <div class="min-h-full">
+      <!-- Barra lateral para móviles -->
+      <div id="mobile-menu" class="lg:hidden fixed inset-0 flex z-40" style="display: none;">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="mobile-menu-backdrop"></div>
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+          <div class="absolute top-0 right-0 -mr-12 pt-2">
+            <button type="button" id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+              <span class="sr-only">Cerrar menú</span>
+              <i class="fas fa-times h-6 w-6 text-white"></i>
             </button>
-            <h1 class="text-xl font-semibold text-gray-800">{title}</h1>
           </div>
-          
-          <div class="flex items-center space-x-4">
-            <button class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative">
-              <i class="fas fa-bell text-xl"></i>
-              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-            
-            <div class="relative" id="user-menu">
-              <button class="flex items-center space-x-2 focus:outline-none">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
-                  A
-                </div>
-                <span class="hidden md:inline text-sm font-medium">Admin</span>
-                <i class="fas fa-chevron-down text-xs"></i>
-              </button>
-              
-              <!-- Dropdown Menu -->
-              <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" id="user-dropdown">
-                <a href="/admin/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <i class="fas fa-user mr-2"></i> Perfil
+          <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+            <div class="flex-shrink-0 flex items-center px-4">
+              <h1 class="text-xl font-bold text-gray-800">Hilo Mágico</h1>
+            </div>
+            <nav class="mt-5 px-2 space-y-1">
+              {navigation.map((item) => (
+                <a
+                  href={item.href}
+                  class={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                    item.current
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <i class={`${item.icon} mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500`}></i>
+                  {item.name}
                 </a>
-                <a href="/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <i class="fas fa-cog mr-2"></i> Configuración
-                </a>
-                <div class="border-t border-gray-100 my-1"></div>
-                <button id="logoutBtnMobile" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                  <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
-                </button>
+              ))}
+            </nav>
+          </div>
+          <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
+            <div class="flex items-center">
+              <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-base font-medium text-gray-700">{user.name || user.email}</p>
+                <p class="text-sm font-medium text-gray-500">Ver perfil</p>
               </div>
             </div>
           </div>
         </div>
-      </header>
-      
-      <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-        <div class={`${!fullWidth ? 'max-w-7xl mx-auto' : ''}`}>
-          <slot />
-        </div>
-      </main>
-      
-      <!-- Footer -->
-      <footer class="bg-white border-t border-gray-200 py-4 px-6">
-        <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-          <p>© {new Date().getFullYear()} Hilo Mágico. Todos los derechos reservados.</p>
-          <div class="flex space-x-4 mt-2 md:mt-0">
-            <a href="/" class="hover:text-indigo-600">Sitio web</a>
-            <a href="/privacy" class="hover:text-indigo-600">Privacidad</a>
-            <a href="/terms" class="hover:text-indigo-600">Términos</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-  </div>
-    
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <h2>Hilo Mágico</h2>
-        <p>Panel de administración</p>
-        <button class="sidebar-close-btn">
-          <i class="fas fa-times"></i>
-        </button>
       </div>
-      
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item">
-            <a href="/admin" class="nav-link" data-active={Astro.url.pathname === '/admin/'}>
-              <i class="fas fa-tachometer-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/admin/products" class="nav-link" data-active={Astro.url.pathname.startsWith('/admin/products')}>
-              <i class="fas fa-tshirt"></i>
-              <span>Productos</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/admin/orders" class="nav-link" data-active={Astro.url.pathname.startsWith('/admin/orders')}>
-              <i class="fas fa-shopping-bag"></i>
-              <span>Pedidos</span>
-              <span class="badge">5</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/admin/customers" class="nav-link" data-active={Astro.url.pathname.startsWith('/admin/customers')}>
-              <i class="fas fa-users"></i>
-              <span>Clientes</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="/admin/settings" class="nav-link" data-active={Astro.url.pathname.startsWith('/admin/settings')}>
-              <i class="fas fa-cog"></i>
-              <span>Configuración</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      
-      <div class="sidebar-footer">
-        <a href="/" class="btn btn-sm" target="_blank" rel="noopener noreferrer">
-          <i class="fas fa-external-link-alt"></i>
-          Ver tienda
-        </a>
-        <a href="/logout" class="btn btn-sm btn-danger">
-          <i class="fas fa-sign-out-alt"></i>
-          Cerrar sesión
-        </a>
-      </div>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="admin-main">
-      <!-- Header -->
-      <header class="admin-header">
-        <div class="header-left">
-          <button id="sidebar-toggle" class="btn btn-icon" aria-label="Menú">
-            <i class="fas fa-bars"></i>
-          </button>
-          <h1>{title}</h1>
-        </div>
-        
-        <div class="header-right">
-          <div class="notifications">
-            <button class="btn btn-icon" aria-label="Notificaciones">
-              <i class="far fa-bell"></i>
-              <span class="badge">3</span>
-            </button>
-          </div>
-          
-          <div class="user-menu">
-            <div class="user-avatar">
-              <img src="https://ui-avatars.com/api/?name=Admin&background=7e22ce&color=fff" alt="Admin" width="32" height="32">
-            </div>
-            <span class="user-name">Admin</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-        </div>
-      </header>
-      
-      <!-- Page Content -->
-      <div class="admin-content">
-        <slot />
-      </div>
-    </main>
-  </div>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Elementos del DOM
-      const sidebar = document.querySelector('.admin-sidebar');
-      const mainContent = document.querySelector('.admin-main');
-      const sidebarToggle = document.getElementById('sidebar-toggle');
-      const sidebarOverlay = document.querySelector('.sidebar-overlay');
-      const sidebarCloseBtn = document.querySelector('.sidebar-close-btn');
-      
-      // Estado del menú (localStorage para persistencia)
-      const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-      
-      // Inicializar estado
-      if (isCollapsed) {
-        sidebar?.classList.add('collapsed');
-        mainContent?.classList.add('collapsed');
-      }
-      
-      // Función para alternar el menú
-      const toggleSidebar = () => {
-        const isNowCollapsed = !sidebar?.classList.contains('collapsed');
-        
-        if (isNowCollapsed) {
-          // Colapsar
-          sidebar?.classList.add('collapsed');
-          mainContent?.classList.add('collapsed');
-          localStorage.setItem('sidebarCollapsed', 'true');
-        } else {
-          // Expandir
-          sidebar?.classList.remove('collapsed');
-          mainContent?.classList.remove('collapsed');
-          localStorage.setItem('sidebarCollapsed', 'false');
-        }
-      };
-      
-      // Función para abrir el menú (móvil)
-      const openSidebar = () => {
-        sidebar?.classList.add('active');
-        sidebarOverlay?.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      };
-      
-      // Función para cerrar el menú (móvil)
-      const closeSidebar = () => {
-        sidebar?.classList.remove('active');
-        sidebarOverlay?.classList.remove('active');
-        document.body.style.overflow = '';
-      };
-      
-      // Event Listeners
-      if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', (e) => {
-          e.stopPropagation();
-          
-          if (window.innerWidth < 1025) {
-            // Comportamiento móvil
-            if (sidebar?.classList.contains('active')) {
-              closeSidebar();
-            } else {
-              openSidebar();
-            }
-          } else {
-            // Comportamiento escritorio
-            toggleSidebar();
-          }
-        });
-      }
-      
-      if (sidebarCloseBtn) {
-        sidebarCloseBtn.addEventListener('click', () => {
-          if (window.innerWidth < 1025) {
-            closeSidebar();
-          } else {
-            toggleSidebar();
-          }
-        });
-      }
-      
-      if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeSidebar);
-      }
-      
-      // Cerrar el menú al hacer clic en un enlace en dispositivos móviles
-      const navLinks = document.querySelectorAll('.sidebar-nav a');
-      navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          if (window.innerWidth < 1025) {
-            closeSidebar();
-          }
-        });
-      });
-      
-      // Manejar cambios de tamaño de pantalla
-      let resizeTimer: NodeJS.Timeout;
-      
-      const handleResize = () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-          if (window.innerWidth >= 1025) {
-            // En pantallas grandes, asegurarse de que el menú esté en modo escritorio
-            closeSidebar();
-            
-            // Si estaba colapsado, mantener el estado
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed) {
-              sidebar?.classList.add('collapsed');
-              mainContent?.classList.add('collapsed');
-            } else {
-              sidebar?.classList.remove('collapsed');
-              mainContent?.classList.remove('collapsed');
-            }
-          } else {
-            // En móvil, asegurarse de que no esté colapsado
-            sidebar?.classList.remove('collapsed');
-            mainContent?.classList.remove('collapsed');
-          }
-        }, 250);
-      };
-      
-      // Inicializar estado en carga
-      handleResize();
-      
-      window.addEventListener('resize', handleResize);
-      
-      // Limpiar event listeners al desmontar
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    });
-  </script>
-  
-  <style is:global>
-    /* Estilos globales para el admin */
-    :root {
-      --sidebar-width: 280px;
-      --sidebar-collapsed-width: 80px;
-      --header-height: 64px;
-      --transition-speed: 0.3s;
-    }
-    
-    .admin-container {
-      display: flex;
-      min-height: 100vh;
-    }
-    
-    .admin-sidebar {
-      width: var(--sidebar-width);
-      background: #1f2937;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      height: 100vh;
-      z-index: 100;
-      transition: transform var(--transition-speed) ease;
-    }
-    
-    .admin-sidebar.collapsed {
-      width: var(--sidebar-collapsed-width);
-    }
-    
-    .admin-main {
-      flex: 1;
-      margin-left: var(--sidebar-width);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      transition: margin var(--transition-speed) ease;
-    }
-    
-    .admin-main.collapsed {
-      margin-left: var(--sidebar-collapsed-width);
-    }
-    
-    .admin-header {
-      height: var(--header-height);
-      background: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 90;
-    }
-    
-    .header-left, .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .admin-content {
-      flex: 1;
-      padding: 2rem;
-      background-color: #f9fafb;
-    }
-    
-    /* Sidebar styles */
-    .sidebar-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .sidebar-header h2 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    
-    .sidebar-header p {
-      font-size: 0.75rem;
-      opacity: 0.8;
-      margin: 0.25rem 0 0;
-    }
-    
-    .sidebar-nav {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem 0;
-    }
-    
-    .nav-item {
-      margin: 0.25rem 0.5rem;
-    }
-    
-    .nav-link {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      border-radius: 0.375rem;
-      color: rgba(255, 255, 255, 0.8);
-      transition: all 0.2s;
-    }
-    
-    .nav-link:hover, .nav-link[data-active="true"] {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-    
-    .nav-link i {
-      width: 24px;
-      margin-right: 0.75rem;
-      text-align: center;
-    }
-    
-    .badge {
-      background: #ef4444;
-      color: white;
-      font-size: 0.7rem;
-      padding: 0.15rem 0.4rem;
-      border-radius: 9999px;
-      margin-left: auto;
-    }
-    
-    .sidebar-footer {
-      padding: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .btn-sm {
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
-    }
-    
-    .btn-danger {
-      background: #ef4444;
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background: #dc2626;
-    }
-    
-    .btn-icon {
-      background: none;
-      border: none;
-      color: #6b7280;
-      font-size: 1.25rem;
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .btn-icon:hover {
-      background: #f3f4f6;
-    }
-    
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.375rem;
-    }
-    
-    .user-menu:hover {
-      background: #f3f4f6;
-    }
-    
-    .user-avatar img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    
-    .user-name {
-      font-weight: 500;
-    }
-    
-    /* Responsive */
-    /* Estilos responsivos */
-    /* Estilos para pantallas grandes (más de 1024px) */
-    /* @media (min-width: 1025px) {
-      .admin-sidebar {
-        transform: translateX(0);
-      }
-      
-      .admin-sidebar.collapsed {
-        width: var(--sidebar-collapsed-width);
-      }
-      
-      .admin-main.collapsed {
-        margin-left: var(--sidebar-collapsed-width);
-      }
-      
-      .sidebar-close-btn {
-        display: none;
-      }
-      
-      .sidebar-overlay {
-        display: none !important;
-      }
-    } */
-    
-    /* Estilos para pantallas medianas y pequeñas (hasta 1024px) */
-    @media (max-width: 1024px) {
-      :root {
-        --sidebar-width: 260px;
-      }
-      
-      .admin-sidebar {
-        transform: translateX(-100%);
-      }
-      
-      .admin-sidebar.active {
-        transform: translateX(0);
-      }
-      
-      .admin-main {
-        margin-left: 0;
-        width: 100%;
-      }
-      
-      .sidebar-close-btn {
-        display: block;
-      }
-      
-      .sidebar-overlay.active {
-        display: block;
-      }
-    }
-  </style>
-</div>
 
-<!-- Scripts -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Elementos del DOM
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const userMenu = document.getElementById('user-menu');
-    const userDropdown = document.getElementById('user-dropdown');
-    const logoutBtns = document.querySelectorAll('#logoutBtn, #logoutBtnMobile');
-    
-    // Toggle sidebar en móviles
-    if (sidebarToggle) {
-      sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-        document.body.classList.toggle('overflow-hidden');
-      });
-    }
-    
-    // Cerrar sidebar al hacer clic en un enlace en móviles
-    document.querySelectorAll('#sidebar a').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth < 1024) {
-          sidebar.classList.add('-translate-x-full');
-          document.body.classList.remove('overflow-hidden');
+      <!-- Barra lateral estática para escritorio -->
+      <div class="hidden lg:flex lg:flex-shrink-0">
+        <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
+          <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+            <div class="flex items-center flex-shrink-0 px-4">
+              <h1 class="text-xl font-bold text-gray-800">Hilo Mágico</h1>
+            </div>
+            <nav class="mt-5 flex-1 px-2 space-y-1">
+              {navigation.map((item) => (
+                <a
+                  href={item.href}
+                  class={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                    item.current
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <i class={`${item.icon} mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500`}></i>
+                  {item.name}
+                </a>
+              ))}
+            </nav>
+          </div>
+          <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
+            <div class="flex items-center">
+              <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-700">{user.name || user.email}</p>
+                <a href="/admin/profile" class="text-xs font-medium text-gray-500 hover:text-gray-700">Ver perfil</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="lg:pl-64 flex flex-col">
+        <!-- Barra superior -->
+        <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:border-none">
+          <button
+            type="button"
+            id="open-sidebar"
+            class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+          >
+            <span class="sr-only">Abrir menú</span>
+            <i class="fas fa-bars h-6 w-6"></i>
+          </button>
+          
+          <!-- Barra de búsqueda -->
+          <div class="flex-1 px-4 flex justify-between lg:px-6 lg:mx-auto lg:max-w-6xl">
+            <div class="flex-1 flex">
+              <div class="w-full flex md:ml-0">
+                <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search h-5 w-5"></i>
+                  </div>
+                  <input
+                    id="search-field"
+                    class="block w-full bg-white py-2 pl-10 pr-3 border border-transparent rounded-md leading-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm"
+                    placeholder="Buscar"
+                    type="search"
+                    name="search"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <!-- Menú de usuario -->
+            <div class="ml-4 flex items-center md:ml-6">
+              <div class="relative ml-3">
+                <div>
+                  <button
+                    type="button"
+                    id="user-menu-button"
+                    class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span class="sr-only">Abrir menú de usuario</span>
+                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                    <span class="ml-2 hidden md:block text-sm font-medium text-gray-700">
+                      {user.name || user.email}
+                    </span>
+                    <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
+                  </button>
+                </div>
+                
+                <!-- Menú desplegable del usuario -->
+                <div
+                  id="user-menu"
+                  class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="user-menu-button"
+                  tabindex="-1"
+                >
+                  {userNavigation.map((item) => (
+                    <a
+                      href={item.href}
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                      tabindex="-1"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido de la página -->
+        <main class="flex-1 pb-8">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="py-6">
+              <slot />
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Toggle mobile menu
+      document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const openButton = document.getElementById('open-sidebar');
+        const closeButton = document.getElementById('close-sidebar');
+        const backdrop = document.getElementById('mobile-menu-backdrop');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        
+        function toggleMenu(show) {
+          if (show) {
+            mobileMenu.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+          } else {
+            mobileMenu.style.display = 'none';
+            document.body.style.overflow = '';
+          }
         }
-      });
-    });
-    
-    // Toggle menú de usuario
-    if (userMenu && userDropdown) {
-      const userButton = userMenu.querySelector('button');
-      
-      userButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle('hidden');
-      });
-      
-      // Cerrar menú al hacer clic fuera
-      document.addEventListener('click', (e) => {
-        if (!userMenu.contains(e.target)) {
-          userDropdown.classList.add('hidden');
+        
+        if (openButton) {
+          openButton.addEventListener('click', () => toggleMenu(true));
         }
-      });
-    }
-    
-    // Manejar cierre de sesión
-    logoutBtns.forEach(btn => {
-      btn.addEventListener('click', async () => {
-        try {
-          const response = await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
+        
+        if (closeButton) {
+          closeButton.addEventListener('click', () => toggleMenu(false));
+        }
+        
+        if (backdrop) {
+          backdrop.addEventListener('click', () => toggleMenu(false));
+        }
+        
+        // Toggle user menu
+        if (userMenuButton && userMenu) {
+          userMenuButton.addEventListener('click', () => {
+            const expanded = userMenuButton.getAttribute('aria-expanded') === 'true';
+            userMenuButton.setAttribute('aria-expanded', !expanded);
+            userMenu.classList.toggle('hidden');
           });
           
-          if (response.ok) {
-            window.location.href = '/auth/login';
-          } else {
-            console.error('Error al cerrar sesión');
-          }
-        } catch (error) {
-          console.error('Error al cerrar sesión:', error);
+          // Cerrar menú al hacer clic fuera
+          document.addEventListener('click', (e) => {
+            if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+              userMenu.classList.add('hidden');
+              userMenuButton.setAttribute('aria-expanded', 'false');
+            }
+          });
         }
       });
-    });
-    
-    // Cerrar menús al cambiar de tamaño de pantalla
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) {
-        sidebar.classList.remove('-translate-x-full');
-        document.body.classList.remove('overflow-hidden');
-      }
-    });
-  });
-</script>
-</body>
+    </script>
+  </body>
 </html>
