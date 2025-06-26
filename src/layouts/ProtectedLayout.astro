@@ -1,0 +1,21 @@
+---
+// src/layouts/ProtectedLayout.astro
+import BaseLayout from './BaseLayout.astro';
+import { requireAuth } from '../utils/auth';
+
+// Verificar autenticación (opcionalmente, verificar un rol específico)
+const requiredRole = Astro.props.requiredRole;
+const isAuthenticated = requireAuth(requiredRole);
+
+// Si no está autenticado, requireAuth ya redirigirá
+if (!isAuthenticated) {
+  return null; // No renderizar nada, ya que se redirigirá
+}
+
+// Pasar las props al layout base
+const { title = 'Área Protegida', description = '' } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <slot />
+</BaseLayout>

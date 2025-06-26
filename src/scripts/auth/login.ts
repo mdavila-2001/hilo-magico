@@ -128,23 +128,51 @@ export function initLoginForm(apiUrl: string): void {
       }
       
       try {
+        console.log('Enviando solicitud a:', `${apiUrl}/auth/login`);
         const response = await fetch(`${apiUrl}/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include', // Importante para manejar cookies de sesión
+          credentials: 'include',
           body: JSON.stringify({ email, password }),
         });
         
-        const data = await response.json();
+        console.log('Respuesta recibida. Estado:', response.status);
+        const responseText = await response.text();
+        console.log('Contenido de la respuesta (texto):', responseText);
         
-        if (!response.ok) {
-          throw new Error(data.message || 'Error al iniciar sesión');
+        let data;
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+          console.log('Datos parseados:', data);
+        } catch (parseError) {
+          console.error('Error al analizar la respuesta JSON:', parseError);
+          throw new Error('Error en el formato de la respuesta del servidor');
         }
         
-        // Redirigir al dashboard o página de inicio
-        window.location.href = '/';
+        if (!response.ok) {
+          console.error('Error en la respuesta:', {
+            status: response.status,
+            statusText: response.statusText,
+            data
+          });
+          throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+        }
+        
+        // Verificar la estructura de la respuesta
+        if (!data.data || !data.data.user) {
+          console.error('Estructura de datos inesperada:', data);
+          throw new Error('Formato de respuesta inesperado del servidor');
+        }
+        
+        console.log('Datos del usuario:', data.data.user);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        
+        // Redirigir según el rol del usuario
+        const redirectPath = data.data.user.role === 'client' ? '/' : '/admin';
+        console.log('Redirigiendo a:', redirectPath);
+        window.location.href = redirectPath;
         
       } catch (error: unknown) {
         console.error('Error al iniciar sesión:', error);

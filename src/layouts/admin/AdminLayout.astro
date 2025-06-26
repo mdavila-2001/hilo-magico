@@ -1,12 +1,29 @@
 ---
 // src/layouts/admin/AdminLayout.astro
+import { isAdmin } from '../../utils/auth';
+
+// Verificar si el usuario es administrador
+if (!isAdmin()) {
+  return Astro.redirect('/');
+}
 
 interface Props {
   title: string;
   description?: string;
+  fullWidth?: boolean;
 }
 
-const { title, description = 'Panel de administración de Hilo Mágico' } = Astro.props;
+const { title, description = 'Panel de administración de Hilo Mágico', fullWidth = false } = Astro.props;
+
+// Menú de navegación
+const navItems = [
+  { name: 'Dashboard', href: '/admin', icon: 'fas fa-tachometer-alt' },
+  { name: 'Productos', href: '/admin/products', icon: 'fas fa-box' },
+  { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-shopping-bag' },
+  { name: 'Clientes', href: '/admin/customers', icon: 'fas fa-users' },
+  { name: 'Reseñas', href: '/admin/reviews', icon: 'fas fa-star' },
+  { name: 'Configuración', href: '/admin/settings', icon: 'fas fa-cog' },
+];
 ---
 
 <!DOCTYPE html>
@@ -27,7 +44,7 @@ const { title, description = 'Panel de administración de Hilo Mágico' } = Astr
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Estilos -->
-  <style>
+  <style is:global>
     /* Variables CSS */
     :root {
       /* Colores base */
@@ -185,10 +202,118 @@ const { title, description = 'Panel de administración de Hilo Mágico' } = Astr
     }
   </style>
 </head>
-<body>
-  <div class="admin-container">
-    <!-- Sidebar Overlay (solo visible en móvil) -->
-    <div class="sidebar-overlay"></div>
+<body class="bg-gray-50">
+  <div class="min-h-screen flex bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-indigo-800 text-white transition-all duration-300 ease-in-out fixed h-full z-40 lg:relative lg:translate-x-0 -translate-x-full" id="sidebar">
+      <div class="p-4 border-b border-indigo-700">
+        <h1 class="text-2xl font-bold flex items-center">
+          <i class="fas fa-magic mr-2"></i>
+          <span>Hilo Mágico</span>
+        </h1>
+        <p class="text-xs text-indigo-300 mt-1">Panel de Administración</p>
+      </div>
+      
+      <nav class="mt-6">
+        <ul>
+          {navItems.map((item) => {
+            const isActive = Astro.url.pathname === item.href;
+            return (
+              <li key={item.name} class="mb-1">
+                <a 
+                  href={item.href}
+                  class={`flex items-center py-3 px-6 text-sm ${isActive ? 'bg-indigo-900 text-white' : 'text-indigo-200 hover:bg-indigo-700'}`}
+                >
+                  <i class={`${item.icon} w-6 text-center mr-3`}></i>
+                  {item.name}
+                  {isActive && <span class="ml-auto w-1 h-6 bg-white rounded-full"></span>}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      
+      <div class="absolute bottom-0 w-full p-4 border-t border-indigo-700">
+        <button 
+          id="logoutBtn"
+          class="w-full flex items-center text-sm text-red-200 hover:text-white p-2 rounded hover:bg-red-700/30 transition-colors"
+        >
+          <i class="fas fa-sign-out-alt mr-2"></i>
+          Cerrar sesión
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+      <!-- Top Navigation -->
+      <header class="bg-white shadow-sm z-30">
+        <div class="flex items-center justify-between p-4">
+          <div class="flex items-center">
+            <button 
+              id="sidebarToggle"
+              class="text-gray-500 hover:text-gray-700 focus:outline-none mr-4 lg:hidden"
+              aria-label="Toggle sidebar"
+            >
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-semibold text-gray-800">{title}</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <button class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative">
+              <i class="fas fa-bell text-xl"></i>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            
+            <div class="relative" id="user-menu">
+              <button class="flex items-center space-x-2 focus:outline-none">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
+                  A
+                </div>
+                <span class="hidden md:inline text-sm font-medium">Admin</span>
+                <i class="fas fa-chevron-down text-xs"></i>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" id="user-dropdown">
+                <a href="/admin/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <i class="fas fa-user mr-2"></i> Perfil
+                </a>
+                <a href="/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <i class="fas fa-cog mr-2"></i> Configuración
+                </a>
+                <div class="border-t border-gray-100 my-1"></div>
+                <button id="logoutBtnMobile" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                  <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Page Content -->
+      <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+        <div class={`${!fullWidth ? 'max-w-7xl mx-auto' : ''}`}>
+          <slot />
+        </div>
+      </main>
+      
+      <!-- Footer -->
+      <footer class="bg-white border-t border-gray-200 py-4 px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+          <p>© {new Date().getFullYear()} Hilo Mágico. Todos los derechos reservados.</p>
+          <div class="flex space-x-4 mt-2 md:mt-0">
+            <a href="/" class="hover:text-indigo-600">Sitio web</a>
+            <a href="/privacy" class="hover:text-indigo-600">Privacidad</a>
+            <a href="/terms" class="hover:text-indigo-600">Términos</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
     
     <!-- Sidebar -->
     <aside class="admin-sidebar">
@@ -656,5 +781,81 @@ const { title, description = 'Panel de administración de Hilo Mágico' } = Astr
       }
     }
   </style>
+</div>
+
+<!-- Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Elementos del DOM
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const userMenu = document.getElementById('user-menu');
+    const userDropdown = document.getElementById('user-dropdown');
+    const logoutBtns = document.querySelectorAll('#logoutBtn, #logoutBtnMobile');
+    
+    // Toggle sidebar en móviles
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+        document.body.classList.toggle('overflow-hidden');
+      });
+    }
+    
+    // Cerrar sidebar al hacer clic en un enlace en móviles
+    document.querySelectorAll('#sidebar a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 1024) {
+          sidebar.classList.add('-translate-x-full');
+          document.body.classList.remove('overflow-hidden');
+        }
+      });
+    });
+    
+    // Toggle menú de usuario
+    if (userMenu && userDropdown) {
+      const userButton = userMenu.querySelector('button');
+      
+      userButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('hidden');
+      });
+      
+      // Cerrar menú al hacer clic fuera
+      document.addEventListener('click', (e) => {
+        if (!userMenu.contains(e.target)) {
+          userDropdown.classList.add('hidden');
+        }
+      });
+    }
+    
+    // Manejar cierre de sesión
+    logoutBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          const response = await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            window.location.href = '/auth/login';
+          } else {
+            console.error('Error al cerrar sesión');
+          }
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error);
+        }
+      });
+    });
+    
+    // Cerrar menús al cambiar de tamaño de pantalla
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('-translate-x-full');
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+  });
+</script>
 </body>
 </html>

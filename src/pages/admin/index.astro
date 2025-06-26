@@ -2,52 +2,128 @@
 // src/pages/admin/index.astro
 
 import AdminLayout from '../../layouts/admin/AdminLayout.astro';
+import { getCurrentUser } from '../../utils/auth';
 
 const pageTitle = 'Dashboard';
 const pageDescription = 'Vista general de tu tienda Hilo Mágico';
 
+// Obtener información del usuario actual
+const currentUser = getCurrentUser();
+
+// Definir el tipo para los productos
+interface Product {
+  name: string;
+  sales: number;
+  revenue: string;
+  image?: string;
+}
+
+// Definir el tipo para las estadísticas
+interface Stat {
+  title: string;
+  value: string;
+  change: string;
+  changeType: 'increase' | 'decrease';
+  icon: string;
+  color: string;
+}
+
+// Definir el tipo para las órdenes
+interface Order {
+  id: string;
+  customer: string;
+  date: string;
+  amount: string;
+  status: string;
+  statusColor: string;
+}
+
 // Datos de ejemplo para el dashboard
-const stats = [
+const stats: Stat[] = [
   { 
     title: 'Ventas Totales', 
     value: '$12,450', 
     change: '+12.5%', 
     changeType: 'increase',
-    icon: 'fas fa-shopping-cart'
+    icon: 'fas fa-shopping-cart',
+    color: 'bg-indigo-100 text-indigo-600'
   },
   { 
     title: 'Pedidos', 
     value: '1,254', 
     change: '+5.2%', 
     changeType: 'increase',
-    icon: 'fas fa-shopping-bag'
+    icon: 'fas fa-shopping-bag',
+    color: 'bg-green-100 text-green-600'
   },
   { 
     title: 'Clientes', 
     value: '845', 
     change: '+8.1%', 
     changeType: 'increase',
-    icon: 'fas fa-users'
+    icon: 'fas fa-users',
+    color: 'bg-blue-100 text-blue-600'
   },
   { 
     title: 'Tasa de Conversión', 
     value: '3.2%', 
     change: '-0.5%', 
     changeType: 'decrease',
-    icon: 'fas fa-percentage'
+    icon: 'fas fa-percentage',
+    color: 'bg-yellow-100 text-yellow-600'
   }
 ];
 
-const recentOrders = [
-  { id: '#ORD-001', customer: 'María Gómez', date: '2025-06-01', amount: '$125.99', status: 'Completado' },
-  { id: '#ORD-002', customer: 'Carlos López', date: '2025-06-01', amount: '$89.50', status: 'En Proceso' },
-  { id: '#ORD-003', customer: 'Ana Torres', date: '2025-05-31', amount: '$210.75', status: 'Enviado' },
-  { id: '#ORD-004', customer: 'Luisa Ramírez', date: '2025-05-30', amount: '$156.20', status: 'Pendiente' },
-  { id: '#ORD-005', customer: 'Pedro Sánchez', date: '2025-05-29', amount: '$75.30', status: 'Completado' }
+const recentOrders: Order[] = [
+  { 
+    id: '#ORD-001', 
+    customer: 'María Gómez', 
+    date: '2025-06-01', 
+    amount: '$125.99', 
+    status: 'Completado',
+    statusColor: 'bg-green-100 text-green-800'
+  },
+  { 
+    id: '#ORD-002', 
+    customer: 'Carlos López', 
+    date: '2025-06-01', 
+    amount: '$89.50', 
+    status: 'En Proceso',
+    statusColor: 'bg-blue-100 text-blue-800'
+  },
+  { 
+    id: '#ORD-003', 
+    customer: 'Ana Torres', 
+    date: '2025-05-31', 
+    amount: '$210.75', 
+    status: 'Enviado',
+    statusColor: 'bg-indigo-100 text-indigo-800'
+  },
+  { 
+    id: '#ORD-004', 
+    customer: 'Luisa Ramírez', 
+    date: '2025-05-30', 
+    amount: '$156.20', 
+    status: 'Pendiente',
+    statusColor: 'bg-yellow-100 text-yellow-800'
+  },
+  { 
+    id: '#ORD-005', 
+    customer: 'Pedro Sánchez', 
+    date: '2025-05-29', 
+    amount: '$75.30', 
+    status: 'Completado',
+    statusColor: 'bg-green-100 text-green-800'
+  }
 ];
 
-const topProducts = [
-  { name: 'Vestido Floral', sales: 142, revenue: '$2,840.00' },
+const topProducts: Product[] = [
+  { 
+    name: 'Vestido Floral', 
+    sales: 142, 
+    revenue: '$2,840.00',
+    image: '/images/products/dress-1.jpg'
+  },
   { name: 'Blusa de Encaje', sales: 98, revenue: '$1,764.00' },
   { name: 'Falda Plisada', sales: 87, revenue: '$1,740.00' },
   { name: 'Conjunto Casual', sales: 76, revenue: '$1,216.00' },
@@ -56,157 +132,198 @@ const topProducts = [
 ---
 
 <AdminLayout title={pageTitle} description={pageDescription}>
-  <div class="dashboard">
+  <div class="space-y-6">
     <!-- Encabezado -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Bienvenido de nuevo, Admin</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Hola, {currentUser?.username || 'Administrador'}</h1>
         <p class="text-gray-600">Aquí tienes un resumen de tu tienda</p>
       </div>
-      <div>
-        <button class="btn btn-primary">
+      <div class="flex flex-wrap gap-3">
+        <a href="/admin/products/new" class="btn btn-primary">
+          <i class="fas fa-plus mr-2"></i> Nuevo Producto
+        </a>
+        <a href="/admin/orders/new" class="btn btn-outline">
           <i class="fas fa-plus mr-2"></i> Nuevo Pedido
-        </button>
+        </a>
       </div>
     </div>
-
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {
-        stats.map(stat => (
-          <div class="card">
-            <div class="p-5">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="text-sm font-medium text-gray-500">{stat.title}</p>
-                  <p class="mt-1 text-2xl font-semibold text-gray-900">{stat.value}</p>
-                  <p class={`mt-1 text-sm ${stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
-                    {stat.changeType === 'increase' ? '↑' : '↓'} {stat.change} vs mes anterior
-                  </p>
-                </div>
-                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                  <i class={`${stat.icon} text-lg`}></i>
-                </div>
+    
+    <!-- Tarjetas de estadísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat, index) => (
+        <div key={`stat-${index}`} class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500">{stat.title}</p>
+              <p class="text-2xl font-semibold mt-1">{stat.value}</p>
+              <div class="flex items-center mt-2">
+                <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${stat.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {stat.changeType === 'increase' ? (
+                    <svg class="-ml-0.5 mr-1 h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 8 8">
+                      <path d="M2.5 0L0 4h5l-1.5 4L8 1H3z" />
+                    </svg>
+                  ) : (
+                    <svg class="-ml-0.5 mr-1 h-3 w-3 text-red-500" fill="currentColor" viewBox="0 0 8 8">
+                      <path d="M5.5 8L8 4H3l1.5-4L0 7h5z" />
+                    </svg>
+                  )}
+                  {stat.change}
+                </span>
+                <span class="ml-2 text-xs text-gray-500">vs mes anterior</span>
+              </div>
+            </div>
+            <div class={`p-3 rounded-xl ${stat.color.split(' ')[0]} ${stat.color.split(' ')[1]}`}>
+              <i class={`${stat.icon} text-lg`}></i>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+    
+    <!-- Gráfico de ventas y métricas -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Gráfico principal -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="text-lg font-semibold text-gray-900">Resumen de ventas</h2>
+          <div class="flex space-x-2 mt-2 sm:mt-0">
+            <button class="px-3 py-1 text-xs font-medium rounded-lg bg-indigo-600 text-white">30 días</button>
+            <button class="px-3 py-1 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">90 días</button>
+            <button class="px-3 py-1 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">1 año</button>
+          </div>
+        </div>
+        <div class="h-80">
+          <div class="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-xl">
+            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+              <i class="fas fa-chart-line text-indigo-600 text-2xl"></i>
+            </div>
+            <p class="text-gray-500 font-medium">Visualización de ventas</p>
+            <p class="text-sm text-gray-400 mt-1">Los datos del gráfico se cargarán aquí</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Métricas rápidas -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-sm font-medium text-gray-500 mb-4">Rendimiento de la tienda</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Tasa de conversión</span>
+                <span class="font-medium">3.2%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-indigo-600 h-2 rounded-full" style="width: 32%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Carritos abandonados</span>
+                <span class="font-medium">42</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 28%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-600">Clientes recurrentes</span>
+                <span class="font-medium">64%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: 64%"></div>
               </div>
             </div>
           </div>
-        ))
-      }
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <!-- Gráfico de Ventas (Placeholder) -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="text-lg font-semibold">Ventas Mensuales</h2>
-          <select class="form-control w-auto text-sm">
-            <option>Últimos 7 días</option>
-            <option>Últimos 30 días</option>
-            <option selected>Últimos 90 días</option>
-          </select>
         </div>
-        <div class="p-6">
-          <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <p class="text-gray-500">Gráfico de ventas mensuales</p>
-          </div>
+        
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl shadow-sm p-6 text-white">
+          <h3 class="text-sm font-medium mb-1">Soporte Premium</h3>
+          <p class="text-xs text-indigo-100 mb-4">¿Necesitas ayuda con tu tienda?</p>
+          <button class="w-full flex items-center justify-center px-4 py-2 bg-white text-indigo-700 text-sm font-medium rounded-lg hover:bg-opacity-90 transition-colors">
+            <i class="fas fa-headset mr-2"></i> Contactar soporte
+          </button>
         </div>
       </div>
-
+    </div>
+    
+    <!-- Tablas de datos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Pedidos recientes -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Pedidos recientes</h2>
+          <a href="/admin/orders" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todo</a>
+        </div>
+        <div class="divide-y divide-gray-100">
+          {recentOrders.map((order) => (
+            <a 
+              href={`/admin/orders/${order.id.replace('#', '')}`} 
+              class="block hover:bg-gray-50 transition-colors"
+              key={order.id}
+            >
+              <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
+                      {order.id.replace('#', '')}
+                    </div>
+                    <div class="ml-4">
+                      <p class="text-sm font-medium text-gray-900">{order.customer}</p>
+                      <p class="text-xs text-gray-500">{order.date}</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-medium">{order.amount}</p>
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.statusColor}`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+      
       <!-- Productos más vendidos -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="text-lg font-semibold">Productos Más Vendidos</h2>
-          <a href="/admin/products" class="text-sm text-purple-600 hover:text-purple-800">Ver todos</a>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Productos más vendidos</h2>
+          <a href="/admin/products" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todo</a>
         </div>
-        <div class="p-0">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b border-gray-200">
-                  <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                  <th class="text-right py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Ventas</th>
-                  <th class="text-right py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Ingresos</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                {topProducts.map((product, index) => (
-                  <tr key={index} class="hover:bg-gray-50">
-                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{product.name}</td>
-                    <td class="py-3 px-4 text-sm text-gray-500 text-right">{product.sales}</td>
-                    <td class="py-3 px-4 text-sm font-medium text-gray-900 text-right">{product.revenue}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pedidos Recientes -->
-    <div class="card mb-8">
-      <div class="card-header">
-        <h2 class="text-lg font-semibold">Pedidos Recientes</h2>
-        <a href="/admin/orders" class="text-sm text-purple-600 hover:text-purple-800">Ver todos</a>
-      </div>
-      <div class="p-0">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-gray-200">
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th class="py-3 px-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                <th class="py-3 px-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                <th class="py-3 px-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              {recentOrders.map((order, index) => {
-                let statusClass = '';
-                
-                switch(order.status) {
-                  case 'Completado':
-                    statusClass = 'bg-green-100 text-green-800';
-                    break;
-                  case 'En Proceso':
-                    statusClass = 'bg-blue-100 text-blue-800';
-                    break;
-                  case 'Enviado':
-                    statusClass = 'bg-yellow-100 text-yellow-800';
-                    break;
-                  case 'Pendiente':
-                    statusClass = 'bg-gray-100 text-gray-800';
-                    break;
-                  default:
-                    statusClass = 'bg-gray-100 text-gray-800';
-                }
-                
-                return (
-                  <tr key={index} class="hover:bg-gray-50">
-                    <td class="py-3 px-4 text-sm font-medium text-purple-600">{order.id}</td>
-                    <td class="py-3 px-4 text-sm text-gray-900">{order.customer}</td>
-                    <td class="py-3 px-4 text-sm text-gray-500">{order.date}</td>
-                    <td class="py-3 px-4 text-sm font-medium text-gray-900 text-right">{order.amount}</td>
-                    <td class="py-3 px-4 text-right">
-                      <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td class="py-3 px-4 text-right text-sm font-medium">
-                      <a href={`/admin/orders/${order.id.replace('#', '')}`} class="text-purple-600 hover:text-purple-900 mr-4">
-                        <i class="fas fa-eye"></i>
-                      </a>
-                      <a href="#" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-ellipsis-v"></i>
-                      </a>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div class="divide-y divide-gray-100">
+          {topProducts.map((product, index) => (
+            <a key={`product-${index}`} href="#" class="block hover:bg-gray-50 transition-colors">
+              <div class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-12 w-12 bg-gray-200 rounded-lg overflow-hidden">
+                    {product.image ? (
+                      <img src={product.image} alt={product.name} class="h-full w-full object-cover" />
+                    ) : (
+                      <div class="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400">
+                        <i class="fas fa-box text-xl"></i>
+                      </div>
+                    )}
+                  </div>
+                  <div class="ml-4 flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                    <div class="flex items-center mt-1">
+                      <span class="text-xs text-gray-500">{product.sales} ventas</span>
+                      <span class="mx-2 text-gray-300">•</span>
+                      <span class="text-xs font-medium text-gray-900">{product.revenue}</span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <i class="fas fa-arrow-up mr-1 text-xs"></i> 12.5%
+                    </span>
+                  </div>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>
@@ -303,16 +420,19 @@ const topProducts = [
           <div class="mt-6 border-t border-gray-200 pt-4">
             <h3 class="text-sm font-medium text-gray-900 mb-3">Productos con bajo stock</h3>
             <ul class="space-y-2">
-              {[
-                'Vestido de Noche - Talla M',
-                'Blusa de Encaje - Talla S',
-                'Falda Plisada - Talla L'
-              ].map((product, index) => (
-                <li key={index} class="flex items-center justify-between text-sm">
-                  <span class="text-gray-700">{product}</span>
-                  <span class="text-red-600 font-medium">¡Stock bajo!</span>
-                </li>
-              ))}
+              <!-- Lista de productos con stock bajo -->
+              <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-700">Vestido de Noche - Talla M</span>
+                <span class="text-red-600 font-medium">¡Stock bajo!</span>
+              </li>
+              <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-700">Blusa de Encaje - Talla S</span>
+                <span class="text-red-600 font-medium">¡Stock bajo!</span>
+              </li>
+              <li class="flex items-center justify-between text-sm">
+                <span class="text-gray-700">Falda Plisada - Talla L</span>
+                <span class="text-red-600 font-medium">¡Stock bajo!</span>
+              </li>
             </ul>
           </div>
         </div>
