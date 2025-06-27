@@ -27,7 +27,7 @@ const userNavigation = [
 ---
 
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-50">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,164 +46,150 @@ const userNavigation = [
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   
-  <body class="h-full">
-    <div class="min-h-full">
+  <body>
+    <div class="admin-layout">
       <!-- Barra lateral para móviles -->
-      <div id="mobile-menu" class="lg:hidden fixed inset-0 flex z-40" style="display: none;">
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="mobile-menu-backdrop"></div>
-        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <div class="absolute top-0 right-0 -mr-12 pt-2">
-            <button type="button" id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+      <div id="mobile-menu" class="mobile-menu">
+        <div id="mobile-menu-backdrop" class="mobile-menu-backdrop"></div>
+        <div class="mobile-menu-content">
+          <div class="mobile-menu-close">
+            <button type="button" id="close-sidebar" class="mobile-menu-close-btn">
               <span class="sr-only">Cerrar menú</span>
-              <i class="fas fa-times h-6 w-6 text-white"></i>
+              <i class="fas fa-times"></i>
             </button>
           </div>
-          <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div class="flex-shrink-0 flex items-center px-4">
-              <h1 class="text-xl">Hilo Mágico</h1>
+          <div class="mobile-menu-header">
+            <h1 class="mobile-menu-title">Hilo Mágico</h1>
+          </div>
+          <nav class="mobile-menu-nav">
+            {navigation.map((item) => (
+              <a
+                href={item.href}
+                class={`mobile-menu-item ${item.current ? 'active' : ''}`}
+              >
+                <i class={item.icon}></i>
+                {item.name}
+              </a>
+            ))}
+          </nav>
+          <div class="mobile-menu-user">
+            <div class="mobile-menu-user-info">
+              <div class="mobile-menu-user-avatar">
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <div class="mobile-menu-user-details">
+                <div class="mobile-menu-user-name">Juan Pérez</div>
+                <div class="mobile-menu-user-role">admin</div>
+              </div>
             </div>
-            <nav class="mt-5 px-2 space-y-1">
-              {navigation.map((item) => (
-                <a
-                  href={item.href}
-                  class={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
-                    item.current
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <i class={`${item.icon} mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500`}></i>
+            <div class="mobile-menu-user-nav">
+              {userNavigation.map((item) => (
+                <a href={item.href} class="mobile-menu-user-link">
                   {item.name}
                 </a>
               ))}
-            </nav>
-          </div>
-          <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <div class="flex items-center">
-              <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <i class="fas fa-user text-gray-600"></i>
-              </div>
-              <span class="ml-3">
-                <span class="text-sm font-medium text-gray-700">Juan Pérez</span>
-                <span class="text-xs text-gray-500 block">admin</span>
-              </span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Barra lateral estática para escritorio -->
-      <div class="hidden lg:flex lg:flex-shrink-0">
-        <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
-          <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div class="flex items-center flex-shrink-0 px-4">
-              <h1 class="text-xl font-bold text-gray-800">Hilo Mágico</h1>
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h1 class="sidebar-title">Hilo Mágico</h1>
+        </div>
+        <nav class="sidebar-nav">
+          {navigation.map((item) => (
+            <a
+              href={item.href}
+              class={`nav-item ${item.current ? 'active' : ''}`}
+            >
+              <i class={item.icon}></i>
+              {item.name}
+            </a>
+          ))}
+        </nav>
+        <div class="sidebar-user">
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-avatar">
+              <i class="fas fa-user text-gray-600"></i>
             </div>
-            <nav class="mt-5 flex-1 px-2 space-y-1">
-              {navigation.map((item) => (
-                <a
-                  href={item.href}
-                  class={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    item.current
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <i class={`${item.icon} mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500`}></i>
-                  {item.name}
-                </a>
-              ))}
-            </nav>
+            <div class="sidebar-user-details">
+              <div class="sidebar-user-name">Juan Pérez</div>
+              <a href="/admin/profile" class="sidebar-user-profile-link">Ver perfil</a>
+            </div>
           </div>
-          <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <div class="flex items-center">
-              <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <i class="fas fa-user text-gray-600"></i>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm font-medium text-gray-700">Juan Pérez</p>
-                <a href="/admin/profile" class="text-xs font-medium text-gray-500 hover:text-gray-700">Ver perfil</a>
-              </div>
-            </div>
+          <div class="sidebar-user-nav">
+            {userNavigation.map((item) => (
+              <a href={item.href} class="sidebar-user-link">
+                {item.name}
+              </a>
+            ))}
           </div>
         </div>
       </div>
 
       <!-- Contenido principal -->
-      <div class="lg:pl-64 flex flex-col">
+      <div class="main-content">
         <!-- Barra superior -->
-        <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:border-none">
+        <div class="top-bar">
           <button
             type="button"
             id="open-sidebar"
-            class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+            class="top-bar-btn"
           >
             <span class="sr-only">Abrir menú</span>
-            <i class="fas fa-bars h-6 w-6"></i>
+            <i class="fas fa-bars"></i>
           </button>
-          
-          <!-- Barra de búsqueda -->
-          <div class="flex-1 px-4 flex justify-between lg:px-6 lg:mx-auto lg:max-w-6xl">
-            <div class="flex-1 flex">
-              <div class="w-full flex md:ml-0">
-                <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search h-5 w-5"></i>
-                  </div>
-                  <input
-                    id="search-field"
-                    class="block w-full bg-white py-2 pl-10 pr-3 border border-transparent rounded-md leading-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm"
-                    placeholder="Buscar"
-                    type="search"
-                    name="search"
-                  />
-                </div>
+          <div class="top-bar-search">
+            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search h-5 w-5"></i>
               </div>
+              <input
+                id="search-field"
+                class="block w-full bg-white py-2 pl-10 pr-3 border border-transparent rounded-md leading-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm"
+                placeholder="Buscar"
+                type="search"
+                name="search"
+              />
             </div>
-            
-            <!-- Menú de usuario -->
-            <div class="ml-4 flex items-center md:ml-6">
-              <div class="relative ml-3">
-                <div>
-                  <button
-                    type="button"
-                    id="user-menu-button"
-                    class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                  >
-                    <span class="sr-only">Abrir menú de usuario</span>
-                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <i class="fas fa-user text-gray-600"></i>
-                    </div>
-                    <span class="ml-2 hidden md:block text-sm font-medium text-gray-700">
-                      Juan Pérez
-                    </span>
-                    <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
-                  </button>
-                </div>
-                
-                <!-- Menú desplegable del usuario -->
-                <div
-                  id="user-menu"
-                  class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="user-menu-button"
+          </div>
+          <div class="top-bar-user">
+            <button
+              type="button"
+              id="user-menu-button"
+              class="top-bar-btn"
+              aria-expanded="false"
+              aria-haspopup="true"
+            >
+              <span class="sr-only">Abrir menú de usuario</span>
+              <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <span class="ml-2 hidden md:block text-sm font-medium text-gray-700">
+                Juan Pérez
+              </span>
+              <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
+            </button>
+            <div
+              id="user-menu"
+              class="user-menu-dropdown"
+              role="menu"
+              aria-orientation="vertical"
+              aria-labelledby="user-menu-button"
+              tabindex="-1"
+            >
+              {userNavigation.map((item) => (
+                <a
+                  href={item.href}
+                  class="user-menu-item"
+                  role="menuitem"
                   tabindex="-1"
                 >
-                  {userNavigation.map((item) => (
-                    <a
-                      href={item.href}
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      role="menuitem"
-                      tabindex="-1"
-                    >
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
+                  {item.name}
+                </a>
+              ))}
             </div>
           </div>
         </div>

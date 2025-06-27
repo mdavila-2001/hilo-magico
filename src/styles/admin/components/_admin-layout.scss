@@ -95,4 +95,51 @@
       opacity: 0.9;
     }
   }
+
+  // Menú desplegable del usuario
+  .top-bar-user {
+    display: flex;
+    align-items: center;
+    gap: $espaciado-pequeno;
+    
+    .top-bar-btn {
+      @include button($color-blanco-calido, $color-gris-oscuro);
+      @include transicion(opacity, 0.2s);
+      
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    .user-menu-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      width: 12rem;
+      border-radius: $radio-borde;
+      box-shadow: $sombra-suave;
+      padding: 0.25rem;
+      background-color: $color-blanco;
+      border: 1px solid $color-gris-claro;
+      
+      &[aria-expanded="true"] {
+        display: block;
+      }
+
+      .user-menu-item {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: $color-gris-oscuro;
+        text-decoration: none;
+        @include transicion(color, 0.2s);
+        
+        &:hover {
+          background-color: $color-lavanda;
+          color: $color-violeta-oscuro;
+        }
+      }
+    }
+  }
 }
