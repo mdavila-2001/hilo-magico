@@ -214,91 +214,47 @@ const topProducts = [
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{order.amount}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <span class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.statusColor}`}>
                       {order.status}
                     </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href={`/admin/orders/${order.id.replace('#', '')}`} class="text-indigo-600 hover:text-indigo-900 mr-4">
-                      <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="#" class="text-gray-500 hover:text-gray-700">
-                      <i class="fas fa-ellipsis-v"></i>
-                    </a>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div class="bg-gray-50 px-6 py-3 text-right">
-          <a href="/admin/orders" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todos los pedidos</a>
-        </div>
       </div>
 
-      <!-- Actividad reciente -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Actividad reciente</h2>
+      <div class="card">
+        <div class="card-header">
+          <h2>Productos Populares</h2>
         </div>
-        <div class="divide-y divide-gray-200">
-          {[
-            { 
-              user: 'Tú', 
-              action: 'actualizaste el estado del pedido', 
-              target: '#ORD-003', 
-              time: 'Hace 5 minutos',
-              icon: 'fas fa-edit',
-              iconColor: 'bg-blue-100 text-blue-600'
-            },
-            { 
-              user: 'María Gómez', 
-              action: 'creó una nueva cuenta', 
-              target: '', 
-              time: 'Hace 1 hora',
-              icon: 'fas fa-user-plus',
-              iconColor: 'bg-green-100 text-green-600'
-            },
-            { 
-              user: 'Sistema', 
-              action: 'Pedido completado', 
-              target: '#ORD-002', 
-              time: 'Hace 3 horas',
-              icon: 'fas fa-check-circle',
-              iconColor: 'bg-purple-100 text-purple-600'
-            },
-            { 
-              user: 'Tú', 
-              action: 'añadiste un nuevo producto', 
-              target: 'Vestido de Verano', 
-              time: 'Ayer',
-              icon: 'fas fa-plus-circle',
-              iconColor: 'bg-yellow-100 text-yellow-600'
-            },
-            { 
-              user: 'Carlos López', 
-              action: 'realizó un pedido', 
-              target: '#ORD-001', 
-              time: 'Ayer',
-              icon: 'fas fa-shopping-cart',
-              iconColor: 'bg-indigo-100 text-indigo-600'
-            }
-          ].map((activity) => (
-            <div class="px-6 py-4">
-              <div class="flex items-start">
-                <div class={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${activity.iconColor} text-lg`}>
-                  <i class={activity.icon}></i>
-                </div>
-                <div class="ml-4 flex-1">
-                  <p class="text-sm text-gray-700">
-                    <span class="font-medium">{activity.user}</span> {activity.action} {activity.target && <span class="text-indigo-600">{activity.target}</span>}
-                  </p>
-                  <p class="text-xs text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Ventas</th>
+                <th>Stock</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {popularProducts.map((product) => (
+                <tr>
+                  <td>{product.name}</td>
+                  <td>{product.category}</td>
+                  <td>{product.sales}</td>
+                  <td>{product.stock}</td>
+                  <td>
+                    <span class="badge badge-{product.status === 'Bajo Stock' ? 'warning' : 'success'}">
+                      {product.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
