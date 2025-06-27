@@ -3,17 +3,9 @@
 import AuthLayout from '../../layouts/auth/AuthLayout.astro';
 import '../../styles/main.scss';
 
-// Manejar redirección si ya está autenticado
-const isAuthenticated = false; // Aquí iría la lógica de autenticación
-
-if (isAuthenticated) {
-  return Astro.redirect('/');
-}
-
-// Obtener mensaje de error si existe
-const url = new URL(Astro.request.url);
-const error = url.searchParams.get('error');
-const message = url.searchParams.get('message');
+// Simplemente mostrar el formulario de login
+const error = null;
+const message = null;
 ---
 
 <AuthLayout title="Iniciar Sesión">

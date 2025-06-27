@@ -172,7 +172,19 @@ export function initLoginForm(apiUrl: string): void {
         // Redirigir según el rol del usuario
         const redirectPath = data.data.user.role === 'client' ? '/' : '/admin';
         console.log('Redirigiendo a:', redirectPath);
-        window.location.href = redirectPath;
+        
+        // Primero guardamos los tokens en localStorage
+        localStorage.setItem('access_token', data.data.access_token);
+        localStorage.setItem('refresh_token', data.data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        
+        // Redirigir al usuario
+        if (redirectPath === '/admin') {
+          window.location.href = '/admin';
+        } else {
+          // Para clientes, redirigir a la página de inicio
+          window.location.href = '/';
+        }
         
       } catch (error: unknown) {
         console.error('Error al iniciar sesión:', error);

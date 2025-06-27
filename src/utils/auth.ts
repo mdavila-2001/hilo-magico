@@ -1,22 +1,43 @@
-// Tipos
-type User = {
+// Tipos de autenticación
+export interface User {
   id: string;
   email: string;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
+  mother_last_name: string | null;
   role: string;
-  name?: string;
-  username?: string;
-  // Agrega aquí otros campos del usuario si es necesario
-};
+  is_active: boolean;
+}
+
+export interface AuthResponse {
+  data: {
+    access_token: string;
+    token_type: string;
+    refresh_token: string;
+    expires_at: string;
+    user: User;
+  };
+  success: boolean;
+  message: string;
+  debug_querys: any | null;
+  status_code: number;
+}
 
 // Obtener el usuario actual desde localStorage
 export function getCurrentUser(): User | null {
   if (typeof window === 'undefined') return null;
   
+  // Verificar si hay un token de acceso válido
+  const accessToken = localStorage.getItem('access_token');
+  if (!accessToken) return null;
+  
   const userStr = localStorage.getItem('user');
   if (!userStr) return null;
   
   try {
-    return JSON.parse(userStr) as User;
+    const user = JSON.parse(userStr) as User;
+    return user;
   } catch (error) {
     console.error('Error al analizar los datos del usuario:', error);
     return null;
@@ -43,7 +64,7 @@ export function isAdmin(): boolean {
 export function logout(): void {
   localStorage.removeItem('user');
   // Redirigir a la página de inicio de sesión
-  window.location.href = '/auth/login';
+  //window.location.href = '/auth/login';
 }
 
 // Redirigir si no está autenticado

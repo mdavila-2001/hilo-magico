@@ -1,0 +1,102 @@
+// Variables
+$primary-color: #2563eb;
+$secondary-color: #1e40af;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$error-color: #ef4444;
+$background-color: #f8fafc;
+$card-background: #ffffff;
+
+// Mixins
+@mixin card-shadow {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+// Dashboard styles
+.dashboard {
+  &-header {
+    background-color: $background-color;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    
+    h1 {
+      color: #1f2937;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      
+      .stat-card {
+        @include card-shadow;
+        background-color: $card-background;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        
+        .stat-value {
+          font-size: 2rem;
+          font-weight: 600;
+          color: $primary-color;
+          margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+          color: #6b7280;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+  
+  &-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    
+    .card {
+      @include card-shadow;
+      background-color: $card-background;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        
+        h2 {
+          color: #1f2937;
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+      }
+      
+      .card-body {
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          
+          th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          
+          th {
+            font-weight: 600;
+            color: #4b5563;
+          }
+          
+          tr:last-child td {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,6 @@
 ---
 // src/layouts/admin/AdminLayout.astro
 
-import { getCurrentUser, type User } from '../../utils/auth';
-import type { APIRoute } from 'astro';
-
 interface Props {
   title: string;
   description?: string;
@@ -13,22 +10,11 @@ interface Props {
 
 const { title, description = 'Panel de administración', currentPage = '' } = Astro.props;
 
-// Verificar autenticación y rol de administrador
-const user = getCurrentUser();
-
-if (!user) {
-  return Astro.redirect('/auth/login');
-}
-
-if (user.role !== 'admin') {
-  return Astro.redirect('/');
-}
-
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: 'fas fa-tachometer-alt', current: currentPage === 'dashboard' },
+  { name: 'Dashboard', href: '/admin', icon: 'fas fa-home', current: currentPage === 'dashboard' },
+  { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-box', current: currentPage === 'orders' },
   { name: 'Productos', href: '/admin/products', icon: 'fas fa-tshirt', current: currentPage === 'products' },
-  { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-shopping-bag', current: currentPage === 'orders' },
-  { name: 'Clientes', href: '/admin/customers', icon: 'fas fa-users', current: currentPage === 'customers' },
+  { name: 'Clientes', href: '/admin/clients', icon: 'fas fa-users', current: currentPage === 'clients' },
   { name: 'Configuración', href: '/admin/settings', icon: 'fas fa-cog', current: currentPage === 'settings' },
 ];
 
@@ -100,8 +86,8 @@ const userNavigation = [
                 <i class="fas fa-user text-gray-600"></i>
               </div>
               <span class="ml-3">
-                <span class="text-sm font-medium text-gray-700">{user?.name || user?.username || 'Administrador'}</span>
-                <span class="text-xs text-gray-500 block">{user?.role || 'admin'}</span>
+                <span class="text-sm font-medium text-gray-700">Juan Pérez</span>
+                <span class="text-xs text-gray-500 block">admin</span>
               </span>
             </div>
           </div>
@@ -137,7 +123,7 @@ const userNavigation = [
                 <i class="fas fa-user text-gray-600"></i>
               </div>
               <div class="ml-3">
-                <p class="text-sm font-medium text-gray-700">{user.name || user.email}</p>
+                <p class="text-sm font-medium text-gray-700">Juan Pérez</p>
                 <a href="/admin/profile" class="text-xs font-medium text-gray-500 hover:text-gray-700">Ver perfil</a>
               </div>
             </div>
@@ -193,7 +179,7 @@ const userNavigation = [
                       <i class="fas fa-user text-gray-600"></i>
                     </div>
                     <span class="ml-2 hidden md:block text-sm font-medium text-gray-700">
-                      {user.name || user.email}
+                      Juan Pérez
                     </span>
                     <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
                   </button>

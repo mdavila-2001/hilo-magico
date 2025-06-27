@@ -10,6 +10,8 @@ const pageDescription = 'Vista general del panel de administración';
 // Obtener información del usuario actual
 const currentUser = getCurrentUser();
 
+console.log(currentUser);
+/* 
 // Si no hay usuario, redirigir al login
 if (!currentUser) {
   return Astro.redirect('/auth/login');
@@ -18,7 +20,7 @@ if (!currentUser) {
 // Si no es admin, redirigir al inicio
 if (currentUser.role !== 'admin') {
   return Astro.redirect('/');
-}
+} */
 
 // Datos de ejemplo para el dashboard
 const stats = [
@@ -78,7 +80,7 @@ const topProducts = [
     <!-- Encabezado -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Hola, {currentUser?.name || currentUser?.username || 'Administrador'}</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Hola, {currentUser?.first_name || 'Administrador'}</h1>
         <p class="text-gray-600">Bienvenido al panel de control. Aquí tienes un resumen de tu tienda.</p>
       </div>
       <div class="flex flex-wrap gap-3">
