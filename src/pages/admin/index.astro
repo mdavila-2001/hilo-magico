@@ -108,18 +108,18 @@ const getProductStatusColor = (status: string) => {
 ---
 
 <AdminLayout title={pageTitle} description={pageDescription} currentPage="dashboard">
-  <div class="space-y-6">
+  <div class="dashboard">
     <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="header">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Hola, {currentUser?.first_name || 'Administrador'}</h1>
-        <p class="text-gray-600">Bienvenido al panel de control. Aquí tienes un resumen de tu tienda.</p>
+        <h1 class="title">Hola, {currentUser?.first_name || 'Administrador'}</h1>
+        <p class="subtitle">Bienvenido al panel de control. Aquí tienes un resumen de tu tienda.</p>
       </div>
-      <div class="flex flex-wrap gap-3">
-        <a href="/admin/orders/new" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <div class="actions">
+        <a href="/admin/orders/new" class="button">
           <i class="fas fa-plus mr-2"></i> Nuevo Pedido
         </a>
-        <a href="/admin/products/new" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="/admin/products/new" class="button">
           <i class="fas fa-plus mr-2"></i> Nuevo Producto
         </a>
       </div>

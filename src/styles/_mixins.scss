@@ -1,7 +1,8 @@
 // Este archivo ya no necesita importar variables ya que se inyectan globalmente
 // a través de la configuración de Vite
+@use '_variables' as *;
 
-// Mixin para flexbox centrado
+// Mixins de layout
 @mixin flex-center($direction: row) {
   display: flex;
   flex-direction: $direction;
@@ -9,12 +10,19 @@
   align-items: center;
 }
 
-// Mixin para transiciones suaves
+@mixin flex-between($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// Mixins de transiciones
 @mixin transicion($propiedad: all, $duracion: 0.3s, $timing: ease-in-out) {
   transition: #{$propiedad} #{$duracion} #{$timing};
 }
 
-// Mixin para responsive
+// Mixins de responsive
 @mixin movil {
   @media (max-width: 480px) {
     @content;
@@ -33,7 +41,6 @@
   }
 }
 
-// Alias para mantener compatibilidad
 @mixin tablet-grande {
   @media (min-width: 769px) and (max-width: 1023px) {
     @content;
@@ -47,7 +54,48 @@
 }
 
 // Mixin para botones
-@mixin boton($fondo: $color-violeta-oscuro, $texto: $color-blanco-calido) {
+@mixin button($fondo: $color-violeta-oscuro, $texto: $color-blanco-calido) {
+  background-color: $fondo;
+  color: $texto;
+  border: none;
+  padding: 0.8em 1.5em;
+  border-radius: $radio-borde;
+  font-family: $fuente-secundaria;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Mixin para tarjetas
+@mixin card($fondo: $color-blanco-calido, $borde: $color-gris-claro) {
+  background-color: $fondo;
+  border-radius: $radio-borde;
+  padding: $espaciado-medio;
+  box-shadow: $sombra-suave;
+  border: 1px solid $borde;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@mixin enlace-boton {
   background-color: $fondo;
   color: $texto;
   border: none;
@@ -68,5 +116,24 @@
 
   &:active {
     transform: translateY(0);
+  }
+}
+
+// Mixin para badges
+@mixin badge($color: $color-gris-oscuro, $fondo: $color-blanco-calido) {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  background-color: $fondo;
+  color: $color;
+  border: 1px solid $color;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
   }
 }

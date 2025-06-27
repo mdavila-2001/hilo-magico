@@ -1,0 +1,98 @@
+// Importar variables y mixins
+@use '../../_variables' as *;
+@use '../../_mixins' as *;
+
+// Layout admin
+.admin-layout {
+  min-height: 100vh;
+  background-color: $color-blanco-calido;
+
+  // Barra lateral
+  .sidebar {
+    @include flex-center(column);
+    width: 250px;
+    background-color: $color-blanco;
+    border-right: 1px solid $color-gris-claro;
+    padding: $espaciado-medio;
+    box-shadow: $sombra-suave;
+    z-index: 10;
+
+    .logo {
+      margin-bottom: $espaciado-medio;
+      text-align: center;
+    }
+
+    .nav {
+      width: 100%;
+      
+      .nav-item {
+        @include button($color-blanco, $color-gris-oscuro);
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem 0;
+        border-radius: $radio-borde;
+        
+        &.active {
+          background-color: $color-lavanda;
+          color: $color-violeta-oscuro;
+        }
+      }
+    }
+  }
+
+  // Contenido principal
+  .main-content {
+    margin-left: 250px;
+    padding: $espaciado-medio;
+    
+    .page-header {
+      @include flex-between();
+      margin-bottom: $espaciado-medio;
+      
+      .title {
+        font-size: 1.5rem;
+        color: $color-gris-oscuro;
+        margin: 0;
+      }
+    }
+  }
+
+  // Menú móvil
+  #mobile-menu {
+    @include flex-center();
+    z-index: 40;
+
+    #mobile-menu-backdrop {
+      @include transicion(opacity, 0.2s);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .flex-1 {
+      @include transicion(transform, 0.2s);
+      transform: translateX(-100%);
+    }
+
+    &[style*="display: block"] {
+      #mobile-menu-backdrop {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .flex-1 {
+        transform: translateX(0);
+      }
+    }
+  }
+
+  // Botón de cerrar menú móvil
+  #close-sidebar {
+    @include button($color-blanco-calido, $color-gris-oscuro);
+    @include transicion(opacity, 0.2s);
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
