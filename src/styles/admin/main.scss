@@ -8,26 +8,30 @@
 @import '_variables';
 
 // Utilidades
-@import 'utilities/utilities';
+// (Eliminado para simplificar)
 
 // Importar estilos de componentes si existen
-@import 'components/buttons';
+/* @import 'components/buttons';
 @import 'components/forms';
 @import 'components/tables';
 @import 'components/cards';
 @import 'components/alerts';
 @import 'components/badges';
-@import 'components/modals';
+@import 'components/modals';*/
 @import 'components/sidebar';
 @import 'components/header';
-@import 'components/footer';
+//@import 'components/footer';
 
 // Importar estilos de páginas
-@import 'pages/dashboard';
-@import 'pages/login';
-@import 'pages/admin-layout';
+/* @import 'pages/dashboard';
+@import 'pages/products';
+@import 'pages/orders';
+@import 'pages/clients';
+@import 'pages/settings';
+@import 'pages/login';*/
+@import 'pages/_admin-layout';
 
 // Estilos de impresión
-@media print {
+/* @media print {
   @import 'print';
-}
+} */

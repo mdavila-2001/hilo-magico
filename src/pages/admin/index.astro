@@ -1,5 +1,6 @@
 ---
 // src/pages/admin/index.astro
+import type { Order, Product } from '@/types/admin';
 import AdminLayout from '../../layouts/admin/AdminLayout.astro';
 import { getCurrentUser } from '../../utils/auth';
 
@@ -10,8 +11,6 @@ const pageDescription = 'Vista general del panel de administración';
 // Obtener información del usuario actual
 const currentUser = getCurrentUser();
 
-console.log(currentUser);
-/* 
 // Si no hay usuario, redirigir al login
 if (!currentUser) {
   return Astro.redirect('/auth/login');
@@ -20,14 +19,61 @@ if (!currentUser) {
 // Si no es admin, redirigir al inicio
 if (currentUser.role !== 'admin') {
   return Astro.redirect('/');
-} */
+}
 
 // Datos de ejemplo para el dashboard
 const stats = [
   { 
     name: 'Ventas Totales', 
-    value: '$12,450', 
-    change: '+12%', 
+    value: '$12,450',
+    change: '+5.2%',
+    changeType: 'increase'
+  },
+  { 
+    name: 'Pedidos Pendientes', 
+    value: '45',
+    change: '+3',
+    changeType: 'increase'
+  },
+  { 
+    name: 'Stock Bajo', 
+    value: '12',
+    change: '-2',
+    changeType: 'decrease'
+  },
+  { 
+    name: 'Clientes Nuevos', 
+    value: '28',
+    change: '+8',
+    changeType: 'increase'
+  }
+];
+
+const recentOrders = [
+  {
+    id: 1,
+    customer: 'Juan Pérez',
+    total: '$250.00',
+    status: 'pending',
+    date: '2025-06-27'
+  },
+  {
+    id: 2,
+    customer: 'María García',
+    total: '$120.00',
+    status: 'completed',
+    date: '2025-06-26'
+  },
+  {
+    id: 3,
+    customer: 'Carlos López',
+    total: '$180.00',
+    status: 'processing',
+    date: '2025-06-25'
+  }
+];
+
+const topProducts = [
     changeType: 'increase',
     icon: 'fas fa-shopping-cart',
     color: 'bg-blue-100 text-blue-600'
@@ -58,7 +104,7 @@ const stats = [
   }
 ];
 
-const recentOrders = [
+const recentOrders: Order[] = [
   { id: '#ORD-001', customer: 'María Gómez', date: '15 Jun 2023', amount: '$120.00', status: 'Completado', statusColor: 'bg-green-100 text-green-800' },
   { id: '#ORD-002', customer: 'Carlos López', date: '14 Jun 2023', amount: '$85.50', status: 'En Proceso', statusColor: 'bg-blue-100 text-blue-800' },
   { id: '#ORD-003', customer: 'Ana Martínez', date: '14 Jun 2023', amount: '$210.75', status: 'Enviado', statusColor: 'bg-yellow-100 text-yellow-800' },
@@ -66,12 +112,12 @@ const recentOrders = [
   { id: '#ORD-005', customer: 'Laura Sánchez', date: '12 Jun 2023', amount: '$175.25', status: 'Completado', statusColor: 'bg-green-100 text-green-800' }
 ];
 
-const topProducts = [
-  { name: 'Vestido Floral', sales: 142, revenue: '$2,840.00', image: '/images/products/dress-1.jpg' },
-  { name: 'Blusa de Encaje', sales: 98, revenue: '$1,764.00', image: '/images/products/blouse-1.jpg' },
-  { name: 'Falda Plisada', sales: 75, revenue: '$1,350.00', image: '/images/products/skirt-1.jpg' },
-  { name: 'Conjunto Deportivo', sales: 63, revenue: '$1,197.00', image: '/images/products/activewear-1.jpg' },
-  { name: 'Abrigo Largo', sales: 51, revenue: '$1,275.00', image: '/images/products/coat-1.jpg' }
+const topProducts: Product[] = [
+  { name: 'Vestido Floral', category: 'Ropa', sales: 142, stock: 50, status: 'Disponible', revenue: '$2,840.00', image: '/images/products/dress-1.jpg' },
+  { name: 'Blusa de Encaje', category: 'Ropa', sales: 98, stock: 30, status: 'Bajo Stock', revenue: '$1,764.00', image: '/images/products/blouse-1.jpg' },
+  { name: 'Falda Plisada', category: 'Ropa', sales: 75, stock: 20, status: 'Bajo Stock', revenue: '$1,350.00', image: '/images/products/skirt-1.jpg' },
+  { name: 'Conjunto Deportivo', category: 'Ropa', sales: 63, stock: 40, status: 'Disponible', revenue: '$1,197.00', image: '/images/products/activewear-1.jpg' },
+  { name: 'Abrigo Largo', category: 'Ropa', sales: 51, stock: 10, status: 'Bajo Stock', revenue: '$1,275.00', image: '/images/products/coat-1.jpg' }
 ];
 ---
 
@@ -182,38 +228,34 @@ const topProducts = [
           ))}
         </div>
         <div class="bg-gray-50 px-6 py-3 text-right">
-          <a href="/admin/products" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Ver todos los productos</a>
-        </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Pedidos recientes -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-semibold text-gray-900">Pedidos recientes</h2>
+    <div class="dashboard-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Últimos Pedidos</h2>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <div class="card-body">
+          <table class="table">
+            <thead>
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                <th scope="col" class="relative px-6 py-3">
-                  <span class="sr-only">Acciones</span>
-                </th>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Status</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
               {recentOrders.map((order) => (
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{order.id}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{order.amount}</td>
+                <tr>
+                  <td>{order.id}</td>
+                  <td>{order.customer}</td>
+                  <td>{order.date}</td>
+                  <td>{order.amount}</td>
+                  <td>
+                    <span class="badge" style={order.statusColor}>
                       {order.status}
                     </span>
                   </td>
@@ -240,7 +282,7 @@ const topProducts = [
               </tr>
             </thead>
             <tbody>
-              {popularProducts.map((product) => (
+              {topProducts.map((product) => (
                 <tr>
                   <td>{product.name}</td>
                   <td>{product.category}</td>
