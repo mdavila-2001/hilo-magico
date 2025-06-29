@@ -108,7 +108,7 @@
     font-size: 1.875rem;
     font-weight: 700;
     color: $color-violeta-oscuro;
-    margin-bottom: $espaciado-base / 2;
+    margin-bottom: math.div($espaciado-base, 2);
   }
   
   p {
@@ -157,7 +157,7 @@
   
   label {
     display: block;
-    margin-bottom: $espaciado-base / 2;
+    margin-bottom: math.div($espaciado-base, 2);
     font-size: 0.9375rem;
     font-weight: 500;
     color: $color-gris-oscuro;
@@ -257,7 +257,7 @@
   .form-help {
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: lighten($color-gris-oscuro, 40%);
+    color: color.adjust($color-gris-oscuro, $lightness: 40%);
   }
 }
 
@@ -299,7 +299,7 @@
     color: $color-blanco;
     
     &:hover, &:focus {
-      background-color: darken($color-violeta-oscuro, 10%);
+      background-color: color.adjust($color-violeta-oscuro, $lightness: -10%);
       outline: none;
     }
   }
@@ -318,7 +318,7 @@
 .btn-submit {
   width: 100%;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, $color-violeta-oscuro, darken($color-violeta-oscuro, 10%));
+  background: linear-gradient(135deg, $color-violeta-oscuro, color.adjust($color-violeta-oscuro, $lightness: -10%));
   color: $color-blanco;
   border: none;
   border-radius: $radio-borde;
@@ -378,7 +378,7 @@ a {
   transition: color 0.2s ease;
   
   &:hover {
-    color: darken($color-violeta-oscuro, 10%);
+    color: color.adjust($color-violeta-oscuro, $lightness: -10%);
     text-decoration: underline;
   }
 }
@@ -445,6 +445,6 @@ a {
   
   .divider {
     margin: 0 0.5rem;
-    color: lighten($color-gris-oscuro, 60%);
+    color: color.adjust($color-gris-oscuro, $lightness: 60%);
   }
 }
