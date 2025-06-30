@@ -1,7 +1,4 @@
-// Importar variables y mixins
-@use 'sass:color';
-@use '../../styles/variables' as *;
-@use '../../styles/mixins' as *;
+@use '../variables' as *;
 
 // Estilos para el menú de administración
 .header__menu-item--admin {
@@ -9,6 +6,7 @@
   margin-left: 1.5rem; // Espacio a la izquierda del menú
   
   .header__enlace--admin {
+    
     &:hover {
       color: $color-lavanda;
     }
@@ -27,6 +25,10 @@
     
     &[aria-expanded="true"]::after {
       transform: translateY(-50%) rotate(180deg);
+    }
+    
+    &:hover {
+      color: $color-lavanda;
     }
   }
   

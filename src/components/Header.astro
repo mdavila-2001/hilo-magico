@@ -1,6 +1,10 @@
 ---
 // src/components/Header.astro
 import { isAdmin } from '../utils/roles';
+import { isAuthenticated } from '../utils/auth'; // Para verificar autenticación
+
+// Verificar si el usuario es administrador
+const esAdmin = isAdmin();
 
 // Navegación principal
 const enlaces = [
@@ -19,8 +23,6 @@ const adminEnlaces = [
   { texto: 'Usuarios', url: '/admin/users' },
 ];
 
-// Verificar si el usuario es administrador
-const esAdmin = isAdmin();
 ---
 
 <script>
@@ -209,7 +211,6 @@ const esAdmin = isAdmin();
               aria-controls="admin-submenu"
             >
               Administración
-              <i class="fas fa-chevron-down ml-1" aria-hidden="true"></i>
             </button>
             <ul class="header__submenu" id="admin-submenu">
               {adminEnlaces.map((enlace) => (
@@ -241,11 +242,26 @@ const esAdmin = isAdmin();
         <span class="sr-only">Ver carrito</span>
       </button>
       
-      <!-- Botón de perfil -->
-      <a href="/perfil" class="header__perfil-btn" aria-label="Mi perfil">
-        <i class="fas fa-user" aria-hidden="true"></i>
-        <span class="sr-only">Mi perfil</span>
-      </a>
+      {isAuthenticated() ? (
+        <!-- Usuario autenticado -->
+        <div class="header__user">
+          <a href="/perfil" class="header__user-btn">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            <span>Mi cuenta</span>
+          </a>
+          <a href="/auth/logout" class="header__logout-btn">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            <span class="sr-only">Cerrar sesión</span>
+          </a>
+        </div>
+      ) : (
+        <!-- Usuario no autenticado -->
+        <div class="header__auth">
+          <a href="/auth/login" class="header__auth-btn">
+            Iniciar sesión
+          </a>
+        </div>
+      )}
     </div>
     
     <!-- Overlay para menú móvil -->

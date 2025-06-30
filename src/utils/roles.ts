@@ -10,7 +10,7 @@ export interface User {
 }
 
 // Rol por defecto
-const DEFAULT_ROLE: UserRole = 'admin';
+const DEFAULT_ROLE: UserRole = 'user';
 
 // Obtener el rol del usuario actual
 export function getCurrentRole(): UserRole {
