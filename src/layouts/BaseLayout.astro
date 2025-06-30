@@ -5,10 +5,29 @@
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
 }
 
+// Configuración del sitio
+const SITE_URL = 'https://hilo-magico.com';
+const SITE_NAME = 'Hilo Mágico';
+const DEFAULT_DESCRIPTION = 'Prendas personalizadas y servicios de costura a medida con los mejores materiales y diseños únicos.';
+const DEFAULT_IMAGE = '/img/og-image.jpg';
+
 // Valores predeterminados para los props
-const { title = 'Hilo Mágico', description = 'Prendas personalizadas y servicios de costura a medida' } = Astro.props;
+const { 
+  title: pageTitle = SITE_NAME, 
+  description = DEFAULT_DESCRIPTION,
+  image = DEFAULT_IMAGE,
+  canonical = '',
+  noindex = false
+} = Astro.props;
+
+// Construir el título completo
+const fullTitle = pageTitle === SITE_NAME ? SITE_NAME : `${pageTitle} | ${SITE_NAME}`;
+const canonicalUrl = canonical || new URL(Astro.url.pathname, SITE_URL).href;
 
 // Importamos los componentes
 import Header from '../components/Header.astro';
@@ -20,72 +39,189 @@ import '../styles/main.scss';
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="no-js">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content={description} />
     
     <!-- Título de la página -->
-    <title>{title}</title>
+    <title>{fullTitle}</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.svg" />
+    <!-- Preconexión con recursos externos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     
-    <!-- Fuentes de Google -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Precargar recursos críticos -->
+    <link rel="preload" href="/fonts/your-font.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="/styles/main.css" as="style" />
+    
+    <!-- Favicon y Web App Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     
     <!-- Metaetiquetas para SEO -->
-    <meta property="og:title" content={title} />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    <meta name="theme-color" content="#3e195f" />
+    <meta name="author" content="Hilo Mágico" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#3e195f" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={new URL(image, SITE_URL).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_ES" />
     
-    <!-- Font Awesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@hilo_magico" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, SITE_URL).href} />
     
-    <!-- Scripts del lado del cliente -->
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/styles/main.css" />
+    
+    <!-- Carga no bloqueante de fuentes -->
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" 
+      rel="stylesheet" 
+      media="print" 
+      onload="this.media='all'"
+    />
+    
+    <!-- Carga no bloqueante de Font Awesome -->
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+      media="print" 
+      onload="this.media='all'"
+    />
+    
+    <!-- Scripts del lado del cliente con carga diferida -->
     <script>
-      // Configuración mínima de process para el navegador
-      if (typeof window !== 'undefined' && typeof window.process === 'undefined') {
-        // @ts-ignore - Ignorar errores de TypeScript para esta asignación
-        window.process = {
-          env: { NODE_ENV: 'production' },
-          // @ts-ignore
-          argv: [],
-          version: '',
-          // @ts-ignore
-          versions: {},
-          // @ts-ignore
-          platform: 'browser',
-          // @ts-ignore
-          cwd: () => '/',
-          // @ts-ignore
-          nextTick: (callback) => setTimeout(callback, 0)
+      // Definir tipos para Web Vitals
+      interface WebVitalsGlobal {
+        getCLS: (onReport: (metric: any) => void) => void;
+        getFID: (onReport: (metric: any) => void) => void;
+        getLCP: (onReport: (metric: any) => void) => void;
+      }
+
+      // Extender la interfaz Window
+      declare global {
+        interface Window {
+          webVitals?: WebVitalsGlobal;
+        }
+      }
+
+      // Detectar si JavaScript está habilitado
+      document.documentElement.classList.remove('no-js');
+      document.documentElement.classList.add('js');
+      
+      // Cargar scripts críticos de forma asíncrona
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registrado con éxito: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('Error al registrar el ServiceWorker: ', error);
+            });
+        });
+      }
+      
+      // Web Vitals (solo en producción)
+      if (window.location.hostname !== 'localhost') {
+        const reportWebVitals = (metric: { delta: number }) => {
+          if (metric.delta < 1500) {
+            console.log(metric);
+            // Aquí podrías enviar las métricas a tu servicio de análisis
+          }
         };
+
+        if (typeof window !== 'undefined' && window.webVitals) {
+          window.webVitals.getCLS(reportWebVitals);
+          window.webVitals.getFID(reportWebVitals);
+          window.webVitals.getLCP(reportWebVitals);
+        }
       }
-      // Asegurar que NODE_ENV esté definido
-      if (typeof window !== 'undefined' && window.process && !window.process.env.NODE_ENV) {
-        window.process.env.NODE_ENV = 'production';
-      }
+    </script>
+    
+    <!-- Schema.org markup para Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Hilo Mágico",
+      "image": "https://hilo-magico.com/img/og-image.jpg",
+      "description": "Prendas personalizadas y servicios de costura a medida con los mejores materiales y diseños únicos.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Ciudad",
+        "addressRegion": "Región",
+        "postalCode": "Código Postal",
+        "streetAddress": "Dirección"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "40.7128",
+        "longitude": "-74.0060"
+      },
+      "url": "https://hilo-magico.com",
+      "telephone": "+1234567890",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "10:00",
+          "closes": "14:00"
+        }
+      ],
+      "priceRange": "$$",
+      "sameAs": [
+        "https://www.facebook.com/hilomagico",
+        "https://www.instagram.com/hilomagico",
+        "https://pinterest.com/hilomagico"
+      ]
+    }
     </script>
   </head>
   
   <body>
-    <!-- Header -->
+    <!-- Skip link para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    
     <Header />
     
-    <!-- Contenido principal -->
-    <main>
-      <slot /> <!-- Aquí se inyectará el contenido de las páginas -->
+    <main id="main-content" tabindex="-1">
+      <slot />
     </main>
     
-    <!-- Footer -->
     <Footer />
-    
-    <!-- Chat Bubble -->
     <ChatBubble />
+    
+    <!-- Scripts con carga diferida -->
+    <script src="/js/main.js" defer></script>
+    
+    <!-- Carga de Web Vitals solo en producción -->
+    {import.meta.env.PROD && (
+      <script src="https://unpkg.com/web-vitals@2.1.4/dist/web-vitals.attribution.iife.js" defer></script>
+    )}
   </body>
 </html>

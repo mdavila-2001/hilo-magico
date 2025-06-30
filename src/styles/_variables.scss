@@ -27,3 +27,17 @@ $sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.05);
 $breakpoint-movil: 480px;
 $breakpoint-tablet: 768px;
 $breakpoint-escritorio: 1024px;
+
+// Roles de usuario
+$roles: (
+  'admin': admin,
+  'user': user,
+  'owner': owner,
+  'seller': seller,
+  'customer': customer
+);
+
+// Función para verificar roles
+@function has-role($role) {
+  @return map-has-key($roles, $role);
+}

@@ -1,17 +1,26 @@
 ---
 // src/components/Header.astro
+import { isAdmin } from '../utils/roles';
 
-// Navegación
+// Navegación principal
 const enlaces = [
   { texto: 'Inicio', url: '/' },
-  { texto: 'Mi Perfil', url: '/profile' },
   { texto: 'Catálogo', url: '/catalog' },
-  { texto: 'Servicios', url: 'services' },
-  { texto: 'Galería', url: 'gallery' },
-  { texto: 'Contacto', url: 'contact' },
+  { texto: 'Servicios', url: '/services' },
+  { texto: 'Galería', url: '/gallery' },
+  { texto: 'Contacto', url: '/contact' },
 ];
 
-// El estado del menú se manejará con JavaScript en el cliente
+// Enlaces de administrador
+const adminEnlaces = [
+  { texto: 'Panel', url: '/admin' },
+  { texto: 'Productos', url: '/admin/products' },
+  { texto: 'Órdenes', url: '/admin/orders' },
+  { texto: 'Usuarios', url: '/admin/users' },
+];
+
+// Verificar si el usuario es administrador
+const esAdmin = isAdmin();
 ---
 
 <script>
@@ -162,6 +171,18 @@ const enlaces = [
       <img src="/img/hilo-magico-header.png" alt="Hilo Mágico" width="200" height="100" />
     </a>
     
+    <!-- Botón de menú móvil -->
+    <button 
+      class="header__menu-btn" 
+      id="menu-btn"
+      aria-label="Menú principal"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+    >
+      <span class="header__menu-icon"></span>
+      <span class="sr-only">Menú</span>
+    </button>
+    
     <!-- Navegación principal -->
     <nav 
       class="header__nav" 
@@ -174,16 +195,38 @@ const enlaces = [
             <a 
               href={enlace.url} 
               class="header__enlace"
-
             >
               {enlace.texto}
             </a>
           </li>
         ))}
+        
+        {esAdmin && (
+          <li class="header__menu-item header__menu-item--admin">
+            <button 
+              class="header__enlace header__enlace--admin"
+              aria-expanded="false"
+              aria-controls="admin-submenu"
+            >
+              Administración
+              <i class="fas fa-chevron-down ml-1" aria-hidden="true"></i>
+            </button>
+            <ul class="header__submenu" id="admin-submenu">
+              {adminEnlaces.map((enlace) => (
+                <li class="header__submenu-item">
+                  <a href={enlace.url} class="header__submenu-link">
+                    <i class="fas fa-cog mr-2" aria-hidden="true"></i>
+                    {enlace.texto}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        )}
       </ul>
     </nav>
 
-    <!-- Botones de la derecha (carrito y menú móvil) -->
+    <!-- Botones de la derecha (carrito y perfil) -->
     <div class="header__acciones">
       <!-- Botón del carrito -->
       <button 
@@ -197,54 +240,103 @@ const enlaces = [
         <span class="header__carrito-contador" id="contador-carrito">0</span>
         <span class="sr-only">Ver carrito</span>
       </button>
-
-      <!-- Botón del menú móvil -->
-      <button 
-        class="header__menu-btn" 
-        aria-label="Menú de navegación"
-        aria-expanded="false"
-        aria-controls="menu-principal"
-        onclick="document.getElementById('menu-overlay').classList.toggle('header__overlay--active'); document.getElementById('menu-principal').classList.toggle('header__nav--activo'); this.setAttribute('aria-expanded', document.getElementById('menu-principal').classList.contains('header__nav--activo'));"
-      >
-        <span class="header__menu-icon"></span>
-        <span class="sr-only">Menú de navegación</span>
-      </button>
+      
+      <!-- Botón de perfil -->
+      <a href="/perfil" class="header__perfil-btn" aria-label="Mi perfil">
+        <i class="fas fa-user" aria-hidden="true"></i>
+        <span class="sr-only">Mi perfil</span>
+      </a>
     </div>
-
-    <!-- Overlay para el menú móvil -->
+    
+    <!-- Overlay para menú móvil -->
     <div 
+      class="header__overlay" 
       id="menu-overlay" 
-      class="header__overlay"
-      onclick="document.querySelector('.header__menu-btn').click()"
+      role="presentation"
+      tabindex="-1"
+      aria-hidden="true"
     ></div>
-  </div>
-  
-  <!-- Carrito desplegable -->
-  <div class="carrito" id="carrito">
-    <div class="carrito__encabezado">
-      <h3>Tu Carrito</h3>
-      <button class="carrito__cerrar" aria-label="Cerrar carrito">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="carrito__contenido" id="lista-carrito">
-      <p class="carrito__vacio">Tu carrito está vacío</p>
-      <!-- Los elementos del carrito se agregarán aquí dinámicamente -->
-    </div>
-    <div class="carrito__total">
-      <p>Total: Bs. <span id="total">$0.00</span></p>
-      <div class="carrito__acciones">
-        <button class="carrito__btn carrito__btn--secundario" id="vaciar-carrito">
-          <i class="fas fa-trash"></i> Vaciar
-        </button>
-        <button class="carrito__btn" id="procesar-pago">
-          <i class="fas fa-credit-card"></i> Pagar
-        </button>
-      </div>
-    </div>
   </div>
 </header>
 
-<!-- Los estilos de notificación están en /src/styles/components/_carrito.scss -->
-
-<!-- Los estilos están en /src/styles/components/_header.scss -->
+<style>
+  /* Estilos para el menú de administración */
+  .header__menu-item--admin {
+    position: relative;
+  }
+  
+  .header__enlace--admin {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-texto);
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .header__submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 100;
+  }
+  
+  .header__menu-item--admin:hover .header__submenu,
+  .header__menu-item--admin:focus-within .header__submenu {
+    display: block;
+  }
+  
+  .header__submenu-item {
+    list-style: none;
+  }
+  
+  .header__submenu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: var(--color-texto);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .header__submenu-link:hover {
+    background-color: var(--color-fondo);
+  }
+  
+  .header__submenu-link i {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    color: var(--color-primario);
+  }
+  
+  @media (max-width: 768px) {
+    .header__menu-item--admin {
+      border-top: 1px solid var(--color-borde);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+    }
+    
+    .header__submenu {
+      position: static;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 0.5rem;
+      margin-left: 1rem;
+    }
+    
+    .header__submenu-link {
+      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+    }
+  }
+</style>
