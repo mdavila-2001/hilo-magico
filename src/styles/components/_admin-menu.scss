@@ -1,0 +1,138 @@
+// Importar variables
+@use '../variables' as *;
+
+// Estilos para el menú de administración
+.header__menu-item--admin {
+  position: relative;
+  
+  .header__enlace--admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.5rem 1.5rem 0.5rem 1rem;
+    font-family: $fuente-secundaria;
+    font-size: 1rem;
+    font-weight: 500;
+    color: $color-violeta-oscuro;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    border-radius: 4px;
+    margin: 0;
+    position: relative;
+    
+    &:hover {
+      color: $color-lavanda;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid currentColor;
+      transition: transform 0.2s ease;
+    }
+    
+    &[aria-expanded="true"]::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+  }
+  
+  .header__submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 200px;
+    background: $color-blanco;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 100;
+    margin-top: 0.5rem;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent $color-blanco transparent;
+    }
+  }
+  
+  &:hover .header__submenu,
+  .header__enlace--admin[aria-expanded="true"] + .header__submenu {
+    display: block;
+  }
+  
+  .header__submenu-item {
+    list-style: none;
+  }
+  
+  .header__submenu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: $color-violeta-oscuro;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-family: $fuente-secundaria;
+    font-size: 0.95rem;
+    font-weight: 500;
+    
+    &:hover {
+      color: $color-lavanda;
+      background-color: rgba($color-lavanda, 0.1);
+    }
+    
+    i {
+      font-size: 0.9em;
+      width: 1.25em;
+      text-align: center;
+      color: inherit;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    border-top: 1px solid $color-gris-claro;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    
+    .header__submenu {
+      position: static;
+      transform: none;
+      box-shadow: none;
+      background: transparent;
+      padding: 0;
+      margin: 0.5rem 0 0 1rem;
+      
+      &::before {
+        display: none;
+      }
+    }
+    
+    .header__submenu-link {
+      padding: 0.5rem 1.5rem;
+      color: $color-violeta-oscuro;
+      
+      &:hover {
+        color: $color-lavanda;
+        background: none;
+        padding-left: 1.75rem;
+      }
+    }
+  }
+}
