@@ -43,7 +43,7 @@ export default defineConfig({
       proxy: {
         // Redirigir las solicitudes a la API al backend
         '/api': {
-          target: process.env.PUBLIC_API_URL || 'http://localhost:3000',
+          target: process.env.PUBLIC_API_URL || 'http://localhost:8000/api/v1',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
         }
