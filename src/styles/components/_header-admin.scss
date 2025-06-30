@@ -1,40 +1,32 @@
+// Importar variables y mixins
+@use 'sass:color';
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
 // Estilos para el menú de administración
 .header__menu-item--admin {
   position: relative;
+  margin-left: 1.5rem; // Espacio a la izquierda del menú
   
   .header__enlace--admin {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1.5rem 0.5rem 0.75rem;
-    position: relative;
-    color: $color-violeta-oscuro;
-    text-decoration: none;
-    font-weight: 500;
-    font-family: $fuente-secundaria;
-    transition: color 0.3s ease;
+    &:hover {
+      color: $color-lavanda;
+    }
     
     &::after {
       content: '';
       display: inline-block;
       width: 0;
       height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 5px solid currentColor;
-      position: absolute;
-      right: 0.25rem;
-      top: 50%;
-      transform: translateY(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid currentColor;
+      margin-left: 0.5rem;
       transition: transform 0.2s ease;
     }
     
     &[aria-expanded="true"]::after {
       transform: translateY(-50%) rotate(180deg);
-    }
-    
-    &:hover {
-      color: $color-lavanda;
     }
   }
   
