@@ -56,6 +56,34 @@ function clearFieldError(input: HTMLInputElement): void {
   input.classList.remove('input-error');
 }
 
+import { useAuthStore } from '../../stores/authStore';
+
+// Función para guardar los datos del usuario usando el store
+export function saveUserData(userData: any, token: string): void {
+  const { setUser, setToken } = useAuthStore.getState();
+  setUser(userData);
+  setToken(token);
+}
+
+// Función para redirigir según el rol del usuario
+function redirectByRole(role: string): void {
+  let redirectPath = '/';
+  
+  switch(role) {
+    case 'admin':
+      redirectPath = '/admin';
+      break;
+    case 'user':
+    case 'customer':
+      redirectPath = '/';
+      break;
+    default:
+      redirectPath = '/';
+  }
+  
+  window.location.href = redirectPath;
+}
+
 // Inicialización del formulario de login
 export function initLoginForm(apiUrl: string): void {
   // Toggle para mostrar/ocultar contraseña
@@ -98,38 +126,48 @@ export function initLoginForm(apiUrl: string): void {
       const buttonText = document.getElementById('buttonText');
       const loginButton = document.getElementById('loginButton') as HTMLButtonElement | null;
       
-      const email = emailInput?.value.trim() || '';
-      const password = passwordInput?.value || '';
-      
-      // Validaciones
-      let isValid = true;
-      
-      // Validar email
-      if (!email) {
-        if (emailInput) showFieldError(emailInput, 'El correo electrónico es requerido');
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        if (emailInput) showFieldError(emailInput, 'Por favor, ingresa un correo electrónico válido');
-        isValid = false;
-      }
-      
-      // Validar contraseña
-      if (!password) {
-        if (passwordInput) showFieldError(passwordInput, 'La contraseña es requerida');
-        isValid = false;
-      }
-      
-      if (!isValid) return;
-      
       // Mostrar estado de carga
       if (buttonText && loginButton) {
         buttonText.textContent = 'Iniciando sesión...';
         loginButton.disabled = true;
       }
       
+      // Obtener datos del formulario
+      const formData = new FormData(loginForm);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+      
+      // Validaciones básicas
+      if (!isValidEmail(email)) {
+        showMessage('Por favor ingresa un correo electrónico válido');
+        if (buttonText && loginButton) {
+          buttonText.textContent = 'Iniciar sesión';
+          loginButton.disabled = false;
+        }
+        return;
+      }
+      
+      if (!password) {
+        showMessage('Por favor ingresa tu contraseña');
+        if (buttonText && loginButton) {
+          buttonText.textContent = 'Iniciar sesión';
+          loginButton.disabled = false;
+        }
+        return;
+      }
+      
       try {
+        // Verificar conexión a internet
+        if (!navigator.onLine) {
+          throw new Error('No hay conexión a internet. Verifica tu conexión e inténtalo de nuevo.');
+        }
+        
         console.log('Enviando solicitud a:', `${apiUrl}/auth/login`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 10 segundos
+        
         const response = await fetch(`${apiUrl}/auth/login`, {
+          signal: controller.signal,
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -157,38 +195,39 @@ export function initLoginForm(apiUrl: string): void {
             statusText: response.statusText,
             data
           });
-          throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+          throw new Error(data.message || `Error al iniciar sesión: ${response.status} ${response.statusText}`);
         }
         
-        // Verificar la estructura de la respuesta
-        if (!data.data || !data.data.user) {
-          console.error('Estructura de datos inesperada:', data);
-          throw new Error('Formato de respuesta inesperado del servidor');
-        }
-        
-        console.log('Datos del usuario:', data.data.user);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
-        
-        // Redirigir según el rol del usuario
-        const redirectPath = data.data.user.role === 'client' ? '/' : '/admin';
-        console.log('Redirigiendo a:', redirectPath);
-        
-        // Primero guardamos los tokens en localStorage
-        localStorage.setItem('access_token', data.data.access_token);
-        localStorage.setItem('refresh_token', data.data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
-        
-        // Redirigir al usuario
-        if (redirectPath === '/admin') {
-          window.location.href = '/admin';
+        // Guardar datos del usuario y token
+        if (data.data && data.data.user && data.data.access_token) {
+          saveUserData(data.data.user, data.data.access_token);
+          redirectByRole(data.data.user.role);
         } else {
-          // Para clientes, redirigir a la página de inicio
-          window.location.href = '/';
+          throw new Error('Datos de usuario no válidos');
+        }
+      } catch (error: any) {
+        console.error('=== Error detallado en login ===');
+        console.error('Tipo de error:', typeof error);
+        console.error('Mensaje:', error.message);
+        console.error('Stack:', error.stack);
+        console.error('Respuesta del servidor (si existe):', error.response);
+        console.error('URL del servidor:', apiUrl);
+        console.error('==============================');
+        
+        let errorMessage = 'Error al conectar con el servidor. Inténtalo de nuevo.';
+        
+        if (error.name === 'AbortError') {
+          errorMessage = 'La solicitud está tardando demasiado. Verifica tu conexión a internet.';
+        } else if (!navigator.onLine) {
+          errorMessage = 'No hay conexión a internet. Verifica tu conexión.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'No se pudo conectar con el servidor. Verifica que la URL sea correcta y que el servidor esté en ejecución.';
+        } else if (error instanceof Error) {
+          errorMessage = error.message || errorMessage;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
         }
         
-      } catch (error: unknown) {
-        console.error('Error al iniciar sesión:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Error al conectar con el servidor. Inténtalo de nuevo.';
         showMessage(errorMessage);
         
         // Restaurar el botón
