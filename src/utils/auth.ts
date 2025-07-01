@@ -56,8 +56,46 @@ export function hasRole(role: string): boolean {
 }
 
 // Verificar si el usuario es administrador
-export function isAdmin(): boolean {
-  return hasRole('admin');
+export function isAdmin(user?: User | null): boolean {
+  const currentUser = user || getCurrentUser();
+  return currentUser?.role === 'admin' || false;
+}
+
+// Verificar si el usuario es dueño
+export function isOwner(user?: User | null): boolean {
+  const currentUser = user || getCurrentUser();
+  return currentUser?.role === 'owner' || false;
+}
+
+// Verificar si el usuario es cliente
+export function isCustomer(user?: User | null): boolean {
+  const currentUser = user || getCurrentUser();
+  return currentUser?.role === 'customer' || false;
+}
+
+// Obtener el menú de navegación según el rol del usuario
+export function getUserMenu(role: string) {
+  const baseMenu = [
+    { icon: 'user', text: 'Mi perfil', url: '/perfil' },
+    { icon: 'sign-out-alt', text: 'Cerrar sesión', url: '/auth/logout', isLogout: true }
+  ];
+
+  const roleMenus: Record<string, Array<{ icon: string; text: string; url: string; isLogout?: boolean }>> = {
+    admin: [
+      { icon: 'box', text: 'Productos', url: '/admin/productos' },
+      { icon: 'store', text: 'Tiendas', url: '/admin/tiendas' },
+      { icon: 'users', text: 'Usuarios', url: '/admin/usuarios' },
+      ...baseMenu
+    ],
+    owner: [
+      { icon: 'box', text: 'Mis productos', url: '/mis-productos' },
+      { icon: 'users', text: 'Mi equipo', url: '/mi-equipo' },
+      ...baseMenu
+    ],
+    customer: baseMenu
+  };
+
+  return roleMenus[role] || baseMenu;
 }
 
 // Cerrar sesión

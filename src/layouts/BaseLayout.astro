@@ -30,7 +30,7 @@ const fullTitle = pageTitle === SITE_NAME ? SITE_NAME : `${pageTitle} | ${SITE_N
 const canonicalUrl = canonical || new URL(Astro.url.pathname, SITE_URL).href;
 
 // Importamos los componentes
-import Header from '../components/Header.astro';
+import Header from '../components/ui/Header';
 import Footer from '../components/Footer.astro';
 import ChatBubble from '../components/ChatBubble.astro';
 
@@ -207,17 +207,22 @@ import '../styles/main.scss';
     <!-- Skip link para accesibilidad -->
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     
-    <Header />
+    <!-- Header como componente React -->
+    <Header client:load />
     
-    <main id="main-content" tabindex="-1">
+    <!-- Contenido principal -->
+    <main id="main-content" class="main-content">
       <slot />
     </main>
     
+    <!-- Footer -->
     <Footer />
+    
+    <!-- Chat flotante -->
     <ChatBubble />
     
-    <!-- Scripts con carga diferida -->
-    <!-- <script src="/js/main.js" defer></script> -->
+    <!-- Scripts -->
+    <script src="/js/main.js" type="module"></script>
     
     <!-- Carga de Web Vitals solo en producción -->
     {import.meta.env.PROD && (
