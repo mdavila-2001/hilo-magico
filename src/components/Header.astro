@@ -6,9 +6,21 @@ import { isAdmin, getCurrentUser } from '../utils/auth';
 
 // Obtener usuario actual
 const usuario = getCurrentUser();
-console.log('Usuario actual:', usuario);
 const autenticado = usuario !== null;
 const esAdmin = autenticado && isAdmin();
+
+// Mostrar información de autenticación en consola
+console.group('🔐 Estado de autenticación');
+console.log('¿Usuario autenticado?:', autenticado ? '✅ Sí' : '❌ No');
+if (autenticado && usuario) {
+  console.log('👤 Usuario:', getNombreCompleto(usuario));
+  console.log('📧 Email:', usuario.email);
+  console.log('👑 ¿Es administrador?:', esAdmin ? 'Sí' : 'No');
+  console.log('🔑 Token:', localStorage.getItem('access_token') ? 'Presente' : 'No encontrado');
+} else {
+  console.log('🔒 No hay sesión activa');
+}
+console.groupEnd();
 
 // Función para obtener el nombre completo del usuario
 const getNombreCompleto = (user: User | null): string => {
