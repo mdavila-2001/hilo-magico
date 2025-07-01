@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 
+import react from '@astrojs/react';
+
 // Cargar variables de entorno
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
 
@@ -9,15 +11,16 @@ const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
 export default defineConfig({
   // Configuración del sitio
   site: 'https://hilo-magico.com',
+
   // Habilitar integración de React si es necesario
   // integrations: [react()],
-  
+
   // Configuración del servidor de desarrollo
   server: {
     port: 4322,
     host: true, // Escuchar en todas las interfaces
   },
-  
+
   // Configuración de Vite
   vite: {
     define: {
@@ -57,5 +60,7 @@ export default defineConfig({
         }
       }
     }
-  }
+  },
+
+  integrations: [react()]
 });
