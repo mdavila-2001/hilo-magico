@@ -6,6 +6,7 @@ import { isAdmin, getCurrentUser } from '../utils/auth';
 
 // Obtener usuario actual
 const usuario = getCurrentUser();
+console.log('Usuario actual:', usuario);
 const autenticado = usuario !== null;
 const esAdmin = autenticado && isAdmin();
 
@@ -331,12 +332,12 @@ const handleLogout = async () => {
           <div class="header__user-dropdown">
             <button 
               class="header__user-btn"
-              onclick="document.querySelector('.header__usuario-menu')?.classList.toggle('header__usuario-menu--visible')"
+              onclick="this.nextElementSibling?.classList.toggle('header__user-menu--visible'); this.setAttribute('aria-expanded', this.nextElementSibling?.classList.contains('header__user-menu--visible'))"
               aria-expanded="false"
               aria-controls="user-menu"
             >
               <i class="fas fa-user" aria-hidden="true"></i>
-              <span>{getNombreCompleto(usuario) || 'Mi cuenta'}</span>
+              <span class="header__user-name">{getNombreCompleto(usuario)}</span>
               <i class="fas fa-chevron-down header__user-arrow"></i>
             </button>
             
@@ -347,18 +348,24 @@ const handleLogout = async () => {
               </div>
               
               <nav class="header__user-nav">
-                <a href="/perfil" class="header__user-link">
+                <a href="/profile" class="header__user-link">
                   <i class="fas fa-user" aria-hidden="true"></i>
                   Mi perfil
                 </a>
-                <a href="/pedidos" class="header__user-link">
-                  <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                <a href="/orders" class="header__user-link">
+                  <i class="fas fa-box" aria-hidden="true"></i>
                   Mis pedidos
                 </a>
-                <a href="/configuracion" class="header__user-link">
+                <a href="/settings" class="header__user-link">
                   <i class="fas fa-cog" aria-hidden="true"></i>
                   Configuración
                 </a>
+                {esAdmin && (
+                  <a href="/admin" class="header__user-link">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    Administración
+                  </a>
+                )}
                 <button 
                   class="header__user-link header__user-link--logout"
                   onclick="(async () => {
@@ -384,9 +391,8 @@ const handleLogout = async () => {
       ) : (
         <!-- Usuario no autenticado -->
         <div class="header__auth">
-          <a href="/auth/login" class="header__auth-btn">
-            Iniciar sesión
-          </a>
+          <a href="/auth/register" class="header__auth-link">Registrarse</a>
+          <a href="/auth/login" class="header__auth-link header__auth-link--login">Iniciar sesión</a>
         </div>
       )}
     </div>
