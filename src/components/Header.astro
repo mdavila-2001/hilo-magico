@@ -1,10 +1,22 @@
 ---
 // src/components/Header.astro
-import { isAdmin } from '../utils/roles';
-import { isAuthenticated } from '../utils/auth'; // Para verificar autenticación
 
-// Verificar si el usuario es administrador
-const esAdmin = isAdmin();
+import type { User } from '../utils/auth';
+import { isAdmin, getCurrentUser } from '../utils/auth';
+
+// Obtener usuario actual
+const usuario = getCurrentUser();
+const autenticado = usuario !== null;
+const esAdmin = autenticado && isAdmin();
+
+// Función para obtener el nombre completo del usuario
+const getNombreCompleto = (user: User | null): string => {
+  if (!user) return 'Usuario';
+  const { first_name, middle_name, last_name, mother_last_name } = user;
+  return [first_name, middle_name, last_name, mother_last_name]
+    .filter(Boolean)
+    .join(' ');
+};
 
 // Navegación principal
 const enlaces = [
@@ -23,6 +35,82 @@ const adminEnlaces = [
   { texto: 'Usuarios', url: '/admin/users' },
 ];
 
+// Funciones para el menú móvil
+const toggleMenu = () => {
+  const nav = document.querySelector('.header__nav');
+  const overlay = document.querySelector('.header__overlay');
+  const body = document.body;
+  
+  if (nav && overlay) {
+    const isOpen = nav.classList.contains('header__nav--abierto');
+    
+    if (isOpen) {
+      nav.classList.remove('header__nav--abierto');
+      overlay.classList.remove('header__overlay--visible');
+      body.classList.remove('body-menu-abierto');
+    } else {
+      nav.classList.add('header__nav--abierto');
+      overlay.classList.add('header__overlay--visible');
+      body.classList.add('body-menu-abierto');
+    }
+  }
+};
+
+const closeMenu = () => {
+  const nav = document.querySelector('.header__nav');
+  const overlay = document.querySelector('.header__overlay');
+  const body = document.body;
+  
+  if (nav && overlay) {
+    nav.classList.remove('header__nav--abierto');
+    overlay.classList.remove('header__overlay--visible');
+    body.classList.remove('body-menu-abierto');
+  }
+};
+
+// Función para alternar el menú de usuario
+const toggleUserMenu = () => {
+  const userMenu = document.querySelector('.header__usuario-menu');
+  if (userMenu) {
+    userMenu.classList.toggle('header__usuario-menu--visible');
+  }
+};
+
+// Cerrar menú de usuario al hacer clic fuera
+const handleClickOutside = (event: MouseEvent) => {
+  const userMenu = document.querySelector('.header__usuario-menu');
+  const userButton = document.querySelector('.header__usuario-avatar');
+  
+  if (userMenu && userButton && 
+      !userMenu.contains(event.target as Node) && 
+      !userButton.contains(event.target as Node)) {
+    userMenu.classList.remove('header__usuario-menu--visible');
+  }
+};
+
+// Función para manejar el cierre de sesión
+const handleLogout = async () => {
+  try {
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (response.ok) {
+      // Limpiar el estado local
+      localStorage.removeItem('user');
+      localStorage.removeItem('access_token');
+      // Redirigir a la página de inicio
+      window.location.href = '/';
+    } else {
+      console.error('Error al cerrar sesión');
+    }
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
+};
 ---
 
 <script>
@@ -32,20 +120,15 @@ const adminEnlaces = [
     const carritoBtn = document.getElementById('carrito-btn');
     
     if (carrito && carritoBtn) {
-      // Si abrir es undefined, alternamos el estado actual
-      const estaAbierto = abrir === undefined 
-        ? !carrito.classList.contains('carrito--activo')
-        : abrir;
+      const estaAbierto = abrir ?? !carrito.classList.contains('carrito--activo');
       
       if (estaAbierto) {
         carrito.classList.add('carrito--activo');
         carritoBtn.setAttribute('aria-expanded', 'true');
-        // Bloquear el scroll del body cuando el carrito está abierto
         document.body.style.overflow = 'hidden';
       } else {
         carrito.classList.remove('carrito--activo');
         carritoBtn.setAttribute('aria-expanded', 'false');
-        // Restaurar el scroll del body
         document.body.style.overflow = '';
       }
     }
@@ -121,7 +204,7 @@ const adminEnlaces = [
     if (carritoBtn) {
       carritoBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        toggleCarrito();
+        toggleCarrito(true);
       });
     }
 
@@ -242,17 +325,61 @@ const adminEnlaces = [
         <span class="sr-only">Ver carrito</span>
       </button>
       
-      {isAuthenticated() ? (
+      {autenticado ? (
         <!-- Usuario autenticado -->
         <div class="header__user">
-          <a href="/profile" class="header__user-btn">
-            <i class="fas fa-user" aria-hidden="true"></i>
-            <span>Mi cuenta</span>
-          </a>
-          <a href="/auth/logout" class="header__logout-btn">
-            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-            <span class="sr-only">Cerrar sesión</span>
-          </a>
+          <div class="header__user-dropdown">
+            <button 
+              class="header__user-btn"
+              onclick="document.querySelector('.header__usuario-menu')?.classList.toggle('header__usuario-menu--visible')"
+              aria-expanded="false"
+              aria-controls="user-menu"
+            >
+              <i class="fas fa-user" aria-hidden="true"></i>
+              <span>{getNombreCompleto(usuario) || 'Mi cuenta'}</span>
+              <i class="fas fa-chevron-down header__user-arrow"></i>
+            </button>
+            
+            <div class="header__user-menu" id="user-menu">
+              <div class="header__user-info">
+                <p class="header__user-name">{getNombreCompleto(usuario)}</p>
+                <p class="header__user-email">{usuario?.email || ''}</p>
+              </div>
+              
+              <nav class="header__user-nav">
+                <a href="/perfil" class="header__user-link">
+                  <i class="fas fa-user" aria-hidden="true"></i>
+                  Mi perfil
+                </a>
+                <a href="/pedidos" class="header__user-link">
+                  <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                  Mis pedidos
+                </a>
+                <a href="/configuracion" class="header__user-link">
+                  <i class="fas fa-cog" aria-hidden="true"></i>
+                  Configuración
+                </a>
+                <button 
+                  class="header__user-link header__user-link--logout"
+                  onclick="(async () => {
+                    try {
+                      const response = await fetch('/api/auth/logout', { method: 'POST' });
+                      if (response.ok) {
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('access_token');
+                        window.location.href = '/';
+                      }
+                    } catch (error) {
+                      console.error('Error al cerrar sesión:', error);
+                    }
+                  })()"
+                >
+                  <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                  Cerrar sesión
+                </button>
+              </nav>
+            </div>
+          </div>
         </div>
       ) : (
         <!-- Usuario no autenticado -->

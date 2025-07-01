@@ -1,7 +1,3 @@
-// Este archivo ya no necesita importar variables ya que se inyectan globalmente
-// a través de la configuración de Vite
-@use '_variables' as *;
-
 // Mixins de layout
 @mixin flex-center($direction: row) {
   display: flex;
@@ -17,6 +13,56 @@
   align-items: center;
 }
 
+// Mixins de botones
+@mixin btn($bg-color: $color-violeta-oscuro, $text-color: $color-blanco) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: $radio-borde;
+  background-color: $bg-color;
+  color: $text-color;
+  font-family: $fuente-principal;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &--outline {
+    background-color: transparent;
+    border: 2px solid $bg-color;
+    color: $bg-color;
+    
+    &:hover {
+      background-color: rgba($bg-color, 0.1);
+    }
+  }
+}
+
+// Mixins de tarjetas
+@mixin card($padding: 1.5rem) {
+  background: $color-blanco;
+  border-radius: $radio-borde;
+  box-shadow: $sombra-suave;
+  padding: $padding;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
 // Mixins de transiciones
 @mixin transicion($propiedad: all, $duracion: 0.3s, $timing: ease-in-out) {
   transition: #{$propiedad} #{$duracion} #{$timing};
@@ -24,8 +70,53 @@
 
 // Mixins de responsive
 @mixin movil {
-  @media (max-width: 480px) {
+  @media (max-width: #{$breakpoint-movil}) {
     @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-movil + 1}) and (max-width: #{$breakpoint-escritorio - 1}) {
+    @content;
+  }
+}
+
+@mixin escritorio {
+  @media (min-width: #{$breakpoint-escritorio}) {
+    @content;
+  }
+}
+
+// Utilidades de accesibilidad
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin focus-style {
+  outline: 2px solid $color-violeta-oscuro;
+  outline-offset: 2px;
+}
+
+// Utilidades para texto
+@mixin text-ellipsis($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

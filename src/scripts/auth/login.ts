@@ -70,7 +70,7 @@ function redirectByRole(role: string): void {
   
   switch(role) {
     case 'admin':
-      redirectPath = '/admin';
+      redirectPath = '/';
       break;
     case 'user':
     case 'customer':
