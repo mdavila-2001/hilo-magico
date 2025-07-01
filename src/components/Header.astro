@@ -4,6 +4,15 @@
 import type { User } from '../utils/auth';
 import { isAdmin, getCurrentUser } from '../utils/auth';
 
+// Función para obtener el nombre completo del usuario
+const getNombreCompleto = (user: User | null): string => {
+  if (!user) return 'Usuario';
+  const { first_name, middle_name, last_name, mother_last_name } = user;
+  return [first_name, middle_name, last_name, mother_last_name]
+    .filter(Boolean)
+    .join(' ');
+};
+
 // Obtener usuario actual
 const usuario = getCurrentUser();
 const autenticado = usuario !== null;
@@ -21,15 +30,6 @@ if (autenticado && usuario) {
   console.log('🔒 No hay sesión activa');
 }
 console.groupEnd();
-
-// Función para obtener el nombre completo del usuario
-const getNombreCompleto = (user: User | null): string => {
-  if (!user) return 'Usuario';
-  const { first_name, middle_name, last_name, mother_last_name } = user;
-  return [first_name, middle_name, last_name, mother_last_name]
-    .filter(Boolean)
-    .join(' ');
-};
 
 // Navegación principal
 const enlaces = [
