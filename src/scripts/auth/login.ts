@@ -56,13 +56,12 @@ function clearFieldError(input: HTMLInputElement): void {
   input.classList.remove('input-error');
 }
 
-import { useAuthStore } from '../../stores/authStore';
-
-// Función para guardar los datos del usuario usando el store
-export function saveUserData(userData: any, token: string): void {
-  const { setUser, setToken } = useAuthStore.getState();
-  setUser(userData);
-  setToken(token);
+// Función para guardar los datos del usuario en localStorage
+function saveUserData(userData: any, token: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('access_token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+  }
 }
 
 // Función para redirigir según el rol del usuario
