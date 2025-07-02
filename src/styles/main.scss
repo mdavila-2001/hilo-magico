@@ -17,7 +17,8 @@
 @use 'components/chat-bubble';
 @use 'components/auth-forms';
 @use 'components/admin-menu';
-@use 'components/modal';
+@use 'components/modal' as *;
+@use 'components/loading-spinner';
 
 // Páginas
 @use 'pages/services';

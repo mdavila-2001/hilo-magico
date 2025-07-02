@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { User } from '../../utils/auth';
 import { isAdmin, isOwner, isCustomer, getCurrentUser, getUserMenu, logout } from '../../utils/auth';
+import LoadingSpinner from './LoadingSpinner';
 
 interface NavLink {
   texto: string;
@@ -28,10 +29,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmText = 'Confirmar', 
   cancelText = 'Cancelar' 
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className={`modal-overlay ${isOpen ? 'active' : ''}`} onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>{title}</h3>
@@ -61,14 +60,32 @@ export default function Header() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  interface CartItem {
+    id: string;
+    nombre: string;
+    precio: number;
+    imagen: string;
+    cantidad: number;
+  }
+
+  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
   
-  // Cerrar menú al hacer clic fuera
+  // Cerrar menús al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      
+      // Cerrar menú de usuario
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
         setIsUserMenuOpen(false);
       }
+      
     }
     
     document.addEventListener('mousedown', handleClickOutside);
@@ -77,14 +94,6 @@ export default function Header() {
     };
   }, []);
 
-  // Verificar autenticación al cargar el componente
-  useEffect(() => {
-    setIsClient(true);
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
-  }, []);
 
   const handleLogoutClick = (e: React.MouseEvent, url: string, isLogout: boolean = false) => {
     if (isLogout) {
@@ -96,6 +105,7 @@ export default function Header() {
 
   const confirmLogout = async () => {
     try {
+      setIsLoading(true);
       setShowLogoutModal(false);
       await logout(); // Wait for logout to complete
       // The redirect is now handled in the logout function
@@ -103,6 +113,8 @@ export default function Header() {
       console.error('Error during logout:', error);
       // Even if there's an error, we'll still redirect to home
       window.location.href = '/';
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -288,17 +300,23 @@ export default function Header() {
           </div>
 
           {/* Botón del carrito */}
-          <button 
-            className="header__carrito-btn" 
-            id="carrito-btn"
-            aria-label="Carrito de compras"
-            aria-expanded="false"
-            aria-controls="carrito"
-          >
-            <i className="fas fa-shopping-cart" aria-hidden="true"></i>
-            <span className="header__carrito-contador" id="contador-carrito">0</span>
-            <span className="sr-only">Ver carrito</span>
-          </button>
+          <div className="header__carrito-container" ref={cartRef}>
+            <button 
+              className="header__carrito-btn" 
+              id="carrito-btn"
+              aria-label="Carrito de compras"
+              aria-expanded={isCartOpen}
+              aria-controls="carrito"
+            >
+              <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+              {cartCount > 0 && (
+                <span className="header__carrito-contador" id="contador-carrito">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+              <span className="sr-only">Ver carrito</span>
+            </button>
+          </div>
         </div>
       </div>
       
@@ -318,6 +336,14 @@ export default function Header() {
         className={`header__overlay ${isMenuOpen ? 'active' : ''}`} 
         onClick={() => setIsMenuOpen(false)}
       ></div>
+      
+      {/* Overlay de carga */}
+      {isLoading && (
+        <div className="loading-overlay">
+          <LoadingSpinner size="large" className="loading-overlay__spinner" />
+          <p className="loading-overlay__text">Cerrando sesión...</p>
+        </div>
+      )}
     </header>
   );
 }

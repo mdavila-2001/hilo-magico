@@ -316,10 +316,33 @@
 
 // Botón de envío
 .btn-submit {
+  position: relative;
   width: 100%;
   padding: 1rem 1.5rem;
   background: linear-gradient(135deg, $color-violeta-oscuro, color.adjust($color-violeta-oscuro, $lightness: -10%));
   color: $color-blanco;
+  transition: all 0.3s ease;
+  
+  &:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: $color-blanco;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
   border: none;
   border-radius: $radio-borde;
   font-size: 1rem;
@@ -446,5 +469,64 @@ a {
   .divider {
     margin: 0 0.5rem;
     color: color.adjust($color-gris-oscuro, $lightness: 60%);
+  }
+}
+
+// Estilos para el formulario en estado de carga
+.form-loading {
+  position: relative;
+  pointer-events: none;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(2px);
+  }
+  
+  // Evitar que los elementos del formulario sean clickeables durante la carga
+  * {
+    pointer-events: none;
+  }
+  
+  // Hacer que el botón de submit se vea deshabilitado
+  .btn-submit {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+  
+  // Mostrar spinner de carga centrado
+  .form-loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid rgba($color-violeta-oscuro, 0.2);
+      border-radius: 50%;
+      border-top-color: $color-violeta-oscuro;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: $color-violeta-oscuro;
+      font-weight: 500;
+      margin: 0;
+      font-size: 0.9375rem;
+    }
   }
 }

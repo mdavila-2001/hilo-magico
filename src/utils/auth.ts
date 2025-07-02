@@ -78,7 +78,7 @@ export function isCustomer(user?: User | null): boolean {
 // Obtener el menú de navegación según el rol del usuario
 export function getUserMenu(role: string) {
   const baseMenu = [
-    { icon: 'user', text: 'Mi perfil', url: '/perfil' },
+    { icon: 'user', text: 'Mi perfil', url: '/profile' },
     { icon: 'sign-out-alt', text: 'Cerrar sesión', url: '#', isLogout: true }
   ];
 

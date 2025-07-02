@@ -126,32 +126,66 @@ export function initLoginForm(apiUrl: string): void {
       const loginButton = document.getElementById('loginButton') as HTMLButtonElement | null;
       
       // Mostrar estado de carga
+      const spinner = document.createElement('div');
+      spinner.className = 'form-loading-spinner';
+      spinner.innerHTML = `
+        <div class="spinner"></div>
+        <p>Iniciando sesión...</p>
+      `;
+      
+      // Agregar el spinner al formulario
+      loginForm.appendChild(spinner);
+      
+      // Deshabilitar el botón y cambiar su texto
       if (buttonText && loginButton) {
-        buttonText.textContent = 'Iniciando sesión...';
+        // Guardar el HTML original del botón para restaurarlo después
+        const originalButtonHTML = loginButton.innerHTML;
+        loginButton.setAttribute('data-original-html', originalButtonHTML);
+        
+        // Actualizar el botón
+        buttonText.textContent = 'Procesando...';
         loginButton.disabled = true;
       }
+      
+      // Agregar clase de carga al formulario
+      loginForm.classList.add('form-loading');
       
       // Obtener datos del formulario
       const formData = new FormData(loginForm);
       const email = formData.get('email') as string;
       const password = formData.get('password') as string;
       
+      // Función para restaurar el estado del formulario
+      const restoreForm = () => {
+        // Restaurar el botón
+        if (loginButton && buttonText) {
+          const originalHTML = loginButton.getAttribute('data-original-html');
+          if (originalHTML) {
+            loginButton.innerHTML = originalHTML;
+          } else {
+            buttonText.textContent = 'Iniciar sesión';
+          }
+          loginButton.disabled = false;
+        }
+        
+        // Remover la clase de carga y el spinner
+        loginForm.classList.remove('form-loading');
+        const spinner = loginForm.querySelector('.form-loading-spinner');
+        if (spinner) {
+          spinner.remove();
+        }
+      };
+      
       // Validaciones básicas
       if (!isValidEmail(email)) {
         showMessage('Por favor ingresa un correo electrónico válido');
-        if (buttonText && loginButton) {
-          buttonText.textContent = 'Iniciar sesión';
-          loginButton.disabled = false;
-        }
+        restoreForm();
         return;
       }
       
       if (!password) {
         showMessage('Por favor ingresa tu contraseña');
-        if (buttonText && loginButton) {
-          buttonText.textContent = 'Iniciar sesión';
-          loginButton.disabled = false;
-        }
+        restoreForm();
         return;
       }
       
@@ -159,6 +193,12 @@ export function initLoginForm(apiUrl: string): void {
         // Verificar conexión a internet
         if (!navigator.onLine) {
           throw new Error('No hay conexión a internet. Verifica tu conexión e inténtalo de nuevo.');
+        }
+        
+        // Actualizar el mensaje de carga
+        const loadingText = spinner.querySelector('p');
+        if (loadingText) {
+          loadingText.textContent = 'Verificando credenciales...';
         }
         
         console.log('Enviando solicitud a:', `${apiUrl}/auth/login`);
@@ -204,36 +244,26 @@ export function initLoginForm(apiUrl: string): void {
         } else {
           throw new Error('Datos de usuario no válidos');
         }
-      } catch (error: any) {
-        console.error('=== Error detallado en login ===');
-        console.error('Tipo de error:', typeof error);
-        console.error('Mensaje:', error.message);
-        console.error('Stack:', error.stack);
-        console.error('Respuesta del servidor (si existe):', error.response);
-        console.error('URL del servidor:', apiUrl);
-        console.error('==============================');
+      } catch (error) {
+        console.error('Error en el inicio de sesión:', error);
         
-        let errorMessage = 'Error al conectar con el servidor. Inténtalo de nuevo.';
+        // Manejar errores de red o del servidor
+        let errorMessage = 'Error en el inicio de sesión. Por favor, inténtalo de nuevo.';
         
-        if (error.name === 'AbortError') {
-          errorMessage = 'La solicitud está tardando demasiado. Verifica tu conexión a internet.';
-        } else if (!navigator.onLine) {
-          errorMessage = 'No hay conexión a internet. Verifica tu conexión.';
-        } else if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'No se pudo conectar con el servidor. Verifica que la URL sea correcta y que el servidor esté en ejecución.';
-        } else if (error instanceof Error) {
-          errorMessage = error.message || errorMessage;
-        } else if (typeof error === 'string') {
-          errorMessage = error;
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMessage = 'La solicitud ha tardado demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.';
+          } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión e inténtalo de nuevo.';
+          } else {
+            errorMessage = error.message || errorMessage;
+          }
         }
         
         showMessage(errorMessage);
         
-        // Restaurar el botón
-        if (buttonText && loginButton) {
-          buttonText.textContent = 'Iniciar sesión';
-          loginButton.disabled = false;
-        }
+        // Restaurar el formulario
+        restoreForm();
       }
     });
   }
