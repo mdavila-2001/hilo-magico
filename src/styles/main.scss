@@ -19,6 +19,7 @@
 @use 'components/admin-menu';
 @use 'components/modal' as *;
 @use 'components/loading-spinner';
+@use 'components/page-loader';
 
 // Páginas
 @use 'pages/services';

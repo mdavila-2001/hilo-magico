@@ -8,13 +8,15 @@ interface Props {
   image?: string;
   canonical?: string;
   noindex?: boolean;
+  structuredData?: any;
 }
 
 // Configuración del sitio
 const SITE_URL = 'https://hilo-magico.com';
 const SITE_NAME = 'Hilo Mágico';
+const TWITTER_HANDLE = '@hilo_magico_scz';
 const DEFAULT_DESCRIPTION = 'Prendas personalizadas y servicios de costura a medida con los mejores materiales y diseños únicos.';
-const DEFAULT_IMAGE = '/img/og-image.jpg';
+const DEFAULT_IMAGE = SITE_URL + '/img/og-image.jpg';
 
 // Valores predeterminados para los props
 const { 
@@ -22,12 +24,18 @@ const {
   description = DEFAULT_DESCRIPTION,
   image = DEFAULT_IMAGE,
   canonical = '',
-  noindex = false
+  noindex = false,
+  structuredData = null
 } = Astro.props;
 
-// Construir el título completo
+// Construir URLs
 const fullTitle = pageTitle === SITE_NAME ? SITE_NAME : `${pageTitle} | ${SITE_NAME}`;
-const canonicalUrl = canonical || new URL(Astro.url.pathname, SITE_URL).href;
+const pageUrl = new URL(Astro.url.pathname, SITE_URL).href;
+const canonicalUrl = canonical || pageUrl;
+const fullImageUrl = image.startsWith('http') ? image : new URL(image, SITE_URL).href;
+
+// Configuración de Open Graph
+const ogType = Astro.url.pathname === '/' ? 'website' : 'article';
 
 // Importamos los componentes
 import Header from '../components/ui/Header';
@@ -36,10 +44,25 @@ import ChatBubble from '../components/ChatBubble.astro';
 
 // Importamos los estilos globales
 import '../styles/main.scss';
+
+// Generar datos estructurados por defecto si no se proporcionan
+const defaultStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": SITE_NAME,
+  "url": SITE_URL,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${SITE_URL}/buscar?q={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+};
+
+const pageStructuredData = structuredData || defaultStructuredData;
 ---
 
 <!DOCTYPE html>
-<html lang="es" class="no-js">
+<html lang="es" class="no-js" itemscope itemtype="https://schema.org/WebPage">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -47,6 +70,41 @@ import '../styles/main.scss';
     
     <!-- Título de la página -->
     <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={TWITTER_HANDLE} />
+    <meta name="twitter:creator" content={TWITTER_HANDLE} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullImageUrl} />
+    
+    <!-- No indexar si es necesario -->
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    
+    <!-- Preconexiones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload de fuentes críticas -->
+    <link rel="preload" href="/fonts/your-font.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <!-- Datos estructurados -->
+    <script type="application/ld+json">
+      {JSON.stringify(pageStructuredData, null, 2)}
+    </script>
     
     <!-- Preconexión con recursos externos -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -203,15 +261,21 @@ import '../styles/main.scss';
     </script>
   </head>
   
-  <body>
+  <body aria-busy="false">
     <!-- Skip link para accesibilidad -->
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     
-    <!-- Header como componente React -->
+    <!-- Indicador de carga (deshabilitado hasta integración con backend)
+    <div class="page-loader" aria-hidden="true" style="display: none;">
+      <div class="loader"></div>
+    </div>
+    -->
+    
+    <!-- Header como componente React con hidratación en el cliente -->
     <Header client:load />
     
     <!-- Contenido principal -->
-    <main id="main-content" class="main-content">
+    <main id="main-content" role="main" tabindex="-1">
       <slot />
     </main>
     
@@ -223,6 +287,30 @@ import '../styles/main.scss';
     
     <!-- Scripts -->
     <script src="/js/main.js" type="module"></script>
+    
+    <!-- Registrar Service Worker -->
+    <script src="/js/register-sw.js" type="module"></script>
+    
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="/styles/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="/styles/main.css"></noscript>
+    
+    <!-- Scripts al final del body para mejor rendimiento -->
+    <script>
+      // Cargar scripts no críticos de forma diferida
+      function loadScript(src: string, callback?: () => void) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.defer = true;
+        if (callback) script.onload = callback;
+        document.body.appendChild(script);
+      }
+      
+      // Cargar scripts no críticos
+      window.addEventListener('load', () => {
+        // Ejemplo: loadScript('/js/non-critical.js');
+      });
+    </script>
     
     <!-- Carga de Web Vitals solo en producción -->
     {import.meta.env.PROD && (

@@ -1,3 +1,6 @@
+// Importar variables
+@use 'variables' as *;
+
 // Mixins de layout
 @mixin flex-center($direction: row) {
   display: flex;

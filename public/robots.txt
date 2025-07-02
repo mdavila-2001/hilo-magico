@@ -1,4 +1,14 @@
+# Configuración básica para todos los motores de búsqueda
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*?*
+Disallow: /*.json$
+Disallow: /*.xml$
 
-Sitemap: https://hilo-magico.com/sitemap-index.xml
+# Velocidad de rastreo (opcional, ajustar según necesidades)
+Crawl-delay: 10
+
+# Sitemaps
+Sitemap: https://hilo-magico.com/sitemap.xml

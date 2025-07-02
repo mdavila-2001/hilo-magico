@@ -1,0 +1,53 @@
+---
+// src/components/ui/OptimizedImage.astro
+
+interface Props {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  className?: string;
+  loading?: 'eager' | 'lazy';
+  sizes?: string;
+  [key: string]: any; // Para permitir atributos adicionales
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  className = '',
+  loading = 'lazy',
+  sizes = '(max-width: 768px) 100vw, 50vw',
+  ...restProps // Capturar el resto de las props
+} = Astro.props;
+
+const isExternal = src.startsWith('http');
+const imageUrl = isExternal ? src : new URL(`/src${src.startsWith('/') ? '' : '/'}${src}`, import.meta.url).pathname;
+const imageExt = src.split('.').pop()?.toLowerCase();
+const isModernFormat = ['webp', 'avif'].includes(imageExt || '');
+
+// Filtrar las props que ya estamos manejando explícitamente
+const { src: _, alt: __, width: ___, height: ____, className: _____, loading: ______, sizes: _______, ...imgProps } = restProps;
+--->
+
+<picture>
+  {!isModernFormat && (
+    <source 
+      srcset={imageExt === 'png' || imageExt === 'jpg' ? `${src.replace(/\.(png|jpg)$/, '.webp')}` : src} 
+      type="image/webp"
+    />
+  )}
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding="async"
+    class={className}
+    sizes={sizes}
+    {...imgProps}
+  />
+</picture>
