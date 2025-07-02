@@ -1,3 +1,5 @@
+import { API_CONFIG } from '../config/api.config';
+
 // Tipos de autenticación
 export interface User {
   id: string;
@@ -77,7 +79,7 @@ export function isCustomer(user?: User | null): boolean {
 export function getUserMenu(role: string) {
   const baseMenu = [
     { icon: 'user', text: 'Mi perfil', url: '/perfil' },
-    { icon: 'sign-out-alt', text: 'Cerrar sesión', url: '/auth/logout', isLogout: true }
+    { icon: 'sign-out-alt', text: 'Cerrar sesión', url: '#', isLogout: true }
   ];
 
   const roleMenus: Record<string, Array<{ icon: string; text: string; url: string; isLogout?: boolean }>> = {
@@ -99,10 +101,34 @@ export function getUserMenu(role: string) {
 }
 
 // Cerrar sesión
-export function logout(): void {
-  localStorage.removeItem('user');
-  // Redirigir a la página de inicio de sesión
-  //window.location.href = '/auth/login';
+export async function logout(): Promise<void> {
+  try {
+    // Obtener el token de acceso
+    const accessToken = localStorage.getItem('access_token');
+    
+    // Si hay un token, intentar hacer logout en el servidor
+    if (accessToken) {
+      await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.LOGOUT}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+    }
+  } catch (error) {
+    console.error('Error al cerrar sesión en el servidor:', error);
+    // Continuar con el logout local aun si hay error en el servidor
+  } finally {
+    // Limpiar el almacenamiento local
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    
+    // Redirigir a la página de inicio
+    window.location.href = '/';
+  }
 }
 
 // Redirigir si no está autenticado

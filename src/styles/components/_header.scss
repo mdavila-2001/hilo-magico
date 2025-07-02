@@ -373,15 +373,131 @@
       
       &:hover {
         background-color: rgba($color-error, 0.1);
-        color: darken($color-error, 10%);
+        color: color.adjust($color-error, $lightness: -10%);
       }
     }
   }
 }
 
+// Animaciones
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Estilos del modal de confirmación
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+.modal-content {
+  background: $color-blanco-calido;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid $color-gris-claro;
+    
+    h3 {
+      margin: 0;
+      color: $color-violeta-oscuro;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: $color-gris-oscuro;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba($color-violeta-oscuro, 0.1);
+        color: $color-violeta-oscuro;
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+    
+    p {
+      margin: 0;
+      color: $color-gris-oscuro;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+  }
+  
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: rgba($color-gris-claro, 0.5);
+    border-top: 1px solid $color-gris-claro;
+    
+    .btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      
+      &.btn-secondary {
+        background: $color-gris-claro;
+        color: $color-gris-oscuro;
+        
+        &:hover {
+          background: color.adjust($color-gris-claro, $lightness: -5%);
+        }
+      }
+      
+      &.btn-primary {
+        background: $color-rosa-pastel;
+        color: $color-violeta-oscuro;
+        font-weight: 600;
+        
+        &:hover {
+          background: color.adjust($color-rosa-pastel, $lightness: -10%);
+        }
+      }
+    }
+  }
 }
 
 .header__carrito-btn {

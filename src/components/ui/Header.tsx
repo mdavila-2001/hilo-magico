@@ -1,17 +1,81 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { User } from '../../utils/auth';
-import { isAdmin, isOwner, isCustomer, getCurrentUser, getUserMenu } from '../../utils/auth';
+import { isAdmin, isOwner, isCustomer, getCurrentUser, getUserMenu, logout } from '../../utils/auth';
 
 interface NavLink {
   texto: string;
   url: string;
 }
 
+// Tipos para las props del modal
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+// Componente de Modal de Confirmación
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  title, 
+  message, 
+  confirmText = 'Confirmar', 
+  cancelText = 'Cancelar' 
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button className="modal-close" onClick={onClose} aria-label="Cerrar">
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+        <div className="modal-body">
+          <p>{message}</p>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>
+            {cancelText}
+          </button>
+          <button className="btn btn-primary" onClick={onConfirm}>
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Verificar autenticación al cargar el componente
   useEffect(() => {
@@ -21,6 +85,30 @@ export default function Header() {
       setUser(currentUser);
     }
   }, []);
+
+  const handleLogoutClick = (e: React.MouseEvent, url: string, isLogout: boolean = false) => {
+    if (isLogout) {
+      e.preventDefault();
+      setShowLogoutModal(true);
+      setIsUserMenuOpen(false); // Close user menu when logout is clicked
+    }
+  };
+
+  const confirmLogout = async () => {
+    try {
+      setShowLogoutModal(false);
+      await logout(); // Wait for logout to complete
+      // The redirect is now handled in the logout function
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if there's an error, we'll still redirect to home
+      window.location.href = '/';
+    }
+  };
+  
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
+  };
 
   // Navegación principal
   const enlaces: NavLink[] = [
@@ -57,7 +145,7 @@ export default function Header() {
   // Manejar cierre de sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await fetch('/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +245,7 @@ export default function Header() {
           {/* Botones de autenticación */}
           <div className="header__auth">
             {isClient && user ? (
-              <div className="header__user">
+              <div className="header__user" ref={userMenuRef}>
                 <button 
                   className="header__user-btn"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -183,6 +271,7 @@ export default function Header() {
                           key={index}
                           href={item.url}
                           className={`header__user-link ${item.isLogout ? 'header__user-link--logout' : ''}`}
+                          onClick={(e) => handleLogoutClick(e, item.url, item.isLogout)}
                         >
                           <i className={`fas fa-${item.icon}`}></i> {item.text}
                         </a>
@@ -212,6 +301,17 @@ export default function Header() {
           </button>
         </div>
       </div>
+      
+      {/* Modal de confirmación de cierre de sesión */}
+      <ConfirmModal 
+        isOpen={showLogoutModal}
+        onClose={cancelLogout}
+        onConfirm={confirmLogout}
+        title="Cerrar sesión"
+        message="¿Estás seguro de que deseas cerrar la sesión?"
+        confirmText="Sí, cerrar sesión"
+        cancelText="Cancelar"
+      />
       
       {/* Overlay para menú móvil */}
       <div 

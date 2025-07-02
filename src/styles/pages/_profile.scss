@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // Estilos para la página de perfil
 .profile-container {
   max-width: 600px;
@@ -86,7 +88,7 @@
   transition: background-color 0.2s, transform 0.1s;
   
   &:hover {
-    background-color: darken(#6a5acd, 8%);
+    background-color: color.adjust(#6a5acd, $lightness: -8%);
   }
   
   &:active {
