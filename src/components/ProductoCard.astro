@@ -1,5 +1,8 @@
 ---
 // src/components/ProductoCard.astro
+// @ts-nocheck
+
+import AddToCartButton from './AddToCartButton';
 
 interface Producto {
   id: string;
@@ -8,12 +11,15 @@ interface Producto {
   precio: number;
   imagen: string;
   categoria: string;
+  talla?: string;
+  color?: string;
+  [key: string]: any; // Para permitir propiedades adicionales
 }
 
-const { producto } = Astro.props;
+const { producto } = Astro.props as { producto: Producto };
 
 // Función para formatear el precio
-const formatearPrecio = (precio: number) => {
+const formatearPrecio = (precio: number): string => {
   return `Bs. ${precio.toFixed(2)}`;
 };
 ---
@@ -29,10 +35,9 @@ const formatearPrecio = (precio: number) => {
       loading="lazy"
     />
     <div class="producto__categoria">{producto.categoria}</div>
-    <button class="producto__carrito" data-id={producto.id} data-nombre={producto.nombre} data-precio={producto.precio} data-imagen={producto.imagen}>
-      <i class="fas fa-shopping-cart"></i>o
-      <span class="sr-only">Agregar al carrito</span>
-    </button>
+    <div class="producto__carrito-contenedor">
+      <AddToCartButton producto={producto} client:load />
+    </div>
   </div>
   
   <div class="producto__info">
@@ -41,5 +46,3 @@ const formatearPrecio = (precio: number) => {
     <div class="producto__precio">{formatearPrecio(producto.precio)}</div>
   </div>
 </article>
-
-

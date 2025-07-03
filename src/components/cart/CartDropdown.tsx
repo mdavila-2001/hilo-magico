@@ -24,26 +24,31 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
 
   return (
     <AnimatePresence>
-      {(isOpen || isClosing) && (
+      {isOpen && (
         <>
           {/* Overlay */}
           <motion.div
-            key="overlay"
             initial={{ opacity: 0 }}
-            animate={{ opacity: isClosing ? 0 : 0.5 }}
+            animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 z-40 bg-black/50"
             onClick={handleClose}
+            aria-hidden="true"
+            style={{ pointerEvents: 'auto' }}
           />
           
           {/* Sidebar */}
           <motion.div
-            key="sidebar"
             initial={{ x: '100%' }}
-            animate={{ x: isClosing ? '100%' : 0 }}
+            animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'tween', ease: 'easeInOut' }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col"
+            transition={{ type: 'tween', ease: 'easeInOut', duration: 0.3 }}
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
+            style={{ boxShadow: '-4px 0 15px rgba(0, 0, 0, 0.1)' }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="carrito-titulo"
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">

@@ -61,12 +61,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 export default function Header() {
   // Declaración única al inicio del componente
   // Refs
-  const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const cartButtonRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const cartMenuRef = useRef<HTMLDivElement>(null);
   
   // State
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const cartCount = useCartStore(state => typeof state.totalItems === 'function' ? state.totalItems() : state.totalItems);
+  const { items, removeItem, totalItems, totalPrice } = useCartStore();
+  const cartCount = typeof totalItems === 'function' ? totalItems() : totalItems;
 
   // Other header states
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,16 +78,23 @@ export default function Header() {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cerrar menús al hacer clic fuera
+  // Efecto para cerrar menús al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      
-      // Cerrar menú de usuario
-      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
+      // Cerrar menú de usuario si se hace clic fuera
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
       
+      // Cerrar menú del carrito si se hace clic fuera
+      if (
+        cartButtonRef.current && 
+        !cartButtonRef.current.contains(event.target as Node) &&
+        cartMenuRef.current && 
+        !cartMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsCartOpen(false);
+      }
     }
     
     document.addEventListener('mousedown', handleClickOutside);
@@ -177,12 +186,63 @@ export default function Header() {
   // Si no estamos en el cliente, renderizar solo el HTML básico
   if (!isClient) {
     return (
-      <header className="header">
-        <div className="contenedor header__contenedor">
-          {/* Contenido estático para SSR */}
+      <header className="header fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
+        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <button className="header__menu-btn" aria-label="Menú" aria-expanded="false">
             <span className="header__menu-icon"></span>
           </button>
+          <a href="/" className="header__logo" aria-label="Hilo Mágico - Inicio">
+            <img 
+              src="/img/hilo-magico-header.png" 
+              alt="Hilo Mágico" 
+              width="150" 
+              height="75" 
+              className="h-12 w-auto"
+            />
+          </a>
+          <nav className="header__nav" aria-label="Navegación principal">
+            <ul className="header__menu">
+              {enlaces.map((enlace) => (
+                <li key={enlace.url} className="header__menu-item">
+                  <a href={enlace.url} className="header__enlace">{enlace.texto}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="flex items-center space-x-4">
+            <a href="/auth/login" className="text-gray-600 hover:text-violet-600">Iniciar sesión</a>
+            <button 
+              className="relative p-2 text-gray-600 hover:text-violet-600"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsCartOpen(true);
+              }}
+            >
+              <FaShoppingBag className="w-6 h-6" />
+              <span className="sr-only">Carrito</span>
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Renderizado completo en el cliente
+  return (
+    <>
+      <header className="header">
+        <div className="contenedor header__contenedor">
+          {/* Botón del menú móvil */}
+          <button 
+            className="header__menu-btn" 
+            aria-label="Menú" 
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <span className="header__menu-icon"></span>
+          </button>
+
+          {/* Logo */}
           <a href="/" className="header__logo" aria-label="Hilo Mágico - Inicio">
             <img 
               src="/img/hilo-magico-header.png" 
@@ -191,142 +251,174 @@ export default function Header() {
               height="100" 
             />
           </a>
-          <nav className="header__nav" aria-label="Navegación principal">
+
+          {/* Navegación principal */}
+          <nav 
+            className={`header__nav ${isMenuOpen ? 'active' : ''}`} 
+            aria-label="Navegación principal"
+          >
             <ul className="header__menu">
               {enlaces.map((enlace, index) => (
                 <li key={index} className="header__menu-item">
-                  <a href={enlace.url} className="header__enlace">{enlace.texto}</a>
+                  <a 
+                    href={enlace.url} 
+                    className="header__enlace"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {enlace.texto}
+                  </a>
                 </li>
               ))}
+              
+              {/* Mostrar enlaces de administrador si el usuario es admin */}
+              {user && isAdmin(user)}
             </ul>
           </nav>
+
+          <div className="header__acciones">
+            {/* Botones de autenticación */}
+            <div className="header__auth">
+              {isClient && user ? (
+                <div className="header__user" ref={userMenuRef}>
+                  <button 
+                    className="header__user-btn"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    aria-expanded={isUserMenuOpen}
+                    aria-label="Menú de usuario"
+                  >
+                    <i className="fas fa-user-circle"></i>
+                  </button>
+                  {isUserMenuOpen && (
+                    <div className="header__user-menu">
+                      <div className="header__user-info">
+                        <p className="header__user-name">
+                          {user.first_name || 'Usuario'}
+                          {isAdmin(user) && ' (Admin)'}
+                          {isOwner(user) && ' (Dueño)'}
+                          {isCustomer(user) && ' (Cliente)'}
+                        </p>
+                        <p className="header__user-email">{user.email}</p>
+                      </div>
+                      <nav className="header__user-nav">
+                        {getUserMenu(user.role).map((item, index) => (
+                          <a 
+                            key={index}
+                            href={item.url}
+                            className={`header__user-link ${item.isLogout ? 'header__user-link--logout' : ''}`}
+                            onClick={(e) => handleLogoutClick(e, item.url, item.isLogout)}
+                          >
+                            <i className={`fas fa-${item.icon}`}></i> {item.text}
+                          </a>
+                        ))}
+                      </nav>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <a href="/auth/login" className="header__auth-link header__auth-link--login">
+                  Iniciar sesión
+                </a>
+              )}
+            </div>
+
+            {/* Botón del carrito */}
+            <div className="header__carrito" ref={cartButtonRef}>
+              <button 
+                className="header__carrito-btn"
+                id="carrito-btn"
+                aria-label="Carrito de compras"
+                aria-expanded={isCartOpen}
+                aria-controls="carrito-menu"
+                onClick={() => setIsCartOpen(!isCartOpen)}
+              >
+                <FaShoppingBag className="header__carrito-icono" />
+                {cartCount > 0 && (
+                  <span className="header__carrito-contador">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+                <span className="sr-only">Ver carrito</span>
+              </button>
+              
+              {/* Menú desplegable del carrito */}
+              {isCartOpen && (
+                <div className="header__carrito-menu" ref={cartMenuRef}>
+                  <div className="header__carrito-header">
+                    <h4>Carrito de compras</h4>
+                  </div>
+                  {cartCount > 0 ? (
+                    <div className="header__carrito-contenido">
+                      <div className="header__carrito-lista">
+                        {items.slice(0, 3).map((item) => (
+                          <div key={`${item.id}-${item.size}-${item.color}`} className="header__carrito-item">
+                            <div className="header__carrito-item-imagen">
+                              <img src={item.image} alt={item.name} />
+                            </div>
+                            <div className="header__carrito-item-detalle">
+                              <h5 className="header__carrito-item-nombre">{item.name}</h5>
+                              <div className="header__carrito-item-precio">
+                                {item.quantity} x ${item.price.toFixed(2)}
+                              </div>
+                              {item.size && (
+                                <div className="header__carrito-item-talla">
+                                  Talla: {item.size}
+                                </div>
+                              )}
+                              {item.color && (
+                                <div className="header__carrito-item-color">
+                                  Color: {item.color}
+                                </div>
+                              )}
+                            </div>
+                            <button 
+                              className="header__carrito-item-eliminar"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                removeItem(item.id);
+                              }}
+                              aria-label="Eliminar producto"
+                            >
+                              <FiX />
+                            </button>
+                          </div>
+                        ))}
+                        {items.length > 3 && (
+                          <div className="header__carrito-mas">
+                            +{items.length - 3} productos más en el carrito
+                          </div>
+                        )}
+                      </div>
+                      <div className="header__carrito-total">
+                        <span>Total:</span>
+                        <span>${totalPrice().toFixed(2)}</span>
+                      </div>
+                      <div className="header__carrito-acciones">
+                        <a href="/carrito" className="header__carrito-ver">
+                          Ver carrito
+                        </a>
+                        <a href="/checkout" className="header__carrito-pagar">
+                          Pagar ahora (${totalPrice().toFixed(2)})
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="header__carrito-vacio">
+                      <FaShoppingBag className="header__carrito-icono-vacio" />
+                      <p>Tu carrito está vacío</p>
+                      <a href="/tienda" className="header__carrito-comprar">
+                        Comprar ahora
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
-    );
-  }
-
-  // Renderizado completo en el cliente
-  return (
-    <header className="header">
-      <div className="contenedor header__contenedor">
-        {/* Botón del menú móvil */}
-        <button 
-          className="header__menu-btn" 
-          aria-label="Menú" 
-          aria-expanded={isMenuOpen}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <span className="header__menu-icon"></span>
-        </button>
-
-        {/* Logo */}
-        <a href="/" className="header__logo" aria-label="Hilo Mágico - Inicio">
-          <img 
-            src="/img/hilo-magico-header.png" 
-            alt="Hilo Mágico" 
-            width="200" 
-            height="100" 
-          />
-        </a>
-
-        {/* Navegación principal */}
-        <nav 
-          className={`header__nav ${isMenuOpen ? 'active' : ''}`} 
-          aria-label="Navegación principal"
-        >
-          <ul className="header__menu">
-            {enlaces.map((enlace, index) => (
-              <li key={index} className="header__menu-item">
-                <a 
-                  href={enlace.url} 
-                  className="header__enlace"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {enlace.texto}
-                </a>
-              </li>
-            ))}
-            
-            {/* Mostrar enlaces de administrador si el usuario es admin */}
-            {user && isAdmin(user)}
-          </ul>
-        </nav>
-
-        <div className="header__acciones">
-            
-          {/* Botones de autenticación */}
-          <div className="header__auth">
-            {isClient && user ? (
-              <div className="header__user" ref={userMenuRef}>
-                <button 
-                  className="header__user-btn"
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  aria-expanded={isUserMenuOpen}
-                  aria-label="Menú de usuario"
-                >
-                  <i className="fas fa-user-circle"></i>
-                </button>
-                {isUserMenuOpen && (
-                  <div className="header__user-menu">
-                    <div className="header__user-info">
-                      <p className="header__user-name">
-                        {user.first_name || 'Usuario'}
-                        {isAdmin(user) && ' (Admin)'}
-                        {isOwner(user) && ' (Dueño)'}
-                        {isCustomer(user) && ' (Cliente)'}
-                      </p>
-                      <p className="header__user-email">{user.email}</p>
-                    </div>
-                    <nav className="header__user-nav">
-                      {getUserMenu(user.role).map((item, index) => (
-                        <a 
-                          key={index}
-                          href={item.url}
-                          className={`header__user-link ${item.isLogout ? 'header__user-link--logout' : ''}`}
-                          onClick={(e) => handleLogoutClick(e, item.url, item.isLogout)}
-                        >
-                          <i className={`fas fa-${item.icon}`}></i> {item.text}
-                        </a>
-                      ))}
-                    </nav>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <a href="/auth/login" className="header__auth-link header__auth-link--login">
-                Iniciar sesión
-              </a>
-            )}
-          </div>
-
-          {/* Botón del carrito */}
-
-          <div className="header__carrito-container">
-            <button 
-              ref={cartButtonRef}
-              className="relative p-2 text-gray-600 hover:text-violet-600 transition-colors"
-              id="carrito-btn"
-              aria-label="Carrito de compras"
-              aria-expanded={isCartOpen}
-              aria-controls="carrito"
-              onClick={() => setIsCartOpen((open) => !open)}
-            >
-              <FaShoppingBag className="w-6 h-6" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount > 9 ? '9+' : cartCount}
-                </span>
-              )}
-              <span className="sr-only">Ver carrito</span>
-            </button>
-            {/* Sidebar del carrito */}
-            <CartDropdown
-              isOpen={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-            />
-          </div>
-        </div>
-      </div>
+      
+      {/* Espacio para el contenido debajo del header fijo */}
+      <div className="h-16"></div>
       
       {/* Modal de confirmación de cierre de sesión */}
       <ConfirmModal 
@@ -352,6 +444,6 @@ export default function Header() {
           <p className="loading-overlay__text">Cerrando sesión...</p>
         </div>
       )}
-    </header>
+    </>
   );
 }

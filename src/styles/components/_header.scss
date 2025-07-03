@@ -255,6 +255,264 @@
   }
 }
 
+// Estilos para el menú del carrito
+.header__carrito {
+  position: relative;
+  
+  &-btn {
+    background: none;
+    border: none;
+    color: $color-violeta-oscuro;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba($color-violeta-oscuro, 0.1);
+      color: $color-rosa-pastel;
+    }
+  }
+  
+  &-contador {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: $color-rosa-pastel;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+  
+  &-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    margin-top: 10px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+  }
+  
+  &-header {
+    padding: 1rem;
+    border-bottom: 1px solid $color-gris-claro;
+    
+    h4 {
+      margin: 0;
+      color: $color-violeta-oscuro;
+      font-family: $fuente-secundaria;
+    }
+  }
+  
+  &-contenido {
+    padding: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  &-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  &-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $color-gris-claro;
+    position: relative;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &-imagen {
+      width: 60px;
+      height: 60px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: #f8f9fa;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    
+    &-detalle {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    &-nombre {
+      margin: 0 0 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: $color-violeta-oscuro;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    &-precio {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: $color-rosa-pastel;
+      margin-bottom: 0.25rem;
+    }
+    
+    &-talla,
+    &-color {
+      font-size: 0.75rem;
+      color: $color-gris-oscuro;
+      margin-bottom: 0.1rem;
+    }
+    
+    &-eliminar {
+      position: absolute;
+      top: 0.5rem;
+      right: 0;
+      background: none;
+      border: none;
+      color: $color-gris-oscuro;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        color: $color-error;
+        background-color: rgba($color-error, 0.1);
+      }
+    }
+  }
+  
+  &-mas {
+    text-align: center;
+    font-size: 0.85rem;
+    color: $color-gris-oscuro;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px dashed $color-gris-claro;
+  }
+  
+  &-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid $color-gris-claro;
+    font-weight: 600;
+    color: $color-violeta-oscuro;
+    
+    span:last-child {
+      font-size: 1.1rem;
+      color: $color-rosa-pastel;
+    }
+  }
+  
+  &-vacio {
+    text-align: center;
+    padding: 1.5rem 0;
+    
+    p {
+      margin: 0.5rem 0 1rem;
+      color: $color-gris-oscuro;
+    }
+  }
+  
+  &-icono-vacio {
+    font-size: 2.5rem;
+    color: $color-gris-claro;
+    margin-bottom: 0.5rem;
+  }
+  
+  &-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    
+    a {
+      text-align: center;
+      text-decoration: none;
+      padding: 0.7rem 1rem;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      
+      &.header__carrito-ver {
+        background-color: $color-gris-claro;
+        color: $color-gris-oscuro;
+        
+        &:hover {
+          background-color: darken($color-gris-claro, 5%);
+        }
+      }
+      
+      &.header__carrito-pagar,
+      &.header__carrito-comprar {
+        background-color: $color-rosa-pastel;
+        color: white;
+        
+        &:hover {
+          background-color: darken($color-rosa-pastel, 10%);
+        }
+      }
+    }
+  }
+  
+  &-ver, &-pagar, &-comprar {
+    display: block;
+    padding: 0.7rem 1rem;
+    text-align: center;
+    border-radius: 4px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  &-ver {
+    background-color: $color-gris-claro;
+    color: $color-gris-oscuro;
+    
+    &:hover {
+      background-color: darken($color-gris-claro, 5%);
+    }
+  }
+  
+  &-pagar, &-comprar {
+    background-color: $color-rosa-pastel;
+    color: white;
+    
+    &:hover {
+      background-color: darken($color-rosa-pastel, 10%);
+    }
+  }
+}
+
 // Estilos para los botones de autenticación
 .header__auth {
   display: flex;
