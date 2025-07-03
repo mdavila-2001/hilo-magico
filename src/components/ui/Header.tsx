@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { FiMenu, FiX, FiUser, FiLogOut, FiChevronDown } from 'react-icons/fi';
+import { FaShoppingBag } from 'react-icons/fa';
 import type { User } from '../../utils/auth';
 import { isAdmin, isOwner, isCustomer, getCurrentUser, getUserMenu, logout } from '../../utils/auth';
 import LoadingSpinner from './LoadingSpinner';
+import CartDropdown from '../cart/CartDropdown';
+import { useCartStore } from '../../stores/cartStore';
 
 interface NavLink {
   texto: string;
@@ -55,27 +59,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 };
 
 export default function Header() {
+  // Declaración única al inicio del componente
+  // Refs
+  const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  // State
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const cartCount = useCartStore(state => typeof state.totalItems === 'function' ? state.totalItems() : state.totalItems);
+
+  // Other header states
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  interface CartItem {
-    id: string;
-    nombre: string;
-    precio: number;
-    imagen: string;
-    cantidad: number;
-  }
 
-  const [cartCount, setCartCount] = useState(0);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartTotal, setCartTotal] = useState(0);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-  const cartRef = useRef<HTMLDivElement>(null);
-  
   // Cerrar menús al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -300,22 +300,30 @@ export default function Header() {
           </div>
 
           {/* Botón del carrito */}
-          <div className="header__carrito-container" ref={cartRef}>
+
+          <div className="header__carrito-container">
             <button 
-              className="header__carrito-btn" 
+              ref={cartButtonRef}
+              className="relative p-2 text-gray-600 hover:text-violet-600 transition-colors"
               id="carrito-btn"
               aria-label="Carrito de compras"
               aria-expanded={isCartOpen}
               aria-controls="carrito"
+              onClick={() => setIsCartOpen((open) => !open)}
             >
-              <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+              <FaShoppingBag className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="header__carrito-contador" id="contador-carrito">
+                <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
               )}
               <span className="sr-only">Ver carrito</span>
             </button>
+            {/* Sidebar del carrito */}
+            <CartDropdown
+              isOpen={isCartOpen}
+              onClose={() => setIsCartOpen(false)}
+            />
           </div>
         </div>
       </div>
