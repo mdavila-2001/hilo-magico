@@ -18,13 +18,22 @@
 .auth-layout {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start; // Cambiado a flex-start para scroll
   justify-content: center;
-  padding: $espaciado-base;
+  padding: 2rem $espaciado-base; // Añadido más padding vertical
   background: linear-gradient(135deg, color.adjust($color-lavanda, $lightness: 25%) 0%, color.adjust($color-violeta-oscuro, $lightness: 50%) 100%);
   font-family: $fuente-principal;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto; // Permite scroll vertical
+  -webkit-overflow-scrolling: touch; // Mejor scroll en iOS
+  
+  // Contenedor interno para centrar el contenido
+  &::before {
+    content: '';
+    min-height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+  }
   
   &::before {
     content: '';
@@ -43,6 +52,8 @@
     position: relative;
     z-index: 1;
     animation: fadeIn 0.6s ease-out;
+    margin: 2rem 0; // Margen vertical para separar en el scroll
+    align-self: center; // Centra verticalmente el contenido
   }
 }
 

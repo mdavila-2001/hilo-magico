@@ -1,16 +1,7 @@
 // src/components/AddToCartButton.tsx
 import { useState } from 'react';
 import { useCartStore } from '../stores/cartStore';
-
-interface Producto {
-  id: string;
-  nombre: string;
-  precio: number;
-  imagen: string;
-  categoria: string;
-  talla?: string;
-  color?: string;
-}
+import type { Producto } from '../types/product.types';
 
 export default function AddToCartButton({ producto }: { producto: Producto }) {
   const [isAdding, setIsAdding] = useState(false);
@@ -19,34 +10,56 @@ export default function AddToCartButton({ producto }: { producto: Producto }) {
   const [selectedColor, setSelectedColor] = useState('');
   const addToCart = useCartStore((state) => state.addItem);
 
-  const handleAddToCart = () => {
-    if (producto.talla || producto.color) {
+  const handleAddToCart = async () => {
+    const hasVariants = producto.talla || producto.color || 
+                       (producto.sizes && producto.sizes.length > 0) || 
+                       (producto.colors && producto.colors.length > 0);
+    
+    if (hasVariants) {
       setShowVariants(true);
     } else {
-      addToCart({
-        id: producto.id,
-        name: producto.nombre,
-        price: producto.precio,
-        image: producto.imagen
-      });
-      setIsAdding(true);
-      setTimeout(() => setIsAdding(false), 1000);
+      const attributes: Record<string, any> = {};
+      if (producto.talla) attributes.size = producto.talla;
+      if (producto.color) attributes.color = producto.color;
+      
+      try {
+        await addToCart(
+          producto.id, 
+          1, // cantidad por defecto
+          attributes
+        );
+        setIsAdding(true);
+        setTimeout(() => setIsAdding(false), 1000);
+      } catch (error) {
+        console.error('Error al agregar al carrito:', error);
+      }
     }
   };
 
-  const handleConfirmAdd = () => {
-    if ((producto.talla && !selectedSize) || (producto.color && !selectedColor)) {
+  const handleConfirmAdd = async () => {
+    const hasSizeVariant = producto.talla || (producto.sizes && producto.sizes.length > 0);
+    const hasColorVariant = producto.color || (producto.colors && producto.colors.length > 0);
+    
+    if ((hasSizeVariant && !selectedSize) || (hasColorVariant && !selectedColor)) {
       return; // Validación básica
     }
     
-    addToCart({
-      id: producto.id,
-      name: producto.nombre,
-      price: producto.precio,
-      image: producto.imagen,
-      ...(producto.talla && { size: selectedSize }),
-      ...(producto.color && { color: selectedColor })
-    });
+    const attributes: Record<string, any> = {};
+    if (hasSizeVariant) attributes.size = selectedSize || producto.talla;
+    if (hasColorVariant) attributes.color = selectedColor || producto.color;
+    
+    try {
+      await addToCart(
+        producto.id,
+        1, // cantidad por defecto
+        attributes
+      );
+      setShowVariants(false);
+      setIsAdding(true);
+      setTimeout(() => setIsAdding(false), 1000);
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error);
+    }
     
     setShowVariants(false);
     setIsAdding(true);

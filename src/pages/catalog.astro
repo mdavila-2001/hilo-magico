@@ -1,110 +1,183 @@
 ---
 // src/pages/catalog.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CatalogFilters from '../components/catalog/CatalogFilters.astro';
-import StoresList from '../components/catalog/StoresList.astro';
-import { groupProductsByStore } from '../utils/filters';
-import { productos, tiendas } from '../data/productos';
+import ProductoCard from '../components/ProductoCard.astro';
+import { catalogService } from '../services/catalogService';
+import { formatPrice } from '../utils/formatters';
+import type { Producto, ProductsResponse } from '../types/product.types';
 
 // Obtener parámetros de la URL
 const url = new URL(Astro.request.url);
-const searchParams = url.searchParams;
-const searchTerm = searchParams.get('q')?.toLowerCase() || '';
-const categoriasSeleccionadas = searchParams.get('categorias')?.split(',').filter(Boolean) || [];
+const page = Number(url.searchParams.get('page')) || 1;
+const limit = 12;
+const search = url.searchParams.get('q') || '';
 
-// Función para filtrar tiendas según los criterios de búsqueda y categorías
-function filtrarTiendas(tiendas: any[], search: string, categorias: string[]) {
-  return tiendas.filter(tienda => {
-    // Filtrar por categorías si hay alguna seleccionada
-    const cumpleCategorias = categorias.length === 0 || 
-      tienda.categorias.some((cat: string) => categorias.includes(cat));
-    
-    // Filtrar por término de búsqueda
-    const cumpleBusqueda = !search || 
-      tienda.nombre.toLowerCase().includes(search) || 
-      tienda.descripcion.toLowerCase().includes(search);
-    
-    return cumpleCategorias && cumpleBusqueda;
-  });
+// Definir el tipo para el estado de los productos
+interface ProductsState extends Omit<ProductsResponse, 'products'> {
+  products: Producto[];
+  error: string | null;
 }
 
-// Filtrar tiendas según los parámetros actuales
-const tiendasFiltradas = filtrarTiendas(tiendas, searchTerm, categoriasSeleccionadas);
+// Obtener los productos
+let productsData: ProductsState = {
+  products: [],
+  total: 0,
+  page: 1,
+  limit,
+  totalPages: 1,
+  error: null
+};
 
-// Agrupar productos por tienda
-const tiendasConProductos = groupProductsByStore(tiendasFiltradas, productos);
+try {
+  console.log('Iniciando carga de productos...');
+  const result = await catalogService.getProducts(page, limit, search);
+  console.log('Productos cargados:', result);
+  
+  // Asegurarse de que los productos sean un array
+  const products = Array.isArray(result.products) ? result.products : [];
+  
+  productsData = {
+    products,
+    total: result.total || 0,
+    page: result.page || 1,
+    limit: result.limit || limit,
+    totalPages: result.totalPages || 1,
+    error: null
+  };
+} catch (error) {
+  console.error('Error al cargar los productos:', error);
+  const errorMessage = error instanceof Error ? error.message : 'Error desconocido al cargar los productos';
+  productsData = {
+    ...productsData,
+    error: errorMessage
+  };
+}
 
-// Verificar si hay productos en cada tienda
-const tiendasVisibles = tiendasConProductos.filter(tienda => tienda.productos.length > 0);
-
-// Obtener todas las categorías únicas para los filtros
-const categoriasUnicas = Array.from(
-  new Set(tiendas.flatMap(tienda => tienda.categorias))
-).sort();
+// Mostrar información de depuración
+console.log('Datos de productos para renderizar:', productsData);
 ---
 
-<BaseLayout title="Catálogo | Hilo Mágico" description="Explora nuestra colección de productos únicos y personalizados">
+<BaseLayout title="Catálogo | Hilo Mágico" description="Explora nuestra colección de productos">
   <main class="catalog-page">
     <div class="container">
-      <div class="catalog-layout">
-        <!-- Componente de Filtros -->
-        <CatalogFilters 
-          categorias={categoriasUnicas} 
-          initialCategorias={categoriasSeleccionadas}
-          initialSearchTerm={searchTerm}
-        />
-        
-        <!-- Contenedor para la lista de tiendas (se actualizará dinámicamente) -->
-        <div id="tiendas-container">
-          <StoresList tiendas={tiendasVisibles} />
+      <h1>Nuestros Productos</h1>
+      
+      {productsData.error ? (
+        <div class="error-message">
+          <h3>Error al cargar los productos</h3>
+          <p>{productsData.error}</p>
+          <p>Por favor, verifica la consola para más detalles.</p>
+          <button onclick="window.location.reload()" class="btn">Reintentar</button>
         </div>
-      </div>
+      ) : productsData.products.length > 0 ? (
+        <>
+          <div class="product-grid">
+            {productsData.products.map((producto) => (
+              <ProductoCard 
+                producto={producto} 
+                client:load 
+                key={producto.id} 
+              />
+            ))}
+          </div>
+
+          {/* Paginación */}
+          {productsData.totalPages > 1 && (
+            <div class="pagination">
+              {page > 1 && (
+                <a 
+                  href={`/catalog?page=${page - 1}${search ? `&q=${encodeURIComponent(search)}` : ''}`} 
+                  class="page-link"
+                >
+                  &larr; Anterior
+                </a>
+              )}
+              
+              <span class="page-info">
+                Página {page} de {productsData.totalPages}
+              </span>
+
+              {page < productsData.totalPages && (
+                <a 
+                  href={`/catalog?page=${page + 1}${search ? `&q=${encodeURIComponent(search)}` : ''}`} 
+                  class="page-link"
+                >
+                  Siguiente &rarr;
+                </a>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="no-results">
+          <p>No se encontraron productos que coincidan con tu búsqueda.</p>
+          <a href="/catalog" class="btn btn-outline">Ver todos los productos</a>
+        </div>
+      )}
     </div>
   </main>
-
-  <!-- Script para manejar la actualización dinámica de la lista de tiendas -->
-  <script>
-    // Función para actualizar la lista de tiendas
-    async function actualizarTiendas() {
-      const searchParams = new URLSearchParams(window.location.search);
-      const searchTerm = searchParams.get('q') || '';
-      const categorias = searchParams.get('categorias') ? searchParams.get('categorias')?.split(',').filter(Boolean) : [];
-      
-      // Mostrar indicador de carga
-      const container = document.getElementById('tiendas-container');
-      if (container) {
-        container.innerHTML = '<div class="loading">Cargando...</div>';
-      }
-      
-      try {
-        // Realizar una nueva solicitud al servidor con los parámetros actuales
-        const response = await fetch(`${window.location.pathname}?fragment=1&${searchParams.toString()}`);
-        const html = await response.text();
-        
-        // Actualizar solo el contenido del contenedor de tiendas
-        if (container) {
-          container.innerHTML = html;
-        }
-      } catch (error) {
-        console.error('Error al cargar las tiendas:', error);
-        if (container) {
-          container.innerHTML = '<div class="error">Error al cargar las tiendas. Inténtalo de nuevo más tarde.</div>';
-        }
-      }
-    }
-    
-    // Escuchar cambios en los filtros
-    document.addEventListener('filtrosCambiados', actualizarTiendas);
-    
-    // Manejar el botón de retroceso/avance del navegador
-    window.addEventListener('popstate', actualizarTiendas);
-  </script>
-  
-  <script>
-    // Scripts específicos del catálogo
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('Catálogo cargado');
-      // Aquí puedes agregar cualquier inicialización específica del catálogo
-    });
-  </script>
 </BaseLayout>
+
+<style>
+  .error-message {
+    background-color: #fee2e2;
+    border-left: 4px solid #ef4444;
+    color: #b91c1c;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 0.25rem;
+  }
+  
+  .error-message h3 {
+    margin-top: 0;
+    color: #b91c1c;
+  }
+  .catalog-page {
+    padding: 2rem 0;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    color: #4a5568;
+    transition: all 0.2s;
+  }
+
+  .page-link:hover {
+    background-color: #f7fafc;
+    border-color: #cbd5e0;
+  }
+
+  .page-info {
+    padding: 0.5rem 1rem;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+  }
+
+  .no-results p {
+    margin-bottom: 1rem;
+    color: #4a5568;
+  }
+</style>

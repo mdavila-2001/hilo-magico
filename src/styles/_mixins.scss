@@ -1,6 +1,27 @@
 // Importar variables
 @use 'variables' as *;
 
+// Breakpoints
+$breakpoints: (
+  'small': 576px,
+  'medium': 768px,
+  'large': 992px,
+  'xlarge': 1200px,
+  'xxlarge': 1400px
+);
+
+// Mixin para media queries
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (max-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "No se encontró el breakpoint `#{$breakpoint}`. "
+        + "Breakpoints disponibles: #{map-keys($breakpoints)}";
+  }
+}
+
 // Mixins de layout
 @mixin flex-center($direction: row) {
   display: flex;

@@ -1,48 +1,90 @@
 ---
 // src/components/ProductoCard.astro
-// @ts-nocheck
 
 import AddToCartButton from './AddToCartButton';
-
-interface Producto {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  imagen: string;
-  categoria: string;
-  talla?: string;
-  color?: string;
-  [key: string]: any; // Para permitir propiedades adicionales
-}
+import type { Producto } from '../types/product.types';
 
 const { producto } = Astro.props as { producto: Producto };
 
 // Función para formatear el precio
 const formatearPrecio = (precio: number): string => {
-  return `Bs. ${precio.toFixed(2)}`;
+  return `Bs. ${precio}`;
 };
 ---
 
 <article class="producto">
   <div class="producto__imagen-contenedor">
-    <img 
-      src={producto.imagen} 
-      alt={producto.nombre} 
-      class="producto__imagen"
-      width="300"
-      height="200"
-      loading="lazy"
-    />
-    <div class="producto__categoria">{producto.categoria}</div>
-    <div class="producto__carrito-contenedor">
-      <AddToCartButton producto={producto} client:load />
-    </div>
+    {producto.images && producto.images.length > 0 ? (
+      <img 
+        src={producto.images[0]} 
+        alt={producto.name || producto.nombre || 'Producto sin nombre'} 
+        class="producto__imagen"
+        width="300"
+        height="200"
+        loading="lazy"
+      />
+    ) : (
+      <div class="producto__imagen-placeholder">
+        <i class="fas fa-image"></i>
+        <span>Sin imagen</span>
+      </div>
+    )}
+    {(producto.category || producto.categoria) && (
+      <span class="producto__categoria">
+        {producto.category || producto.categoria}
+      </span>
+    )}
   </div>
   
   <div class="producto__info">
-    <h3 class="producto__nombre">{producto.nombre}</h3>
-    <p class="producto__descripcion">{producto.descripcion}</p>
-    <div class="producto__precio">{formatearPrecio(producto.precio)}</div>
+    <h3 class="producto__nombre">{producto.name || producto.nombre || 'Producto sin nombre'}</h3>
+    <p class="producto__descripcion">{producto.description || producto.descripcion || ''}</p>
+    
+    <div class="producto__precios">
+      <span class="producto__precio">
+        {new Intl.NumberFormat('es-ES', {
+          style: 'currency',
+          currency: 'BOB'
+        }).format(producto.price || producto.precio || 0)}
+      </span>
+      
+      {(producto.compare_at_price && (producto.compare_at_price > (producto.price || 0))) && (
+        <span class="producto__precio-anterior">
+          {new Intl.NumberFormat('es-ES', {
+            style: 'currency',
+            currency: 'BOB'
+          }).format(producto.compare_at_price)}
+        </span>
+      )}
+    </div>
+    
+    <div class="producto__acciones">
+      <AddToCartButton 
+        producto={{
+          id: producto.id,
+          name: producto.name || producto.nombre || 'Producto sin nombre',
+          nombre: producto.name || producto.nombre || 'Producto sin nombre',
+          price: producto.price || producto.precio || 0,
+          precio: producto.price || producto.precio || 0,
+          images: producto.images || [],
+          imagen: (producto.images && producto.images[0]) || producto.imagen || '',
+          category: producto.category || producto.categoria || '',
+          categoria: producto.category || producto.categoria || '',
+          description: producto.description || producto.descripcion || '',
+          descripcion: producto.description || producto.descripcion || '',
+          talla: producto.talla,
+          color: producto.color,
+          sizes: producto.sizes,
+          colors: producto.colors,
+          stock: producto.stock || 0,
+          is_active: producto.is_active !== undefined ? producto.is_active : true,
+          is_featured: producto.is_featured || false,
+          compare_at_price: producto.compare_at_price || null,
+          store_id: producto.store_id || '',
+          created_at: producto.created_at || new Date().toISOString(),
+          updated_at: producto.updated_at || new Date().toISOString()
+        }} 
+      />
+    </div>
   </div>
 </article>

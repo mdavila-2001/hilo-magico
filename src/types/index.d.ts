@@ -6,7 +6,7 @@ declare global {
     nombre: string;
     descripcion: string;
     precio: number;
-    imagen: string;
+    images: string[];
     categoria: string;
     talla?: string;
     color?: string;
