@@ -44,10 +44,10 @@ export default function AddToCartButton({ producto, onAddToCart }: Props) {
         category: null
       };
 
-      await addItem(cartItemProduct, 1, {
+      await addItem(cartItemProduct, 1/* , {
         size: selectedSize,
         color: selectedColor
-      });
+      } */);
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
       onAddToCart?.();

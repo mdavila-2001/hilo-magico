@@ -46,8 +46,7 @@ export const useCartStore = create<StoreState>()(
         try {
           const payload = {
             product_id: product.id,
-            quantity,
-            attributes
+            quantity
           };
           
           const response = await api.post<Cart>('/cart/items', payload);

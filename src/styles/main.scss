@@ -20,6 +20,7 @@
 @use 'components/modal' as *;
 @use 'components/loading-spinner';
 @use 'components/page-loader';
+@use 'components/shared';
 
 // Páginas
 @use 'pages/services';

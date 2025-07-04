@@ -1,0 +1,136 @@
+// Importar variables y mixins
+@use 'sass:color';
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// Mixins compartidos
+@mixin circular-button($size: 40px, $bg: $color-gris-claro, $color: $color-violeta-oscuro) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: $color-blanco-calido;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: $color;
+  
+  &:hover {
+    background: darken($color-blanco-calido, 5%);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin circular-button-with-icon($size: 40px, $bg: $color-gris-claro, $color: $color-violeta-oscuro) {
+  @include circular-button($size, $color-blanco-calido, $color);
+  
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+// Variables compartidas
+$carrito-button-size: 40px;
+$carrito-menu-width: 300px;
+$carrito-menu-max-height: 400px;
+
+// Estilos base para ítems del carrito
+.carrito-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $color-gris-claro;
+  position: relative;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &-imagen {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f8f9fa;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  &-detalle {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &-nombre {
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $color-violeta-oscuro;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &-precio {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-rosa-pastel;
+    margin-bottom: 0.25rem;
+  }
+  
+  &-talla,
+  &-color {
+    font-size: 0.75rem;
+    color: $color-gris-oscuro;
+    margin-bottom: 0.1rem;
+  }
+  
+  &-eliminar {
+    @include circular-button-with-icon(32px, white, $color-gris-oscuro);
+    position: absolute;
+    top: 0.5rem;
+    right: 0;
+    
+    &:hover {
+      background-color: #ffebee;
+      color: #d32f2f;
+      border-color: #e57373;
+    }
+  }
+}
+
+// Estilos base para botones de acción del carrito
+.carrito-action-btn {
+  @include circular-button(100px, $color-gris-oscuro, white);
+  
+  &--checkout {
+    background: $color-rosa-pastel;
+    
+    &:hover {
+      background: darken($color-rosa-pastel, 10%);
+    }
+  }
+  
+  .carrito-action-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .carrito-action-text {
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.25rem;
+    line-height: 1.2;
+  }
+}

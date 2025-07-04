@@ -1,7 +1,177 @@
-// Importar variables y mixins
+// Importar estilos compartidos
 @use 'sass:color';
 @use '../variables' as *;
 @use '../mixins' as *;
+@use './_shared' as *;
+
+// Estilos específicos del carrito completo
+.carrito {
+  position: fixed;
+  top: 70px;
+  right: -400px;
+  width: 350px;
+  height: calc(100vh - 70px);
+  background-color: $color-blanco;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  
+  &--activo {
+    right: 0;
+  }
+  
+  @media (max-width: 400px) {
+    width: 100%;
+  }
+}
+
+.carrito__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid $color-gris-claro;
+  position: sticky;
+  top: 0;
+  background-color: $color-blanco;
+  z-index: 1;
+  
+  h3 {
+    margin: 0;
+    color: $color-violeta-oscuro;
+    font-family: $fuente-secundaria;
+    font-size: 1.25rem;
+  }
+  
+  button {
+    @include circular-button(36px, rgba($color-violeta-oscuro, 0.1), $color-violeta-oscuro);
+  }
+}
+
+.carrito__contenido {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  
+  p {
+    text-align: center;
+    color: $color-gris-oscuro;
+    margin: 2rem 0;
+  }
+}
+
+.carrito__total {
+  padding: 1.5rem;
+  border-top: 1px solid $color-gris-claro;
+  background-color: color.adjust($color-gris-claro, $lightness: 5%);
+  margin-top: auto;
+  
+  p {
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin: 0 0 1.25rem;
+    color: $color-violeta-oscuro;
+    text-align: right;
+  }
+}
+
+.carrito__acciones {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem 0;
+  
+  .carrito-action-btn {
+    @include circular-button(100px, $color-gris-oscuro, white);
+    
+    &--checkout {
+      background: $color-rosa-pastel;
+      
+      &:hover {
+        background: darken($color-rosa-pastel, 10%);
+      }
+    }
+  }
+}
+
+// Estilos para el footer del carrito
+.carrito__footer {
+  padding: 1rem;
+  border-top: 1px solid $color-gris-claro;
+  background-color: color.adjust($color-gris-claro, $lightness: 5%);
+  margin-top: auto;
+  
+  .carrito__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    
+    span:first-child {
+      font-weight: 600;
+      color: $color-gris-oscuro;
+    }
+    
+    span:last-child {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: $color-rosa-pastel;
+    }
+  }
+  
+  .carrito__acciones {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+    
+    .carrito-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-radius: $radio-borde;
+      border: none;
+      width: 150px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.2s ease;
+      
+      &--checkout {
+        background: $color-error;
+        
+        &:hover {
+          background: darken($color-error, 10%);
+        }
+      }
+      
+      &--clear {
+        background: $color-error;
+        
+        &:hover {
+          background: darken($color-error, 10%);
+        }
+      }
+      
+      .carrito-action-icon {
+        width: 24px;
+        height: 24px;
+      }
+      
+      .carrito-action-text {
+        font-size: 0.8rem;
+        text-align: center;
+        line-height: 1.2;
+      }
+    }
+  }
+}
 
 // Estilos de notificaciones
 .notificacion {

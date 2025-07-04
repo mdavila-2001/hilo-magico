@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { FiMenu, FiX, FiUser, FiLogOut, FiChevronDown } from 'react-icons/fi';
 import { FaShoppingBag } from 'react-icons/fa';
+import { FiPlus, FiMinus, FiTrash2, FiCreditCard } from 'react-icons/fi';
 import type { User } from '../../utils/auth';
 import { isAdmin, isOwner, isCustomer, getCurrentUser, getUserMenu, logout } from '../../utils/auth';
 import LoadingSpinner from './LoadingSpinner';
@@ -66,7 +67,7 @@ export default function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   
   // State
-  const { cart, removeItem, getSummary } = useCartStore();
+  const { cart, removeItem, updateQuantity, clearCart, getSummary } = useCartStore();
   const summary = getSummary();
   const cartCount = summary.totalItems;
   const items = cart?.items || [];
@@ -352,8 +353,24 @@ export default function Header() {
                             </div>
                             <div className="header__carrito-item-detalle">
                               <h5 className="header__carrito-item-nombre">{item.product.name}</h5>
+                              <div className="header__carrito-item-cantidad">
+                                <button 
+                                  className="header__carrito-item-quantity-btn"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  disabled={item.quantity <= 1}
+                                >
+                                  <FiMinus className="header__carrito-item-quantity-icon" />
+                                </button>
+                                <span className="header__carrito-item-quantity">{item.quantity}</span>
+                                <button 
+                                  className="header__carrito-item-quantity-btn"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                >
+                                  <FiPlus className="header__carrito-item-quantity-icon" />
+                                </button>
+                              </div>
                               <div className="header__carrito-item-precio">
-                                {item.quantity} x ${item.product.price.toFixed(2)}
+                                ${item.product.price.toFixed(2)}
                               </div>
                               {item.attributes?.size && (
                                 <div className="header__carrito-item-talla">
@@ -380,10 +397,34 @@ export default function Header() {
                       </div>
                     </div>
                   ) : (
-                    <div className="header__carrito-vacio">
+                    <div className="carrito-vacio">
                       <p>No hay productos en el carrito</p>
                     </div>
                   )}
+                  <div className="carrito__footer">
+                    <div className="carrito__total">
+                      <span>Total:</span>
+                      <span>${summary.total.toFixed(2)}</span>
+                    </div>
+                    <div className="carrito__actions">
+                      <div className="carrito__actions">
+                        <button 
+                          className="carrito-action-btn carrito-action-btn--clear"
+                          onClick={() => clearCart()}
+                        >
+                          <FiTrash2 className="carrito-action-icon" />
+                          <span className="carrito-action-text">Vaciar carrito</span>
+                        </button>
+                        <a 
+                          href="/checkout"
+                          className="carrito-action-btn carrito-action-btn--checkout"
+                        >
+                          <FiCreditCard className="carrito-action-icon" />
+                          <span className="carrito-action-text">Proceder al checkout</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

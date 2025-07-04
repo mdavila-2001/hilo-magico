@@ -84,9 +84,9 @@ export function getUserMenu(role: string) {
 
   const roleMenus: Record<string, Array<{ icon: string; text: string; url: string; isLogout?: boolean }>> = {
     admin: [
-      { icon: 'box', text: 'Productos', url: '/admin/productos' },
-      { icon: 'store', text: 'Tiendas', url: '/admin/tiendas' },
-      { icon: 'users', text: 'Usuarios', url: '/admin/usuarios' },
+      { icon: 'box', text: 'Productos', url: '/admin/products' },
+      { icon: 'store', text: 'Tiendas', url: '/admin/stores' },
+      { icon: 'users', text: 'Usuarios', url: '/admin/users' },
       ...baseMenu
     ],
     owner: [
