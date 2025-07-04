@@ -60,30 +60,11 @@ const formatearPrecio = (precio: number): string => {
     
     <div class="producto__acciones">
       <AddToCartButton 
-        producto={{
-          id: producto.id,
-          name: producto.name || producto.nombre || 'Producto sin nombre',
-          nombre: producto.name || producto.nombre || 'Producto sin nombre',
-          price: producto.price || producto.precio || 0,
-          precio: producto.price || producto.precio || 0,
-          images: producto.images || [],
-          imagen: (producto.images && producto.images[0]) || producto.imagen || '',
-          category: producto.category || producto.categoria || '',
-          categoria: producto.category || producto.categoria || '',
-          description: producto.description || producto.descripcion || '',
-          descripcion: producto.description || producto.descripcion || '',
-          talla: producto.talla,
-          color: producto.color,
-          sizes: producto.sizes,
-          colors: producto.colors,
-          stock: producto.stock || 0,
-          is_active: producto.is_active !== undefined ? producto.is_active : true,
-          is_featured: producto.is_featured || false,
-          compare_at_price: producto.compare_at_price || null,
-          store_id: producto.store_id || '',
-          created_at: producto.created_at || new Date().toISOString(),
-          updated_at: producto.updated_at || new Date().toISOString()
-        }} 
+        productId={producto.id}
+        onAddToCart={() => {
+          console.log('Producto agregado al carrito:', producto.id);
+          // Aquí podrías agregar notificaciones o actualizaciones de UI
+        }}
       />
     </div>
   </div>

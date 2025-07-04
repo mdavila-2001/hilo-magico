@@ -31,7 +31,9 @@ export const useCartStore = create<StoreState>()(
       fetchCart: async () => {
         set({ isLoading: true, error: null });
         try {
-          const response = await api.get<CartResponse>('/cart');
+          console.log('Obteniendo carrito desde: /cart/items/');
+          const response = await api.get<CartResponse>('/cart/items/');
+          console.log('Respuesta del carrito:', response.data);
           set({ cart: response.data });
         } catch (error) {
           console.error('Error fetching cart:', error);
@@ -41,19 +43,37 @@ export const useCartStore = create<StoreState>()(
         }
       },
 
-      addItem: async (productId: string, quantity = 1, attributes = {}) => {
+      addItem: async (productId: string, quantity = 1, attributes = {}): Promise<void> => {
+        console.log('Agregando producto al carrito:', { productId, quantity, attributes });
         set({ isLoading: true, error: null });
         try {
-          const response = await api.post<CartResponse>('/cart/items', {
+          const payload = {
             product_id: productId,
             quantity,
             attributes
-          });
+          };
+          console.log('Enviando petición a /cart/items/ con:', payload);
+          
+          const response = await api.post<CartResponse>('/cart/items/', payload);
+          console.log('Respuesta del servidor:', response.data);
+          
+          // Actualizar el carrito con la respuesta
           set({ cart: response.data });
-        } catch (error) {
+          
+          // Forzar una recarga del carrito para asegurar consistencia
+          await get().fetchCart();
+        } catch (error: any) {
           console.error('Error adding item to cart:', error);
-          set({ error: 'Error al agregar el producto al carrito' });
-          throw error;
+          const errorMessage = error.response?.data?.detail || 
+                             error.response?.data?.message || 
+                             'Error al agregar el producto al carrito';
+          console.error('Detalles del error:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data
+          });
+          set({ error: errorMessage });
+          throw new Error(errorMessage);
         } finally {
           set({ isLoading: false });
         }

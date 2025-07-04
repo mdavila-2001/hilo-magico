@@ -4,7 +4,7 @@ import { API_CONFIG } from '../config/api.config';
 // Get token from localStorage (client-side only)
 function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+  return localStorage.getItem('access_token');
 }
 
 // Tipos para las respuestas de la API

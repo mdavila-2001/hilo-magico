@@ -11,7 +11,9 @@ interface CartDropdownProps {
 }
 
 export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
-  const { items, removeItem, updateQuantity, totalItems, totalPrice } = useCartStore();
+  const { cart, removeItem, updateQuantity, getSummary } = useCartStore();
+  const { totalItems, total: totalPrice } = getSummary();
+  const items = cart?.items || [];
   const [isClosing, setIsClosing] = useState(false);
 
   const handleClose = () => {
@@ -77,7 +79,7 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
               ) : (
                 <>
                   <div className="space-y-4">
-                    {items.map((item) => (
+                    {items.map((item: any) => (
                       <div key={item.id} className="flex items-center p-3 border-b border-gray-100">
                         <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
                           <img 
@@ -126,7 +128,7 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                   <div className="border-t border-gray-200 p-4 mt-4">
                     <div className="flex justify-between items-center mb-4">
                       <span className="font-medium text-gray-700">Total:</span>
-                      <span className="font-bold text-lg text-violet-700">${totalPrice().toFixed(2)}</span>
+                      <span className="font-bold text-lg text-violet-700">${totalPrice.toFixed(2)}</span>
                     </div>
                     <button 
                       className="w-full bg-violet-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-violet-700 transition-colors flex items-center justify-center"
