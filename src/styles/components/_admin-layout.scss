@@ -1,0 +1,91 @@
+// Importar variables y mixins
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// Estilos para el layout de administrador
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: $color-blanco;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: $color-gris-claro;
+  padding: 1.5rem;
+  
+  &-header {
+    margin-bottom: 2rem;
+    
+    h2 {
+      margin: 0;
+      color: $color-violeta-oscuro;
+      font-family: $fuente-secundaria;
+    }
+  }
+  
+  &-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  &-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    color: $color-gris-oscuro;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    &.active {
+      background-color: $color-rosa-pastel;
+      color: white;
+      
+      i {
+        color: white;
+      }
+    }
+    
+    &:hover {
+      background-color: color.adjust($color-gris-claro, $lightness: 5%);
+    }
+  }
+}
+
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+  
+  h1 {
+    margin: 0;
+    color: $color-violeta-oscuro;
+    font-family: $fuente-secundaria;
+  }
+}
+
+.admin-main-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
