@@ -61,16 +61,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 export default function Header() {
   // Declaración única al inicio del componente
   // Refs
-  const cartButtonRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
   const cartMenuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   
   // State
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const { items, removeItem, totalItems, totalPrice } = useCartStore();
-  const cartCount = typeof totalItems === 'function' ? totalItems() : totalItems;
+  const { cart, removeItem, getSummary } = useCartStore();
+  const summary = getSummary();
+  const cartCount = summary.totalItems;
+  const items = cart?.items || [];
 
-  // Other header states
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -80,23 +81,18 @@ export default function Header() {
 
   // Efecto para cerrar menús al hacer clic fuera
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      // Cerrar menú de usuario si se hace clic fuera
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cartMenuRef.current && !cartMenuRef.current.contains(event.target as Node)) {
+        setIsCartOpen(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
-      
-      // Cerrar menú del carrito si se hace clic fuera
-      if (
-        cartButtonRef.current && 
-        !cartButtonRef.current.contains(event.target as Node) &&
-        cartMenuRef.current && 
-        !cartMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsCartOpen(false);
-      }
-    }
-    
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -322,7 +318,7 @@ export default function Header() {
             </div>
 
             {/* Botón del carrito */}
-            <div className="header__carrito" ref={cartButtonRef}>
+            <div className="header__carrito">
               <button 
                 className="header__carrito-btn"
                 id="carrito-btn"
@@ -350,64 +346,42 @@ export default function Header() {
                     <div className="header__carrito-contenido">
                       <div className="header__carrito-lista">
                         {items.slice(0, 3).map((item) => (
-                          <div key={`${item.id}-${item.size}-${item.color}`} className="header__carrito-item">
+                          <div key={`${item.id}-${item.attributes?.size || ''}-${item.attributes?.color || ''}`} className="header__carrito-item">
                             <div className="header__carrito-item-imagen">
-                              <img src={item.image} alt={item.name} />
+                              <img src={item.product.images[0] || ''} alt={item.product.name} />
                             </div>
                             <div className="header__carrito-item-detalle">
-                              <h5 className="header__carrito-item-nombre">{item.name}</h5>
+                              <h5 className="header__carrito-item-nombre">{item.product.name}</h5>
                               <div className="header__carrito-item-precio">
-                                {item.quantity} x ${item.price.toFixed(2)}
+                                {item.quantity} x ${item.product.price.toFixed(2)}
                               </div>
-                              {item.size && (
+                              {item.attributes?.size && (
                                 <div className="header__carrito-item-talla">
-                                  Talla: {item.size}
+                                  Talla: {item.attributes?.size}
                                 </div>
                               )}
-                              {item.color && (
+                              {item.attributes?.color && (
                                 <div className="header__carrito-item-color">
-                                  Color: {item.color}
+                                  Color: {item.attributes?.color}
                                 </div>
                               )}
                             </div>
                             <button 
                               className="header__carrito-item-eliminar"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                removeItem(item.id);
-                              }}
-                              aria-label="Eliminar producto"
+                              onClick={() => removeItem(item.id)}
+                              aria-label={`Eliminar ${item.product.name} del carrito`}
                             >
-                              <FiX />
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
                             </button>
                           </div>
                         ))}
-                        {items.length > 3 && (
-                          <div className="header__carrito-mas">
-                            +{items.length - 3} productos más en el carrito
-                          </div>
-                        )}
-                      </div>
-                      <div className="header__carrito-total">
-                        <span>Total:</span>
-                        <span>${totalPrice().toFixed(2)}</span>
-                      </div>
-                      <div className="header__carrito-acciones">
-                        <a href="/carrito" className="header__carrito-ver">
-                          Ver carrito
-                        </a>
-                        <a href="/checkout" className="header__carrito-pagar">
-                          Pagar ahora (${totalPrice().toFixed(2)})
-                        </a>
                       </div>
                     </div>
                   ) : (
                     <div className="header__carrito-vacio">
-                      <FaShoppingBag className="header__carrito-icono-vacio" />
-                      <p>Tu carrito está vacío</p>
-                      <a href="/tienda" className="header__carrito-comprar">
-                        Comprar ahora
-                      </a>
+                      <p>No hay productos en el carrito</p>
                     </div>
                   )}
                 </div>

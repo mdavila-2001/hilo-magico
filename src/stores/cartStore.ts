@@ -2,14 +2,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { api } from '../services/api';
-import type { Cart, CartResponse } from '../types/cart.types';
+import type { Cart, CartItem, CartItemProduct } from '../types/cart.types';
 
 interface StoreState {
   cart: Cart | null;
   isLoading: boolean;
   error: string | null;
   fetchCart: () => Promise<void>;
-  addItem: (productId: string, quantity: number, attributes?: Record<string, any>) => Promise<void>;
+  addItem: (product: CartItemProduct, quantity: number, attributes?: Record<string, any>) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -31,9 +31,7 @@ export const useCartStore = create<StoreState>()(
       fetchCart: async () => {
         set({ isLoading: true, error: null });
         try {
-          console.log('Obteniendo carrito desde: /cart/items/');
-          const response = await api.get<CartResponse>('/cart/items/');
-          console.log('Respuesta del carrito:', response.data);
+          const response = await api.get<Cart>('/cart');
           set({ cart: response.data });
         } catch (error) {
           console.error('Error fetching cart:', error);
@@ -43,21 +41,16 @@ export const useCartStore = create<StoreState>()(
         }
       },
 
-      addItem: async (productId: string, quantity = 1, attributes = {}): Promise<void> => {
-        console.log('Agregando producto al carrito:', { productId, quantity, attributes });
+      addItem: async (product: CartItemProduct, quantity = 1, attributes = {}): Promise<void> => {
         set({ isLoading: true, error: null });
         try {
           const payload = {
-            product_id: productId,
+            product_id: product.id,
             quantity,
             attributes
           };
-          console.log('Enviando petición a /cart/items/ con:', payload);
           
-          const response = await api.post<CartResponse>('/cart/items/', payload);
-          console.log('Respuesta del servidor:', response.data);
-          
-          // Actualizar el carrito con la respuesta
+          const response = await api.post<Cart>('/cart/items', payload);
           set({ cart: response.data });
           
           // Forzar una recarga del carrito para asegurar consistencia
@@ -99,15 +92,17 @@ export const useCartStore = create<StoreState>()(
       },
 
       updateQuantity: async (itemId: string, quantity: number) => {
-        if (quantity < 1) {
-          get().removeItem(itemId);
-          return;
-        }
-
         set({ isLoading: true, error: null });
         try {
-          const response = await api.put<CartResponse>(`/cart/items/${itemId}`, { quantity });
-          set({ cart: response.data });
+          await api.put(`/cart/items/${itemId}`, { quantity });
+          set(state => ({
+            cart: state.cart ? {
+              ...state.cart,
+              items: state.cart.items.map(item =>
+                item.id === itemId ? { ...item, quantity } : item
+              )
+            } : null
+          }));
         } catch (error) {
           console.error('Error updating cart item quantity:', error);
           set({ error: 'Error al actualizar la cantidad' });
@@ -120,8 +115,8 @@ export const useCartStore = create<StoreState>()(
       clearCart: async () => {
         set({ isLoading: true, error: null });
         try {
-          await api.delete('/cart/items');
-          set({ cart: { ...get().cart!, items: [] } });
+          await api.delete('/cart');
+          set({ cart: null });
         } catch (error) {
           console.error('Error clearing cart:', error);
           set({ error: 'Error al vaciar el carrito' });
@@ -132,25 +127,27 @@ export const useCartStore = create<StoreState>()(
       },
 
       getSummary: () => {
-        const cart = get().cart;
-        if (!cart) return { totalItems: 0, subtotal: 0, discount: 0, total: 0 };
-        
-        const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        // Aquí podrías agregar lógica de descuentos si es necesario
-        const discount = 0;
-        
-        return {
-          totalItems: cart.items.reduce((total, item) => total + item.quantity, 0),
-          subtotal,
-          discount,
-          total: subtotal - discount
-        };
+        const state = get();
+        if (!state.cart) return { totalItems: 0, subtotal: 0, discount: 0, total: 0 };
+      
+        const totalItems = state.cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = state.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = state.cart.items.reduce((sum, item) => 
+          item.product.compare_at_price ? sum + ((item.product.compare_at_price - item.price) * item.quantity) : sum, 0
+        );
+        const total = subtotal - discount;
+      
+        return { totalItems, subtotal, discount, total };
       }
     }),
     {
       name: 'cart-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ cart: state.cart })
+      partialize: (state) => ({
+        cart: state.cart,
+        isLoading: state.isLoading,
+        error: state.error
+      })
     }
   )
 );

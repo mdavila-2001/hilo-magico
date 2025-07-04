@@ -62,7 +62,7 @@ const formatearPrecio = (precio: number): string => {
     <div class="producto__acciones">
       <AddToCartButton 
         client:load
-        productId={producto.id}
+        producto={producto}
         onAddToCart={() => {
           console.log('Producto agregado al carrito:', producto.id);
           // Aquí podrías agregar notificaciones o actualizaciones de UI
