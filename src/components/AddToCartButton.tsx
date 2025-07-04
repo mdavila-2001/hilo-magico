@@ -1,6 +1,6 @@
 // src/components/AddToCartButton.tsx
 import { useState, useCallback } from 'react';
-import { api } from '../services/api';
+import { cartService } from '../services/cartService';
 
 interface AddToCartButtonProps {
   productId: string;
@@ -24,51 +24,25 @@ export default function AddToCartButton({
     setError(null);
     
     try {
-      // 1. Obtener el token de autenticación
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        throw new Error('No se encontró el token de autenticación');
+      // Usar el servicio del carrito
+      const success = await cartService.addToCart(productId, 1);
+      
+      if (success) {
+        console.log('Producto agregado exitosamente');
+        // Disparar evento personalizado para notificar a otros componentes
+        const event = new CustomEvent('cart-updated', { 
+          detail: { productId } 
+        });
+        window.dispatchEvent(event);
+        
+        // Llamar al callback si existe
+        onAddToCart?.();
+      } else {
+        throw new Error('No se pudo agregar el producto al carrito');
       }
-      
-      // 2. Configurar los headers
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      };
-      
-      // 3. Crear el payload simple
-      const payload = {
-        product_id: productId,
-        quantity: 1
-      };
-      
-      console.log('Enviando petición a /cart/items/ con:', payload);
-      
-      // 4. Hacer la petición directamente
-      const response = await api.post('/cart/items', payload, config);
-      console.log('Respuesta del servidor:', response.data);
-      
-      // 5. Notificar éxito
-      console.log('Producto agregado exitosamente');
-      onAddToCart?.();
-      
     } catch (error: any) {
       console.error('Error al agregar al carrito:', error);
-      
-      const errorMessage = error.response?.data?.detail || 
-                         error.response?.data?.message || 
-                         'Error al agregar el producto al carrito';
-      
-      console.error('Detalles del error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data
-      });
-      
-      setError(errorMessage);
-      
+      setError(error.message || 'Error al agregar el producto al carrito');
     } finally {
       setIsLoading(false);
     }

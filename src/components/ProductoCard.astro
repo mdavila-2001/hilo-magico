@@ -1,7 +1,8 @@
 ---
 // src/components/ProductoCard.astro
 
-import AddToCartButton from './AddToCartButton';
+// Importar el componente React con directiva client:load
+import AddToCartButton from './AddToCartButton.tsx';
 import type { Producto } from '../types/product.types';
 
 const { producto } = Astro.props as { producto: Producto };
@@ -60,10 +61,13 @@ const formatearPrecio = (precio: number): string => {
     
     <div class="producto__acciones">
       <AddToCartButton 
+        client:load
         productId={producto.id}
         onAddToCart={() => {
           console.log('Producto agregado al carrito:', producto.id);
           // Aquí podrías agregar notificaciones o actualizaciones de UI
+          const event = new CustomEvent('cart-updated', { detail: { productId: producto.id } });
+          window.dispatchEvent(event);
         }}
       />
     </div>
