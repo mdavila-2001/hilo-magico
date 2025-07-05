@@ -196,27 +196,6 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                       </button>
                     </div>
                   ))}
-                  
-                  {/* Resumen del carrito */}
-                  <div className="border-t border-gray-200 p-4 mt-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="font-medium text-gray-700">Total:</span>
-                      <span className="font-bold text-lg text-rosa-pastel">
-                        {formatPrice(totalPrice)}
-                      </span>
-                    </div>
-                    <button 
-                      className="w-full bg-rosa-pastel text-white py-3 px-4 rounded-lg font-medium hover:bg-rosa-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => {
-                        handleClose();
-                        window.location.href = '/checkout';
-                      }}
-                      disabled={items.length === 0}
-                    >
-                      Proceder al pago
-                      <FiChevronRight className="ml-2" />
-                    </button>
-                  </div>
                 </div>
               )}
             </div>

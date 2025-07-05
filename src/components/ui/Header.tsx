@@ -208,16 +208,24 @@ export default function Header() {
           </nav>
           <div className="flex items-center space-x-4">
             <a href="/auth/login" className="text-gray-600 hover:text-violet-600">Iniciar sesión</a>
-            <button 
-              className="relative p-2 text-gray-600 hover:text-violet-600"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsCartOpen(true);
-              }}
-            >
-              <FaShoppingBag className="w-6 h-6" />
-              <span className="sr-only">Carrito</span>
-            </button>
+            <div className="header__carrito" ref={cartMenuRef}>
+              <button 
+                className="header__carrito-btn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsCartOpen(!isCartOpen);
+                }}
+                aria-expanded={isCartOpen}
+                aria-label="Carrito de compras"
+              >
+                <FaShoppingBag className="header__carrito-icon" />
+                {cartCount > 0 && (
+                  <span className="header__carrito-contador">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -228,15 +236,15 @@ export default function Header() {
   return (
     <>
       <header className="header">
-        <div className="contenedor header__contenedor">
+        <div className="header__contenedor">
           {/* Botón del menú móvil */}
           <button 
             className="header__menu-btn" 
-            aria-label="Menú" 
+            aria-label="Menú"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <span className="header__menu-icon"></span>
+            {isMenuOpen ? <FiX className="header__menu-icon" /> : <FiMenu className="header__menu-icon" />}
           </button>
 
           {/* Logo */}

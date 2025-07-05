@@ -77,26 +77,6 @@
   }
 }
 
-.carrito__acciones {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  width: 100%;
-  padding: 1rem 0;
-  
-  .carrito-action-btn {
-    @include circular-button(100px, $color-gris-oscuro, white);
-    
-    &--checkout {
-      background: $color-rosa-pastel;
-      
-      &:hover {
-        background: darken($color-rosa-pastel, 10%);
-      }
-    }
-  }
-}
-
 // Estilos para el footer del carrito
 .carrito__footer {
   padding: 1rem;
@@ -138,7 +118,8 @@
       padding: 1rem;
       border-radius: $radio-borde;
       border: none;
-      width: 150px;
+      width: 100%;
+      height: 3dvh;
       text-decoration: none;
       color: white;
       transition: all 0.2s ease;

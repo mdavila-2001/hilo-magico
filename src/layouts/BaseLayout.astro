@@ -42,7 +42,7 @@ import Header from '../components/ui/Header';
 import Footer from '../components/Footer.astro';
 import ChatBubble from '../components/ChatBubble.astro';
 
-// Importamos los estilos globales
+// Importamos los estilos
 import '../styles/main.scss';
 
 // Generar datos estructurados por defecto si no se proporcionan
@@ -265,6 +265,9 @@ const pageStructuredData = structuredData || defaultStructuredData;
     <!-- Skip link para accesibilidad -->
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app">
+    
     <!-- Indicador de carga (deshabilitado hasta integración con backend)
     <div class="page-loader" aria-hidden="true" style="display: none;">
       <div class="loader"></div>
@@ -272,7 +275,9 @@ const pageStructuredData = structuredData || defaultStructuredData;
     -->
     
     <!-- Header como componente React con hidratación en el cliente -->
-    <Header client:load />
+    <div class="header-wrapper">
+      <Header client:load />
+    </div>
     
     <!-- Contenido principal -->
     <main id="main-content" role="main" tabindex="-1">
@@ -284,6 +289,8 @@ const pageStructuredData = structuredData || defaultStructuredData;
     
     <!-- Chat flotante -->
     <ChatBubble />
+    
+    </div> <!-- Cierre de #app -->
     
     <!-- Scripts -->
     <script src="/js/main.js" type="module"></script>
