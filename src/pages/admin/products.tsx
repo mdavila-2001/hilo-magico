@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AdminLayout } from '../components/admin/layout/AdminLayout';
-import { Button } from '../components/ui/Button';
+import { AdminLayout } from '../../components/admin/AdminLayout';
+import { Button } from '../../components/ui/Button';
 
 interface Product {
   id: number;
