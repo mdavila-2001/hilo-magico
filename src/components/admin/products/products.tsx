@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '../AdminLayout';
 import { Button } from '../../ui/Button';
 import { isAdmin } from '../../../lib/auth';
+import { ProductForm } from './ProductForm';
+
+// Función para normalizar strings con caracteres especiales
+function normalizeText(text: string): string {
+  return text.normalize('NFC');
+}
 
 interface Product {
   id: number;
@@ -12,8 +18,16 @@ interface Product {
   image: string;
 }
 
+interface ProductFormData {
+  name: string;
+  price: string;
+  stock: string;
+  status: string;
+  image?: File;
+}
+
 export default function ProductsPage() {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
@@ -55,7 +69,7 @@ export default function ProductsPage() {
     }
   ];
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product?: Product) => {
     setSelectedProduct(product);
     setIsEditing(true);
   };
@@ -65,147 +79,99 @@ export default function ProductsPage() {
     console.log('Eliminar producto:', id);
   };
 
+  const handleCloseForm = () => {
+    setIsEditing(false);
+    setSelectedProduct(undefined);
+  };
+
+  const handleSubmitForm = (formData: FormData) => {
+    // Convertir los valores del formulario a los tipos correctos
+    const productData: ProductFormData = {
+      name: formData.get('name') as string,
+      price: formData.get('price') as string,
+      stock: formData.get('stock') as string,
+      status: formData.get('status') as string,
+      image: formData.get('image') as File
+    };
+
+    // Implementar lógica de envío del formulario
+    console.log('Formulario enviado:', productData);
+    handleCloseForm();
+  };
+
   return (
     <AdminLayout>
-      <div className="admin-products">
-        <div className="admin-products-header">
-          <h1>Productos</h1>
-          <Button 
-            variant="primary" 
-            onClick={() => setIsEditing(true)}
-          >
-            Nuevo Producto
-          </Button>
+      <div className="products-page">
+        <div className="products-header">
+          <h2>{normalizeText('Gestión de Productos')}</h2>
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder={normalizeText('Buscar productos...')}
+              className="search-input"
+            />
+            <i className="fas fa-search search-icon"></i>
+          </div>
+          <button className="add-product-btn" onClick={() => handleEdit(undefined)}>
+            {normalizeText('Agregar Producto')}
+          </button>
         </div>
-
-        <div className="admin-products-table">
-          <table>
+        <div className="products-table">
+          <table className="w-full">
             <thead>
               <tr>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Imagen')}</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Nombre')}</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Precio')}</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Stock')}</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Estado')}</th>
+                <th className="px-6 py-3 text-left">{normalizeText('Acciones')}</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id}>
-                  <td>
-                    <img 
-                      src={product.image} 
-                      alt={product.name}
-                      className="admin-products-image"
+                <tr key={product.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <img
+                      src={product.image}
+                      alt={normalizeText(product.name)}
+                      className="w-20 h-20 rounded"
                     />
                   </td>
-                  <td>{product.name}</td>
-                  <td>${product.price.toFixed(2)}</td>
-                  <td>{product.stock}</td>
-                  <td>
-                    <span 
-                      className={`admin-products-status ${product.status === 'active' ? 'active' : 'inactive'}`}
-                    >
-                      {product.status === 'active' ? 'Activo' : 'Inactivo'}
+                  <td className="px-6 py-4">{normalizeText(product.name)}</td>
+                  <td className="px-6 py-4">${product.price.toFixed(2)}</td>
+                  <td className="px-6 py-4">{product.stock}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {normalizeText(product.status === 'active' ? 'Activo' : 'Inactivo')}
                     </span>
                   </td>
-                  <td>
-                    <div className="admin-products-actions">
-                      <button 
-                        className="admin-products-action-btn edit"
-                        onClick={() => handleEdit(product)}
-                      >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button 
-                        className="admin-products-action-btn delete"
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
+                  <td className="px-6 py-4">
+                    <button className="edit-btn" onClick={() => handleEdit(product)}>
+                      <i className="fas fa-edit"></i>
+                      {normalizeText('Editar')}
+                    </button>
+                    <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                      <i className="fas fa-trash"></i>
+                      {normalizeText('Eliminar')}
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        {/* Modal de edición */}
         {isEditing && (
-          <div className="admin-products-modal">
-            <div className="admin-products-modal-content">
-              <h2>{selectedProduct ? 'Editar Producto' : 'Nuevo Producto'}</h2>
-              <form className="admin-products-form">
-                <div className="admin-products-form-group">
-                  <label htmlFor="name">Nombre</label>
-                  <input 
-                    type="text" 
-                    id="name"
-                    name="name" 
-                    defaultValue={selectedProduct?.name}
-                  />
-                </div>
-                <div className="admin-products-form-group">
-                  <label htmlFor="price">Precio</label>
-                  <input 
-                    type="number" 
-                    id="price"
-                    name="price" 
-                    defaultValue={selectedProduct?.price}
-                  />
-                </div>
-                <div className="admin-products-form-group">
-                  <label htmlFor="stock">Stock</label>
-                  <input 
-                    type="number" 
-                    id="stock"
-                    name="stock" 
-                    defaultValue={selectedProduct?.stock}
-                  />
-                </div>
-                <div className="admin-products-form-group">
-                  <label htmlFor="status">Estado</label>
-                  <select 
-                    id="status"
-                    name="status" 
-                    defaultValue={selectedProduct?.status}
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
-                </div>
-                <div className="admin-products-form-group">
-                  <label htmlFor="image">Imagen</label>
-                  <input 
-                    type="file" 
-                    id="image"
-                    name="image" 
-                  />
-                </div>
-                <div className="admin-products-form-actions">
-                  <Button 
-                    variant="primary"
-                    type="submit"
-                  >
-                    {selectedProduct ? 'Actualizar' : 'Crear'}
-                  </Button>
-                  <Button 
-                    variant="secondary"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setSelectedProduct(null);
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <ProductForm
+            product={selectedProduct}
+            onClose={handleCloseForm}
+            onSubmit={handleSubmitForm}
+          />
         )}
       </div>
     </AdminLayout>
   );
 }
+              

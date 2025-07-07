@@ -7,18 +7,18 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children, title = 'Panel de administración', currentPage = '' }: AdminLayoutProps) {
-  const navigation = [
+  /* const navigation = [
     { name: 'Dashboard', href: '/admin', icon: 'fas fa-home', current: currentPage === 'dashboard' },
     { name: 'Pedidos', href: '/admin/orders', icon: 'fas fa-box', current: currentPage === 'orders' },
     { name: 'Productos', href: '/admin/products', icon: 'fas fa-tshirt', current: currentPage === 'products' },
     { name: 'Clientes', href: '/admin/clients', icon: 'fas fa-users', current: currentPage === 'clients' },
     { name: 'Configuración', href: '/admin/settings', icon: 'fas fa-cog', current: currentPage === 'settings' },
-  ];
+  ]; */
 
   return (
     <div className="admin-layout">
       {/* Barra lateral */}
-      <nav className="admin-sidebar">
+      {/* <nav className="admin-sidebar">
         <div className="admin-sidebar-header">
           <h2>Hilo Mágico</h2>
         </div>
@@ -34,7 +34,7 @@ export function AdminLayout({ children, title = 'Panel de administración', curr
             </a>
           ))}
         </div>
-      </nav>
+      </nav> */}
 
       {/* Contenido principal */}
       <main className="admin-content">

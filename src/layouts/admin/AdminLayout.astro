@@ -1,20 +1,119 @@
 ---
-import Header from '@/components/ui/Header';
+// Tipos de TypeScript
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
+  structuredData?: any;
+}
+
+// Configuración del sitio
+const SITE_URL = 'https://admin.hilo-magico.com';
+const SITE_NAME = 'Hilo Mágico';
+const TWITTER_HANDLE = '@hilo_magico_scz';
+const DEFAULT_DESCRIPTION = 'Panel de administración de Hilo Mágico';
+const DEFAULT_IMAGE = SITE_URL + '/img/og-image.jpg';
+
+// Valores predeterminados para los props
+const { 
+  title: pageTitle = SITE_NAME, 
+  description = DEFAULT_DESCRIPTION,
+  image = DEFAULT_IMAGE,
+  canonical = '',
+  noindex = false,
+  structuredData = null
+} = Astro.props;
+
+// Construir URLs
+const fullTitle = pageTitle === SITE_NAME ? SITE_NAME : `${pageTitle} | ${SITE_NAME}`;
+const pageUrl = new URL(Astro.url.pathname, SITE_URL).href;
+const canonicalUrl = canonical || pageUrl;
+const fullImageUrl = image.startsWith('http') ? image : new URL(image, SITE_URL).href;
+
+// Configuración de Open Graph
+const ogType = Astro.url.pathname === '/' ? 'website' : 'article';
+
+import ChatBubble from '@/components/ChatBubble.astro';
+// Importamos los componentes
+import Header from '../../components/ui/Header';
 
 // Importamos los estilos
 import '../../styles/main.scss';
 
-interface Props {
-  title: string;
-}
+// Generar datos estructurados por defecto si no se proporcionan
+const defaultStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": SITE_NAME,
+  "url": SITE_URL,
+  "description": DEFAULT_DESCRIPTION
+};
 
-const { title } = Astro.props;
+const finalStructuredData = structuredData || defaultStructuredData;
 ---
 
-<div class="header-wrapper">
-  <Header client:load />
-</div>
+<!DOCTYPE html>
+<html lang="es" class="no-js" itemscope itemtype="https://schema.org/WebPage">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
 
-<main id="main-content" role="main" tabindex="-1">
-  <h1 class="admin-page-title">{title}</h1>
-  <slot />
+    <!-- Título de la página -->
+    <title>{fullTitle}</title>
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={TWITTER_HANDLE} />
+    <meta name="twitter:creator" content={TWITTER_HANDLE} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullImageUrl} />
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+      {JSON.stringify(finalStructuredData)}
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="header-wrapper">
+      <Header client:load />
+    </div>
+
+    <main id="main-content" role="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <!-- Chat flotante -->
+    <ChatBubble />
+
+    <!-- Scripts -->
+    <script src="/js/main.js" type="module"></script>
+  </body>
+</html>
