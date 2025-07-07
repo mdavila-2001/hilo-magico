@@ -69,6 +69,44 @@ export function verifyToken(token: string): JwtPayload | null {
   }
 }
 
+// Funciones de verificación de roles
+export function isAdmin(user: AuthUser | JwtPayload | null): boolean {
+  return user?.role === 'admin';
+}
+
+export function isOwner(user: AuthUser | JwtPayload | null): boolean {
+  return user?.role === 'owner';
+}
+
+export function isCustomer(user: AuthUser | JwtPayload | null): boolean {
+  return user?.role === 'customer';
+}
+
+// Obtener el menú de navegación según el rol del usuario
+export function getUserMenu(role: string) {
+  const baseMenu = [
+    { icon: 'user', text: 'Mi perfil', url: '/profile' },
+    { icon: 'sign-out-alt', text: 'Cerrar sesión', url: '#', isLogout: true }
+  ];
+
+  const roleMenus: Record<string, Array<{ icon: string; text: string; url: string; isLogout?: boolean }>> = {
+    admin: [
+      { icon: 'box', text: 'Productos', url: '/admin/products' },
+      { icon: 'store', text: 'Tiendas', url: '/admin/stores' },
+      { icon: 'users', text: 'Usuarios', url: '/admin/users' },
+      ...baseMenu
+    ],
+    owner: [
+      { icon: 'box', text: 'Mis productos', url: '/mis-productos' },
+      { icon: 'users', text: 'Mi equipo', url: '/mi-equipo' },
+      ...baseMenu
+    ],
+    customer: baseMenu
+  };
+
+  return roleMenus[role] || baseMenu;
+}
+
 // Función para establecer la cookie de autenticación
 export function setAuthCookie(context: APIContext, token: string, rememberMe: boolean = false): void {
   const options = { ...COOKIE_OPTIONS };

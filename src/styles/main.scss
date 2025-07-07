@@ -25,6 +25,6 @@
 // Páginas
 @use 'pages/services';
 @use 'pages/profile';
-//@use 'pages/catalog';
+@use 'pages/admin/products/products';
 
 @use 'layouts/base-layout';

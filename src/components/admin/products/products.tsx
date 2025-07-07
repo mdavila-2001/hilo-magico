@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { AdminLayout } from '../../components/admin/AdminLayout';
-import { Button } from '../../components/ui/Button';
+import { useState, useEffect } from 'react';
+import { AdminLayout } from '../AdminLayout';
+import { Button } from '../../ui/Button';
+import { isAdmin } from '../../../lib/auth';
 
 interface Product {
   id: number;
@@ -14,6 +15,26 @@ interface Product {
 export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        setUser(JSON.parse(userStr));
+        if (!isAdmin(JSON.parse(userStr))) {
+          window.location.href = '/';
+        }
+      } catch (error) {
+        console.error('Error al parsear usuario:', error);
+        window.location.href = '/';
+      }
+    } else {
+      window.location.href = '/';
+    }
+  }, []);
 
   const products: Product[] = [
     {
