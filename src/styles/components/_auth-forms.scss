@@ -334,6 +334,7 @@
 .btn-submit {
   position: relative;
   width: 100%;
+  margin-top: 1rem;
   padding: 1rem 1.5rem;
   background: linear-gradient(135deg, $color-violeta-oscuro, color.adjust($color-violeta-oscuro, $lightness: -10%));
   color: $color-blanco;

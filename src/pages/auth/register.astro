@@ -32,8 +32,7 @@ const pageTitle = 'Crear Cuenta';
           type="email" 
           id="email" 
           name="email" 
-          placeholder="tu@email.com" 
-          required
+          placeholder="tu@email.com"
           autocomplete="username"
           class="w-full pl-10"
         >
@@ -51,8 +50,7 @@ const pageTitle = 'Crear Cuenta';
         <input 
           type="password" 
           id="password" 
-          name="password" 
-          required 
+          name="password"
           minlength="8"
           placeholder="••••••••"
           autocomplete="new-password"
@@ -72,8 +70,7 @@ const pageTitle = 'Crear Cuenta';
         <input 
           type="password" 
           id="confirmPassword" 
-          name="confirmPassword" 
-          required 
+          name="confirmPassword"
           minlength="8"
           placeholder="••••••••"
           autocomplete="new-password"
@@ -95,8 +92,7 @@ const pageTitle = 'Crear Cuenta';
           <input 
             type="text" 
             id="firstName" 
-            name="firstName" 
-            required 
+            name="firstName"
             placeholder="Juan"
             autocomplete="given-name"
             class="w-full pl-10"
@@ -133,8 +129,7 @@ const pageTitle = 'Crear Cuenta';
           <input 
             type="text" 
             id="lastName" 
-            name="lastName" 
-            required 
+            name="lastName"
             placeholder="Pérez"
             autocomplete="family-name"
             class="w-full pl-10"
@@ -162,9 +157,9 @@ const pageTitle = 'Crear Cuenta';
     </div>
 
     <!-- Botón de registro -->
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary w-full">
-        Crear Cuenta
+    <div class="form-group">
+      <button type="submit" class="btn-submit" id="registerButton">
+        <span id="buttonText">Crear Cuenta</span>
       </button>
     </div>
 
@@ -253,14 +248,54 @@ const pageTitle = 'Crear Cuenta';
     
     if (!isValid) return;
     
-    // Mostrar indicador de carga
-    const submitButton = document.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    const originalButtonHTML = submitButton?.innerHTML || 'Crear Cuenta';
+    // Mostrar estado de carga
+    const spinner = document.createElement('div');
+    spinner.className = 'form-loading-spinner';
+    spinner.innerHTML = `
+      <div class="spinner"></div>
+      <p>Creando cuenta...</p>
+    `;
     
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creando cuenta...';
+    // Agregar el spinner al formulario
+    document.getElementById('registerForm')?.appendChild(spinner);
+    
+    // Deshabilitar el botón y cambiar su texto
+    const buttonText = document.getElementById('buttonText');
+    const registerButton = document.getElementById('registerButton') as HTMLButtonElement | null;
+    
+    if (buttonText && registerButton) {
+      // Guardar el HTML original del botón para restaurarlo después
+      const originalButtonHTML = registerButton.innerHTML;
+      registerButton.setAttribute('data-original-html', originalButtonHTML);
+      
+      // Actualizar el botón
+      buttonText.textContent = 'Procesando...';
+      registerButton.disabled = true;
     }
+    
+    // Agregar clase de carga al formulario
+    document.getElementById('registerForm')?.classList.add('form-loading');
+    
+    // Función para restaurar el estado del formulario
+    const restoreForm = () => {
+      // Restaurar el botón
+      if (registerButton && buttonText) {
+        const originalHTML = registerButton.getAttribute('data-original-html');
+        if (originalHTML) {
+          registerButton.innerHTML = originalHTML;
+        } else {
+          buttonText.textContent = 'Crear Cuenta';
+        }
+        registerButton.disabled = false;
+      }
+      
+      // Remover la clase de carga y el spinner
+      document.getElementById('registerForm')?.classList.remove('form-loading');
+      const spinner = document.getElementById('registerForm')?.querySelector('.form-loading-spinner');
+      if (spinner) {
+        spinner.remove();
+      }
+    };
     
     try {
       const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/register`, {
@@ -295,20 +330,34 @@ const pageTitle = 'Crear Cuenta';
       }
     } catch (error) {
       console.error('Error:', error);
+      
+      // Manejar errores de red o del servidor
+      let errorMessage = 'Error al crear la cuenta. Por favor, inténtalo de nuevo.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'La solicitud ha tardado demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión e inténtalo de nuevo.';
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
+      }
+      
       const messageEl = document.getElementById('message');
       const messageTextEl = document.getElementById('message-text');
       if (messageEl && messageTextEl) {
         messageEl.classList.remove('hidden', 'bg-green-100', 'text-green-700');
         messageEl.classList.add('bg-red-100', 'text-red-700');
-        messageTextEl.textContent = 'Error al conectar con el servidor';
+        messageTextEl.textContent = errorMessage;
         messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+      
+      // Llamar a restoreForm para restaurar el estado del formulario
+      restoreForm();
     } finally {
-      // Restaurar el botón
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonHTML;
-      }
+      // Llamar a restoreForm para restaurar el estado del formulario
+      restoreForm();
     }
   });
 </script>
