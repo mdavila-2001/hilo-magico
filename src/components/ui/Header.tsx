@@ -415,7 +415,6 @@ export default function Header() {
                       <span>${summary.total.toFixed(2)}</span>
                     </div>
                     <div className="carrito__actions">
-                      <div className="carrito__actions">
                         <button 
                           className="carrito-action-btn carrito-action-btn--clear"
                           onClick={() => clearCart()}
@@ -430,7 +429,6 @@ export default function Header() {
                           <FiCreditCard className="carrito-action-icon" />
                           <span className="carrito-action-text">Proceder al checkout</span>
                         </a>
-                      </div>
                     </div>
                   </div>
                 </div>

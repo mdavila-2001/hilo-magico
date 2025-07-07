@@ -18,33 +18,13 @@
 .auth-layout {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start; // Cambiado a flex-start para scroll
+  align-items: flex-start; // Alinear al inicio para evitar espacios en blanco
   justify-content: center;
-  padding: 2rem $espaciado-base; // Añadido más padding vertical
+  padding: 0 $espaciado-base; // Reducir padding vertical
   background: linear-gradient(135deg, color.adjust($color-lavanda, $lightness: 25%) 0%, color.adjust($color-violeta-oscuro, $lightness: 50%) 100%);
   font-family: $fuente-principal;
   position: relative;
-  overflow-y: auto; // Permite scroll vertical
-  -webkit-overflow-scrolling: touch; // Mejor scroll en iOS
   
-  // Contenedor interno para centrar el contenido
-  &::before {
-    content: '';
-    min-height: 100%;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-    pointer-events: none;
-  }
   
   main {
     width: 100%;
@@ -52,22 +32,46 @@
     position: relative;
     z-index: 1;
     animation: fadeIn 0.6s ease-out;
-    margin: 2rem 0; // Margen vertical para separar en el scroll
-    align-self: center; // Centra verticalmente el contenido
+    align-items: center;
+    margin: 1.5rem 0; // Reducir margen vertical
+    padding: 2rem 0; // Añadir padding interno
+  }
+  
+  // Fondo decorativo
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+}
+
+// Ajustes para móviles
+@media (max-width: $breakpoint-movil) {
+  .auth-layout {
+    padding: 0.5rem;
+    
+    main {
+      margin: 1rem 0;
+      padding: 1.5rem 0;
+    }
   }
 }
 
 // Tarjeta de autenticación
 .auth-card {
+  align-self: center;
   background: rgba($color-blanco, 0.98);
   backdrop-filter: blur(20px);
   border: 1px solid rgba($color-blanco, 0.8);
-  border-radius: $radio-borde * 2;
+  border-radius: $radio-borde * 1.5; // Reducir ligeramente el radio
   padding: $espaciado-grande;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   
   &::after {
     content: '';
@@ -143,6 +147,7 @@
 
 // Grupos de formulario
 .form-group {
+  padding: 0 $espaciado-medio;
   position: relative; // Para posicionar los mensajes de error
   
   .field-error {

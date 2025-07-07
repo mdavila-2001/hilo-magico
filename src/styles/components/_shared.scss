@@ -109,28 +109,3 @@ $carrito-menu-max-height: 400px;
     }
   }
 }
-
-// Estilos base para botones de acción del carrito
-.carrito-action-btn {
-  @include circular-button(100px, $color-gris-oscuro, white);
-  
-  &--checkout {
-    background: $color-rosa-pastel;
-    
-    &:hover {
-      background: darken($color-rosa-pastel, 10%);
-    }
-  }
-  
-  .carrito-action-icon {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .carrito-action-text {
-    font-size: 0.8rem;
-    text-align: center;
-    margin-top: 0.25rem;
-    line-height: 1.2;
-  }
-}
