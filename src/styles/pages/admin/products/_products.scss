@@ -3,7 +3,7 @@
 
 // Estilos para la página de productos
 .products-page {
-  padding: 2rem 0;
+  padding: 2rem;
   
   // Diseño de encabezado
   .products-header {
@@ -49,7 +49,7 @@
         
         &:focus {
           border-color: var(--color-primary);
-          box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.1);
+          box-shadow: 0 0 0 3px var(--color-primary-light);
         }
       }
       
@@ -58,8 +58,7 @@
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--color-text-secondary);
-        font-size: 1.1rem;
+        color: var(--color-gray-500);
       }
     }
     
@@ -85,38 +84,30 @@
   // Diseño de tabla
   .products-table {
     width: 100%;
-    background: var(--color-bg-primary);
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 1.25rem;
     
-    th {
-      background: var(--color-bg-secondary);
-      padding: 1.25rem;
-      text-align: left;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      border-bottom: 1px solid var(--color-border);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      
-      &:first-child {
-        border-radius: 1rem 0 0 1rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 100%;
+      margin-top: 1.5rem;
+
+      // Estilos para estados
+      .status-active {
+        background: color.adjust($color-lavanda, $lightness: 20%);
+        color: $color-violeta-oscuro;
       }
-      
-      &:last-child {
-        border-radius: 0 1rem 1rem 0;
+
+      .status-inactive {
+        background: color.adjust($color-gris-oscuro, $lightness: 50%);
+        color: $color-gris-oscuro;
       }
-    }
-    
-    td {
-      padding: 1.25rem;
-      border-bottom: 1px solid var(--color-border);
-      transition: all 0.2s ease;
-      
-      &:hover {
-        background: var(--color-bg-secondary);
+
+      .status-out-of-stock {
+        background: color.adjust($color-error, $lightness: 40%);
+        color: $color-error;
       }
       
       &:last-child {
@@ -157,6 +148,7 @@
     
     .product-actions {
       display: flex;
+      justify-content: center;
       gap: 0.75rem;
       
       button {
@@ -168,6 +160,7 @@
         display: flex;
         align-items: center;
         gap: 0.35rem;
+        color: $color-blanco;
         
         &:hover {
           transform: translateY(-1px);
@@ -175,20 +168,18 @@
         }
 
         &.edit-btn {
-          background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
-          color: white;
+          background: $color-edit-primary;
           
           &:hover {
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            background: color.adjust($color-edit-primary, $lightness: -10%);
           }
         }
 
         &.delete-btn {
-          background: linear-gradient(135deg, var(--color-danger-light) 0%, var(--color-danger) 100%);
-          color: white;
+          background: $color-error;
           
           &:hover {
-            background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+            background: color.adjust($color-error, $lightness: -10%);
           }
         }
       }

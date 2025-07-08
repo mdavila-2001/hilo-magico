@@ -333,7 +333,7 @@
     color: $color-gris-oscuro;
     
     &:hover {
-      background-color: darken($color-gris-claro, 5%);
+      background-color: color.adjust($color-gris-claro, $lightness: -5%);
     }
   }
   
@@ -342,7 +342,7 @@
     color: white;
     
     &:hover {
-      background-color: darken($color-rosa-pastel, 10%);
+      background-color: color.adjust($color-rosa-pastel, $lightness: -10%);
     }
   }
 }
@@ -374,7 +374,7 @@
       color: white;
       
       &:hover {
-        background-color: darken($color-rosa-pastel, 10%);
+        background-color: color.adjust($color-rosa-pastel, $lightness: -10%);
         color: white;
       }
     }

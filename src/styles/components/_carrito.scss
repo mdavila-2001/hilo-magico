@@ -25,7 +25,7 @@
   color: color-contrast($color);
   
   &:hover {
-    background-color: $color-hover or darken($color, 10%);
+    background-color: $color-hover or color.adjust($color, $lightness: -10%);
   }
   
   &:disabled {

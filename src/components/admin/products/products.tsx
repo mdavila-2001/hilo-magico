@@ -130,7 +130,7 @@ export default function ProductsPage() {
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product.id}>
                   <td className="px-6 py-4">
                     <img
                       src={product.image}
@@ -140,7 +140,6 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4">{normalizeText(product.name)}</td>
                   <td className="px-6 py-4">${product.price.toFixed(2)}</td>
-                  <td className="px-6 py-4">{product.stock}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                       product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -149,14 +148,28 @@ export default function ProductsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button className="edit-btn" onClick={() => handleEdit(product)}>
-                      <i className="fas fa-edit"></i>
-                      {normalizeText('Editar')}
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-                      <i className="fas fa-trash"></i>
-                      {normalizeText('Eliminar')}
-                    </button>
+                    <div className={`w-full ${product.status === 'active' ? 'status-active' : 'status-inactive'}`}>
+                      {product.stock}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {normalizeText(product.status === 'active' ? 'Activo' : 'Inactivo')}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="product-actions">
+                      <button className="edit-btn" onClick={() => handleEdit(product)}>
+                        <i className="fas fa-edit"></i>
+                        {normalizeText('Editar')}
+                      </button>
+                      <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                        <i className="fas fa-trash"></i>
+                        {normalizeText('Eliminar')}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
